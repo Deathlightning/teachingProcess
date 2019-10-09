@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.kingsword.course.dao.SortCourseMapper">
+  <resultMap id="BaseResultMap" type="xyz.kingsword.course.pojo.SortCourse">
+    <id column="id" jdbcType="INTEGER" property="id"/>
+    <result column="tea_id" jdbcType="CHAR" property="teaId"/>
+    <result column="cou_id" jdbcType="CHAR" property="couId"/>
+    <result column="class_id" jdbcType="CHAR" property="classId"/>
+    <result column="student_num" jdbcType="INTEGER" property="studentNum"/>
+    <result column="classroom_id" jdbcType="INTEGER" property="classroomId"/>
+    <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
+    <result column="status" jdbcType="INTEGER" property="status"/>
+    <result column="flag" jdbcType="INTEGER" property="flag"/>
+    <result column="merged_id" jdbcType="CHAR" property="mergedId"/>
+  </resultMap>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select *
+    from sortcourse
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="search" resultMap="BaseResultMap">
+    select *
+    <if test="classId !=null">
+      ,JSON_CONTAINS ( class_id, #{classId,jdbcType=CHAR}, '$' ) as flag
+    </if>
+    from sortcourse
+    <where>
+      <if test="teaId !=null">
+        tea_id=#{teaId}
+      </if>
+      <if test="couId !=null">
+        and cou_id=#{couId}
+      </if>
+      <if test="classroomId !=null">
+        and classroom_id=#{classroomId}
+      </if>
+      <if test="semesterId !=null">
+        and semester_id=#{semesterId}
+      </if>
+      <if test="courseName !=null">
+        and cou_id in (select id from course where `name` like concat('%',#{courseName},'%') )
+      </if>
+    </where>
+    order by semester_id
+  </select>
+  <select id="getById" resultMap="BaseResultMap">
+    select * from sortcourse where id in (
+    <foreach collection="list" item="item" separator=",">
+      #{item}
+    </foreach>
+    )
+  </select>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="xyz.kingsword.course.pojo.SortCourse"
+          useGeneratedKeys="true">
+    insert into sortcourse(cou_id, tea_id, class_id, student_num, classroom_id, semester_id, `merged_id`)
+    values (#{couId}, #{teaId}, #{classId}, #{studentNum}, #{classroomId}, #{semesterId}, #{mergedId})
+  </insert>
+
+  <insert id="insertList" keyColumn="id" keyProperty="id" parameterType="xyz.kingsword.course.pojo.SortCourse"
+          useGeneratedKeys="true">
+    insert into sortcourse(cou_id,tea_id,class_id,student_num,classroom_id,semester_id,`merged_id`)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.couId},#{item.teaId},#{item.classId},#{item.studentNum},#{item.classroomId},#{item.semesterId},#{item.mergedId})
+    </foreach>
+  </insert>
+
+  <update id="deleteSortCourseRecord">
+    update sortcourse
+    set `status` = -2
+    where id in (
+    <foreach collection="list" item="item" separator=",">
+      #{item}
+    </foreach>
+    )
+  </update>
+  <update id="setTeacher">
+    update sortcourse
+    set tea_id=#{teaId}
+    where id = #{id}
+  </update>
+
+  <update id="restoreCourseHead">
+    update sortcourse set `status`=0
+    where id in (
+    <foreach collection="list" item="item" separator=",">
+      #{item}
+    </foreach>
+  </update>
+</mapper>

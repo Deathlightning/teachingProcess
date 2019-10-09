@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.kingsword.course.dao.CourseMapper">
+  <resultMap id="BaseResultMap" type="xyz.kingsword.course.pojo.Course">
+    <id column="id" jdbcType="CHAR" property="id"/>
+    <result column="name" jdbcType="CHAR" property="name"/>
+    <result column="teacher_in_charge" jdbcType="CHAR" property="teacherInCharge"/>
+    <result column="type" jdbcType="INTEGER" property="type"/>
+    <result column="core" jdbcType="BIT" property="core"/>
+    <result column="nature" jdbcType="INTEGER" property="nature"/>
+    <result column="credit" jdbcType="INTEGER" property="credit"/>
+    <result column="colleges_or_departments" jdbcType="CHAR" property="collegesOrDepartments"/>
+    <result column="examination_way" jdbcType="CHAR" property="examinationWay"/>
+    <result column="coach" jdbcType="CHAR" property="coach"/>
+    <result column="coach_teacher" jdbcType="CHAR" property="coachTeacher"/>
+    <result column="research_room_id" jdbcType="INTEGER" property="researchRoomId"/>
+    <result column="assessment_way" jdbcType="INTEGER" property="assessmentWay"/>
+    <result column="text_book" jdbcType="CHAR" property="textBook"/>
+    <result column="reference_book" jdbcType="CHAR" property="referenceBook"/>
+    <result column="homework_proportion" jdbcType="INTEGER" property="homeworkProportion"/>
+    <result column="test_proportion" jdbcType="DOUBLE" property="testProportion"/>
+    <result column="lab_proportion" jdbcType="DOUBLE" property="labProportion"/>
+    <result column="attendance_proportion" jdbcType="DOUBLE" property="attendanceProportion"/>
+    <result column="performance_proportion" jdbcType="DOUBLE" property="performanceProportion"/>
+    <result column="paper_proportion" jdbcType="REAL" property="paperProportion"/>
+    <result column="other_proportion" jdbcType="DOUBLE" property="otherProportion"/>
+    <result column="exam_proportion" jdbcType="DOUBLE" property="examProportion"/>
+    <result column="time_week" jdbcType="INTEGER" property="timeWeek"/>
+    <result column="theory_week" jdbcType="INTEGER" property="theoryWeek"/>
+    <result column="week_num" jdbcType="INTEGER" property="weekNum"/>
+    <result column="time_theory" jdbcType="INTEGER" property="timeTheory"/>
+    <result column="time_practical" jdbcType="INTEGER" property="timePractical"/>
+    <result column="time_computer" jdbcType="INTEGER" property="timeComputer"/>
+    <result column="time_lab" jdbcType="INTEGER" property="timeLab"/>
+    <result column="time_homework" jdbcType="INTEGER" property="timeHomework"/>
+    <result column="time_all" jdbcType="INTEGER" property="timeAll"/>
+  </resultMap>
+
+  <resultMap id="TeacherCourseMap" type="xyz.kingsword.course.pojo.TeacherGroup">
+    <result column="sort_id" jdbcType="CHAR" property="sortId"/>
+    <result column="cou_id" jdbcType="CHAR" property="courseId"/>
+    <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
+    <result column="course_name" jdbcType="CHAR" property="courseName"/>
+    <result column="tea_id" jdbcType="CHAR" property="teaId"/>
+    <result column="tea_name" jdbcType="CHAR" property="teacherName"/>
+    <result column="class_name" jdbcType="CHAR" property="className"/>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete
+    from course
+    where id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="xyz.kingsword.course.pojo.Course">
+    insert into course (id, `name`, teacher_in_charge,
+                        type, core, nature, credit, coach, coach_teacher,
+                        colleges_or_departments, examination_way, research_room_id,
+                        assessment_way, text_book, reference_book,
+                        homework_proportion, test_proportion, lab_proportion,
+                        attendance_proportion, performance_proportion,
+                        paper_proportion, other_proportion, exam_proportion,
+                        time_week, week_num, time_theory,
+                        time_practical, time_computer, time_lab,
+                        time_homework, time_all, theory_week)
+    values (#{id,jdbcType=CHAR}, #{name,jdbcType=CHAR}, #{teacherInCharge,jdbcType=CHAR},
+            #{type,jdbcType=INTEGER}, #{core,jdbcType=BIT}, #{nature,jdbcType=INTEGER}, #{credit,jdbcType=INTEGER},
+            #{coach,jdbcType=CHAR}, #{coachTeacher,jdbcType=CHAR},
+            #{collegesOrDepartments,jdbcType=CHAR}, #{examinationWay,jdbcType=CHAR}, #{researchRoomId,jdbcType=INTEGER},
+            #{assessmentWay,jdbcType=INTEGER}, #{textBook,jdbcType=CHAR}, #{referenceBook,jdbcType=CHAR},
+            #{homeworkProportion,jdbcType=INTEGER}, #{testProportion,jdbcType=DOUBLE}, #{labProportion,jdbcType=DOUBLE},
+            #{attendanceProportion,jdbcType=DOUBLE}, #{performanceProportion,jdbcType=DOUBLE},
+            #{paperProportion,jdbcType=REAL}, #{otherProportion,jdbcType=DOUBLE}, #{examProportion,jdbcType=DOUBLE},
+            #{timeWeek,jdbcType=INTEGER}, #{weekNum,jdbcType=INTEGER}, #{timeTheory,jdbcType=INTEGER},
+            #{timePractical,jdbcType=INTEGER}, #{timeComputer,jdbcType=INTEGER}, #{timeLab,jdbcType=INTEGER},
+            #{timeHomework,jdbcType=INTEGER}, #{timeAll,jdbcType=INTEGER}, #{theoryWeek,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="xyz.kingsword.course.pojo.Course">
+    update course
+    set `name`                  = #{name,jdbcType=CHAR},
+        teacher_in_charge       = #{teacherInCharge,jdbcType=CHAR},
+        type                    = #{type,jdbcType=INTEGER},
+        core                    = #{core,jdbcType=BIT},
+        nature                  = #{nature,jdbcType=INTEGER},
+        credit                  = #{credit,jdbcType=INTEGER},
+        colleges_or_departments = #{collegesOrDepartments,jdbcType=CHAR},
+        coach                   =#{coach,jdbcType=CHAR},
+        coach_teacher           =#{coachTeacher,jdbcType=CHAR},
+        examination_way         = #{examinationWay,jdbcType=CHAR},
+        research_room_id        = #{researchRoomId,jdbcType=INTEGER},
+        assessment_way          = #{assessmentWay,jdbcType=INTEGER},
+        homework_proportion     = #{homeworkProportion,jdbcType=INTEGER},
+        test_proportion         = #{testProportion,jdbcType=DOUBLE},
+        lab_proportion          = #{labProportion,jdbcType=DOUBLE},
+        attendance_proportion   = #{attendanceProportion,jdbcType=DOUBLE},
+        performance_proportion  = #{performanceProportion,jdbcType=DOUBLE},
+        paper_proportion        = #{paperProportion,jdbcType=REAL},
+        other_proportion        = #{otherProportion,jdbcType=DOUBLE},
+        exam_proportion         = #{examProportion,jdbcType=DOUBLE},
+        time_week               = #{timeWeek,jdbcType=INTEGER},
+        week_num                = #{weekNum,jdbcType=INTEGER},
+        time_theory             = #{timeTheory,jdbcType=INTEGER},
+        time_practical          = #{timePractical,jdbcType=INTEGER},
+        time_computer           = #{timeComputer,jdbcType=INTEGER},
+        time_lab                = #{timeLab,jdbcType=INTEGER},
+        time_homework           = #{timeHomework,jdbcType=INTEGER},
+        time_all                = #{timeAll,jdbcType=INTEGER},
+        theory_week             = #{theoryWeek,jdbcType=INTEGER}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select *
+    from course
+    where id = #{id,jdbcType=CHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select *
+    from course
+  </select>
+  <delete id="deleteCourse">
+    delete course
+    where id in
+    <foreach collection="list" index="index" item="item"
+             separator="," open="(" close=")">
+      #{item,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+  <select id="findCourse" resultMap="BaseResultMap">
+    select * from course
+    <where>
+      <if test="name != ''">
+        and `name` like concat ('%',#{name,jdbcType=VARCHAR},'%')
+      </if>
+      <if test="researchRoomId != -1">
+        and research_room_id=#{researchRoomId,jdbcType=INTEGER}
+      </if>
+    </where>
+  </select>
+  <update id="setTeacherInCharge">
+    update course
+    set teacher_in_charge=#{teaId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <select id="getAllCourseByIdList" resultMap="BaseResultMap">
+    select * from course
+    where id in
+    <foreach collection="list" item="item" separator="," open="(" close=")">
+      #{item,jdbcType=CHAR}
+    </foreach>
+  </select>
+  <select id="findCourseById" resultMap="BaseResultMap">
+    select *
+    from course
+    where id = #{id};
+  </select>
+
+  <select id="getCourseOnSemester" resultMap="BaseResultMap">
+    SELECT *
+    FROM
+    course
+    JOIN sortcourse ON course.id = sortcourse.cou_id
+    AND sortcourse.`status` = 0
+    AND semester_id = #{semesterId}
+    <if test="courseName!=null and courseName != ''">
+      where `name` like concat ('%',#{courseName,jdbcType=VARCHAR},'%')
+    </if>
+  </select>
+
+  <update id="addCourseBook">
+    select @json := text_book
+    from course
+    where id = #{courseId};
+    select @json := JSON_ARRAY_APPEND(@json, '$', #{bookId});
+    update course
+    set text_book=@json
+    WHERE id = #{courseId};
+  </update>
+
+  <select id="getCourseByTeacher" resultMap="TeacherCourseMap">
+    select *
+    from course_group_view
+    <where>
+      <if test="semesterId !=null and semesterId !=''">
+        semester_id = #{semesterId}
+      </if>
+      <if test="teacherId != null and teacherId !=''">
+        and tea_id = #{teacherId}
+      </if>
+    </where>
+  </select>
+  <select id="selectTeacherGroup" resultMap="TeacherCourseMap">
+    select *
+    from course_group_view
+    where semester_id = #{semesterId}
+      and cou_id = #{courseId,jdbcType=CHAR}
+  </select>
+  <select id="getCourseByInCharge" resultMap="BaseResultMap">
+    select *
+    from course
+    where teacher_in_charge = #{teaId}
+  </select>
+</mapper>

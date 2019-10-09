@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.kingsword.course.dao.TrainingProgramMapper">
+  <resultMap id="BaseResultMap" type="xyz.kingsword.course.pojo.TrainingProgram">
+    <id column="id" jdbcType="INTEGER" property="id"/>
+    <result column="course_id" jdbcType="CHAR" property="courseId"/>
+    <result column="course_name" jdbcType="CHAR" property="courseName"/>
+    <result column="credit" jdbcType="REAL" property="credit"/>
+    <result column="core" jdbcType="BIT" property="core"/>
+    <result column="colleges_or_departments" jdbcType="CHAR" property="collegesOrDepartments"/>
+    <result column="examination_way" jdbcType="CHAR" property="examinationWay"/>
+    <result column="time_all" jdbcType="REAL" property="timeAll"/>
+    <result column="time_theory" jdbcType="REAL" property="timeTheory"/>
+    <result column="time_lab" jdbcType="REAL" property="timeLab"/>
+    <result column="time_practical" jdbcType="REAL" property="timePractical"/>
+    <result column="time_computer" jdbcType="REAL" property="timeComputer"/>
+    <result column="time_other" jdbcType="REAL" property="timeOther"/>
+    <result column="start_semester" jdbcType="INTEGER" property="startSemester"/>
+    <result column="grade" jdbcType="INTEGER" property="grade"/>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="("
+                           separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="("
+                           separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select *
+    from training_program
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete
+    from training_program
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="xyz.kingsword.course.pojo.TrainingProgram">
+    insert into training_program (id, course_id, course_name,
+                                  credit, core, colleges_or_departments,
+                                  examination_way, time_all, time_theory,
+                                  time_lab, time_practical, time_computer,
+                                  time_other, start_semester, grade)
+    values (#{id,jdbcType=INTEGER}, #{courseId,jdbcType=CHAR}, #{courseName,jdbcType=CHAR},
+            #{credit,jdbcType=REAL}, #{core,jdbcType=BIT}, #{collegesOrDepartments,jdbcType=CHAR},
+            #{examinationWay,jdbcType=CHAR}, #{timeAll,jdbcType=REAL}, #{timeTheory,jdbcType=REAL},
+            #{timeLab,jdbcType=REAL}, #{timePractical,jdbcType=REAL}, #{timeComputer,jdbcType=REAL},
+            #{timeOther,jdbcType=REAL}, #{startSemester,jdbcType=INTEGER}, #{grade,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="xyz.kingsword.course.pojo.TrainingProgram">
+    insert into training_program
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="courseId != null">
+        course_id,
+      </if>
+      <if test="courseName != null">
+        course_name,
+      </if>
+      <if test="credit != null">
+        credit,
+      </if>
+      <if test="core != null">
+        core,
+      </if>
+      <if test="collegesOrDepartments != null">
+        colleges_or_departments,
+      </if>
+      <if test="examinationWay != null">
+        examination_way,
+      </if>
+      <if test="timeAll != null">
+        time_all,
+      </if>
+      <if test="timeTheory != null">
+        time_theory,
+      </if>
+      <if test="timeLab != null">
+        time_lab,
+      </if>
+      <if test="timePractical != null">
+        time_practical,
+      </if>
+      <if test="timeComputer != null">
+        time_computer,
+      </if>
+      <if test="timeOther != null">
+        time_other,
+      </if>
+      <if test="startSemester != null">
+        start_semester,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="courseId != null">
+        #{courseId,jdbcType=CHAR},
+      </if>
+      <if test="courseName != null">
+        #{courseName,jdbcType=CHAR},
+      </if>
+      <if test="credit != null">
+        #{credit,jdbcType=REAL},
+      </if>
+      <if test="core != null">
+        #{core,jdbcType=BIT},
+      </if>
+      <if test="collegesOrDepartments != null">
+        #{collegesOrDepartments,jdbcType=CHAR},
+      </if>
+      <if test="examinationWay != null">
+        #{examinationWay,jdbcType=CHAR},
+      </if>
+      <if test="timeAll != null">
+        #{timeAll,jdbcType=REAL},
+      </if>
+      <if test="timeTheory != null">
+        #{timeTheory,jdbcType=REAL},
+      </if>
+      <if test="timeLab != null">
+        #{timeLab,jdbcType=REAL},
+      </if>
+      <if test="timePractical != null">
+        #{timePractical,jdbcType=REAL},
+      </if>
+      <if test="timeComputer != null">
+        #{timeComputer,jdbcType=REAL},
+      </if>
+      <if test="timeOther != null">
+        #{timeOther,jdbcType=REAL},
+      </if>
+      <if test="startSemester != null">
+        #{startSemester,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <!--  多条件查询-->
+  <select id="select" resultMap="BaseResultMap">
+    select training_program.*
+    from training_program
+    <where>
+      <if test="grade != null">
+        and grade=#{grade}
+      </if>
+      <if test="courseName !=null and courseName !='' ">
+        and course_name like CONCAT('%','${courseName}','%' )
+      </if>
+    </where>
+    order by grade,start_semester,course_id
+  </select>
+  <select id="selectByCourseIdGrade" resultMap="BaseResultMap">
+    select *
+    from training_program
+    where course_id = #{courseId}
+      and grade = #{grade}
+  </select>
+  <select id="getGrades" resultType="java.lang.Integer">
+    select distinct grade
+    from training_program
+    order by grade
+  </select>
+  <select id="getByCourseId" resultMap="BaseResultMap">
+    select *
+    from training_program
+    where course_id = #{courseId}
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="xyz.kingsword.course.pojo.TrainingProgram">
+    update training_program
+    <set>
+      <if test="courseId != null">
+        course_id = #{courseId,jdbcType=CHAR},
+      </if>
+      <if test="courseName != null">
+        course_name = #{courseName,jdbcType=CHAR},
+      </if>
+      <if test="credit != null">
+        credit = #{credit,jdbcType=REAL},
+      </if>
+      <if test="core != null">
+        core = #{core,jdbcType=BIT},
+      </if>
+      <if test="collegesOrDepartments != null">
+        colleges_or_departments = #{collegesOrDepartments,jdbcType=CHAR},
+      </if>
+      <if test="examinationWay != null">
+        examination_way = #{examinationWay,jdbcType=CHAR},
+      </if>
+      <if test="timeAll != null">
+        time_all = #{timeAll,jdbcType=REAL},
+      </if>
+      <if test="timeTheory != null">
+        time_theory = #{timeTheory,jdbcType=REAL},
+      </if>
+      <if test="timeLab != null">
+        time_lab = #{timeLab,jdbcType=REAL},
+      </if>
+      <if test="timePractical != null">
+        time_practical = #{timePractical,jdbcType=REAL},
+      </if>
+      <if test="timeComputer != null">
+        time_computer = #{timeComputer,jdbcType=REAL},
+      </if>
+      <if test="timeOther != null">
+        time_other = #{timeOther,jdbcType=REAL},
+      </if>
+      <if test="startSemester != null">
+        start_semester = #{startSemester,jdbcType=INTEGER},
+      </if>
+      <if test="grade != null">
+        grade = #{grade,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="xyz.kingsword.course.pojo.TrainingProgram">
+    update training_program
+    set course_id               = #{courseId,jdbcType=CHAR},
+        course_name             = #{courseName,jdbcType=CHAR},
+        credit                  = #{credit,jdbcType=REAL},
+        core                    = #{core,jdbcType=BIT},
+        colleges_or_departments = #{collegesOrDepartments,jdbcType=CHAR},
+        examination_way         = #{examinationWay,jdbcType=CHAR},
+        time_all                = #{timeAll,jdbcType=REAL},
+        time_theory             = #{timeTheory,jdbcType=REAL},
+        time_lab                = #{timeLab,jdbcType=REAL},
+        time_practical          = #{timePractical,jdbcType=REAL},
+        time_computer           = #{timeComputer,jdbcType=REAL},
+        time_other              = #{timeOther,jdbcType=REAL},
+        start_semester          = #{startSemester,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!--    insertList-->
+  <insert id="insertList" parameterType="xyz.kingsword.course.pojo.TrainingProgram">
+    insert into training_program (course_id, course_name,
+    credit, core, examination_way,
+    time_all, time_theory, time_lab,
+    time_practical, time_computer, time_other,
+    start_semester,
+    colleges_or_departments,
+    grade
+    )
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (
+      #{item.courseId,jdbcType=CHAR},
+      #{item.courseName,jdbcType=CHAR},
+      #{item.credit,jdbcType=REAL},
+      #{item.core,jdbcType=BIT},
+      #{item.examinationWay,jdbcType=CHAR},
+      #{item.timeAll,jdbcType=REAL},
+      #{item.timeTheory,jdbcType=REAL},
+      #{item.timeLab,jdbcType=REAL},
+      #{item.timePractical,jdbcType=REAL},
+      #{item.timeComputer,jdbcType=REAL},
+      #{item.timeOther,jdbcType=REAL},
+      #{item.startSemester,jdbcType=INTEGER},
+      #{item.collegesOrDepartments,jdbcType=CHAR},
+      #{item.grade,jdbcType=INTEGER}
+      )
+    </foreach>
+  </insert>
+</mapper>

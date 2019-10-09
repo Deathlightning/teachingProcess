@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.kingsword.course.dao.BuyBookMapper">
+    <resultMap id="BaseResultMap" type="xyz.kingsword.course.pojo.BuyBook">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="stu_id" jdbcType="CHAR" property="stuId"/>
+        <result column="course_id" jdbcType="CHAR" property="courseId"/>
+        <result column="book_id" jdbcType="INTEGER" property="bookId"/>
+        <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
+        <collection column="book_id" property="book" ofType="xyz.kingsword.course.pojo.Book"
+                    select="selectBookById">
+        </collection>
+    </resultMap>
+
+    <select id="selectBookById" resultMap="xyz.kingsword.course.dao.BookMapper.BaseResultMap">
+        select * from book where id = #{book_id}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from buybook
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="xyz.kingsword.course.pojo.BuyBook">
+    insert into buybook (id, stu_id, course_id, 
+      book_id, semester_id)
+    values (#{id,jdbcType=INTEGER}, #{stuId,jdbcType=CHAR}, #{courseId,jdbcType=CHAR}, 
+      #{bookId,jdbcType=INTEGER}, #{semesterId,jdbcType=CHAR})
+  </insert>
+    <update id="updateByPrimaryKey" parameterType="xyz.kingsword.course.pojo.BuyBook">
+    update buybook
+    set stu_id = #{stuId,jdbcType=CHAR},
+      course_id = #{courseId,jdbcType=CHAR},
+      book_id = #{bookId,jdbcType=INTEGER},
+      semester_id = #{semesterId,jdbcType=CHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, stu_id, course_id, book_id, semester_id
+    from buybook
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+    select id, stu_id, course_id, book_id, semester_id
+    from buybook
+  </select>
+    <select id="findHistoryRecordByStuIdAndSemesterId" resultMap="BaseResultMap">
+      select * from buybook
+      where stu_id=#{stuId,jdbcType=VARCHAR}  and semester_id=#{semesterId,jdbcType=VARCHAR}
+    </select>
+    <insert id="subscribeBook">
+        insert into buybook (stu_id, course_id,
+        book_id, semester_id) values
+        <foreach collection="list" item="item" index="index" open="" close="" separator=",">
+            (
+            #{item.stuId,jdbcType=CHAR},
+            #{item.courseId,jdbcType=CHAR},
+            #{item.bookId,jdbcType=INTEGER},
+            #{item.semesterId,jdbcType=CHAR}
+            )
+        </foreach>
+    </insert>
+    <delete id="deleteByIdList">
+        delete buybook
+        where id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item,jdbcType=INTEGER}
+        </foreach>
+    </delete>
+    <delete id="deleteByBookId">
+        delete buybook
+        where stu_id=#{stuId,jdbcType=VARCHAR} and book_id=#{bookId}
+    </delete>
+    <select id="getRecordByStuId" resultMap="BaseResultMap">
+        select * from buybook
+
+        where stu_id=#{stuId,jdbcType=VARCHAR}
+    </select>
+</mapper>

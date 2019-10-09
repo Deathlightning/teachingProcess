@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.kingsword.course.dao.ClassesMapper">
+  <resultMap id="BaseResultMap" type="xyz.kingsword.course.pojo.Classes">
+    <id column="id" jdbcType="INTEGER" property="id"/>
+    <result column="classname" jdbcType="CHAR" property="classname"/>
+    <result column="student_num" jdbcType="INTEGER" property="studentNum"/>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete
+    from classes
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="xyz.kingsword.course.pojo.Classes">
+    insert into classes (id, classname, student_num)
+    values (#{id,jdbcType=INTEGER}, #{classname,jdbcType=CHAR}, #{studentNum,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="xyz.kingsword.course.pojo.Classes">
+    update classes
+    set classname   = #{classname,jdbcType=CHAR},
+        student_num = #{studentNum,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, classname, student_num
+    from classes
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, classname, student_num
+    from classes
+    order by classname
+  </select>
+  <select id="findByName" resultMap="BaseResultMap">
+    select *
+    from classes
+    where classname in (
+    <foreach collection="list" separator="," item="item">
+      #{item}
+    </foreach>
+    )
+  </select>
+  <select id="selectSchoolClass" resultType="java.lang.String">
+    select classname
+    from classes
+    where admission_time &lt;= #{admissionTime,jdbcType=INTEGER}
+  </select>
+  <select id="selectByIdList" resultMap="BaseResultMap">
+    select * from classes where id in (
+    <foreach collection="list" item="item" separator=",">
+      #{item}
+    </foreach>
+    )
+  </select>
+</mapper>

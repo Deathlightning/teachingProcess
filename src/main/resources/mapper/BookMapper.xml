@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.kingsword.course.dao.BookMapper">
+  <resultMap id="BaseResultMap" type="xyz.kingsword.course.pojo.Book">
+    <result column="id" jdbcType="INTEGER" property="id"/>
+    <result column="isbn" jdbcType="CHAR" property="isbn"/>
+    <result column="name" jdbcType="CHAR" property="name"/>
+    <result column="author" jdbcType="CHAR" property="author"/>
+    <result column="publish" jdbcType="CHAR" property="publish"/>
+    <result column="price" jdbcType="CHAR" property="price"/>
+    <result column="note" jdbcType="VARCHAR" property="note"/>
+    <result column="tea_id" jdbcType="CHAR" property="teaId"/>
+    <result column="status" jdbcType="INTEGER" property="status"/>
+    <result column="pub_date" jdbcType="CHAR" property="pubDate"/>
+    <result column="award" jdbcType="CHAR" property="award"/>
+    <result column="edition" jdbcType="CHAR" property="edition"/>
+    <result column="for_teacher" jdbcType="INTEGER" property="forTeacher"/>
+    <result column="img_url" jdbcType="CHAR" property="imgUrl"/>
+  </resultMap>
+
+  <resultMap id="CourseBookMap" type="xyz.kingsword.course.pojo.CourseBook">
+    <result column="course_id" jdbcType="CHAR" property="courseId"/>
+    <result column="course_name" jdbcType="CHAR" property="courseName"/>
+    <result column="nature" jdbcType="INTEGER" property="nature"/>
+    <result column="class_name" jdbcType="CHAR" property="className"/>
+    <result column="text_book" jdbcType="CHAR" property="textBook"/>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="("
+                           separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="("
+                           separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, isbn, name, author, publish, price, note, tea_id, status, pub_date, award, edition,
+    for_teacher
+  </sql>
+  <insert id="insert" parameterType="xyz.kingsword.course.pojo.Book" useGeneratedKeys="true" keyProperty="id">
+    insert into book (isbn, `name`, author,
+                      publish, price, note, tea_id,
+                      `status`, pub_date, award, edition,
+                      for_teacher, img_url)
+    values (#{isbn,jdbcType=CHAR}, #{name,jdbcType=CHAR}, #{author,jdbcType=CHAR},
+            #{publish,jdbcType=CHAR}, #{price,jdbcType=CHAR}, #{note,jdbcType=VARCHAR}, #{teaId,jdbcType=CHAR},
+            #{status,jdbcType=INTEGER}, #{pubDate,jdbcType=CHAR}, #{award,jdbcType=CHAR}, #{edition,jdbcType=CHAR},
+            #{forTeacher,jdbcType=INTEGER},
+            #{imgUrl,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="xyz.kingsword.course.pojo.Book">
+    insert into book
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="isbn != null">
+        isbn,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="author != null">
+        author,
+      </if>
+      <if test="publish != null">
+        publish,
+      </if>
+      <if test="price != null">
+        price,
+      </if>
+      <if test="note != null">
+        note,
+      </if>
+      <if test="teaId != null">
+        tea_id,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="pubDate != null">
+        pub_date,
+      </if>
+      <if test="award != null">
+        award,
+      </if>
+      <if test="edition != null">
+        edition,
+      </if>
+      <if test="forTeacher != null">
+        for_teacher,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="isbn != null">
+        #{isbn,jdbcType=CHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=CHAR},
+      </if>
+      <if test="author != null">
+        #{author,jdbcType=CHAR},
+      </if>
+      <if test="publish != null">
+        #{publish,jdbcType=CHAR},
+      </if>
+      <if test="price != null">
+        #{price,jdbcType=CHAR},
+      </if>
+      <if test="note != null">
+        #{note,jdbcType=VARCHAR},
+      </if>
+      <if test="teaId != null">
+        #{teaId,jdbcType=CHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="pubDate != null">
+        #{pubDate,jdbcType=CHAR},
+      </if>
+      <if test="award != null">
+        #{award,jdbcType=CHAR},
+      </if>
+      <if test="edition != null">
+        #{edition,jdbcType=CHAR},
+      </if>
+      <if test="forTeacher != null">
+        #{forTeacher,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="update">
+    update book
+    <set>
+      `name` = #{name,jdbcType=CHAR},
+      author = #{author,jdbcType=CHAR},
+      publish = #{publish,jdbcType=CHAR},
+      price = #{price,jdbcType=CHAR},
+      note = #{note,jdbcType=VARCHAR},
+      pub_date = #{pubDate,jdbcType=CHAR},
+      award = #{award,jdbcType=CHAR},
+      edition = #{edition,jdbcType=CHAR},
+      for_teacher = #{forTeacher,jdbcType=INTEGER}
+    </set>
+    where id = #{id}
+  </update>
+
+
+  <update id="updateForTeacher">
+    update book
+    set for_teacher=#{num}
+    where id = #{id}
+  </update>
+
+  <select id="selectBookList" resultMap="BaseResultMap">
+    select * from book where id in (
+    <foreach collection="list" item="item" index="index" separator=",">
+      #{item}
+    </foreach>
+    )
+  </select>
+  <select id="selectBookByPrimaryKey" resultMap="BaseResultMap">
+    select *
+    from book
+    where id = #{id}
+  </select>
+  <!--  每本书每个班订了多少-->
+  <!--  <select id="purchaseRecord" resultType="java.lang.Integer">-->
+  <!--    SELECT count(student.id)-->
+  <!--    FROM student-->
+  <!--    JOIN buybook ON student.id = buybook.stu_id-->
+  <!--    AND semester_id = #{semesterId}-->
+  <!--    AND buybook.book_id-->
+  <!--    in-->
+  <!--    <foreach collection="list" item="item" index="index" separator="," open="(" close=")">-->
+  <!--      #{item}-->
+  <!--    </foreach>-->
+  <!--    GROUP BY-->
+  <!--    book_id-->
+  <!--    ORDER BY book_id-->
+  <!--  </select>-->
+  <select id="purchaseRecord" resultType="java.lang.Integer">
+    SELECT count(student.id)
+    FROM student
+           JOIN buybook ON student.id = buybook.stu_id
+      AND buybook.book_id = #{bookId}
+  </select>
+  <select id="getCourseBook" resultMap="CourseBookMap">
+    select cou_id as course_id, course.name as course_name, nature, class_name, course.text_book
+    from course
+           join sortcourse
+                on course.id = sortcourse.cou_id
+                  and sortcourse.semester_id = #{semesterId}
+                  and sortcourse.status = 0
+    order by sortcourse.cou_id
+  </select>
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.kingsword.course.dao.StudentMapper">
+  <resultMap id="BaseResultMap" type="xyz.kingsword.course.pojo.Student">
+    <result column="id" jdbcType="CHAR" property="id"/>
+    <result column="password" jdbcType="CHAR" property="password"/>
+    <result column="name" jdbcType="CHAR" property="name"/>
+    <result column="class_name" jdbcType="CHAR" property="className"/>
+    <result column="gender" jdbcType="VARCHAR" property="gender"/>
+    <result column="role" jdbcType="CHAR" property="role"/>
+  </resultMap>
+  <insert id="insert" parameterType="xyz.kingsword.course.pojo.Student">
+    insert into student (id, password, name, class_name,
+                         gender, role)
+    values (#{id,jdbcType=CHAR}, #{password,jdbcType=CHAR}, #{name,jdbcType=CHAR}, #{className,jdbcType=CHAR},
+            #{gender,jdbcType=VARCHAR}, #{role,jdbcType=CHAR})
+  </insert>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, password, name, class_name, gender, role
+    from student
+  </select>
+  <delete id="deleteById">
+    delete student
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <select id="findByName" resultMap="BaseResultMap">
+    select *
+    from student
+    where name like concat('%', #{name,jdbcType=VARCHAR}, "%")
+  </select>
+  <select id="getById" resultMap="BaseResultMap">
+    select *
+    from student
+    where id = #{id};
+  </select>
+  <update id="updateStudent" parameterType="xyz.kingsword.course.pojo.Student">
+    update student
+    set name=#{name,jdbcType=VARCHAR},
+        class_name=#{className,jdbcType=VARCHAR},
+        gender=#{gender,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

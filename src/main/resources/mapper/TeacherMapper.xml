@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.kingsword.course.dao.TeacherMapper">
+  <resultMap id="BaseResultMap" type="xyz.kingsword.course.pojo.Teacher">
+    <id column="id" jdbcType="CHAR" property="id"/>
+    <result column="password" jdbcType="CHAR" property="password"/>
+    <result column="name" jdbcType="CHAR" property="name"/>
+    <result column="reasearch_id" jdbcType="INTEGER" property="reasearchId"/>
+    <result column="phone" jdbcType="CHAR" property="phone"/>
+    <result column="email" jdbcType="CHAR" property="email"/>
+    <result column="department_school" jdbcType="CHAR" property="departmentSchool"/>
+    <result column="teaching_title" jdbcType="CHAR" property="teachingTitle"/>
+    <result column="education" jdbcType="VARCHAR" property="education"/>
+    <result column="gender" jdbcType="VARCHAR" property="gender"/>
+    <result column="role" jdbcType="CHAR" property="role"/>
+    <result column="course_in_charge" jdbcType="CHAR" property="courseInCharge"/>
+    <result column="specialty_in_charge" jdbcType="CHAR" property="specialtyInCharge"/>
+  </resultMap>
+  <resultMap id="TeacherGroupMap" type="xyz.kingsword.course.pojo.TeacherGroup">
+    <id column="id" property="id" jdbcType="INTEGER"/>
+    <result column="sort_id" jdbcType="CHAR" property="sortId"/>
+    <result column="cou_id" jdbcType="CHAR" property="courseId"/>
+    <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
+    <result column="course_name" jdbcType="CHAR" property="courseName"/>
+    <result column="tea_id" jdbcType="CHAR" property="teaId"/>
+    <result column="tea_name" jdbcType="CHAR" property="teacherName"/>
+    <result column="class_name" jdbcType="CHAR" property="className"/>
+    <result column="calendar_id" jdbcType="CHAR" property="calendarId"/>
+  </resultMap>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete
+    from teacher
+    where id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="xyz.kingsword.course.pojo.Teacher">
+    insert into teacher (id, password, name, reasearch_id,
+                         phone, email, department_school,
+                         teaching_title, education, gender, role,
+                         course_in_charge, specialty_in_charge)
+    values (#{id,jdbcType=CHAR}, #{password,jdbcType=CHAR}, #{name,jdbcType=CHAR}, #{reasearchId,jdbcType=INTEGER},
+            #{phone,jdbcType=CHAR}, #{email,jdbcType=CHAR}, #{departmentSchool,jdbcType=CHAR},
+            #{teachingTitle,jdbcType=VARCHAR}, #{education,jdbcType=VARCHAR}, #{gender,jdbcType=VARCHAR},
+            #{role,jdbcType=CHAR},
+            #{courseInCharge,jdbcType=CHAR}, #{specialtyInCharge,jdbcType=CHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="xyz.kingsword.course.pojo.Teacher">
+    update teacher
+    set `name`              = #{name,jdbcType=CHAR},
+        reasearch_id        = #{reasearchId,jdbcType=INTEGER},
+        phone               = #{phone,jdbcType=CHAR},
+        email               = #{email,jdbcType=CHAR},
+        department_school   = #{departmentSchool,jdbcType=CHAR},
+        teaching_title=#{teachingTitle,jdbcType=VARCHAR},
+        education           = #{education,jdbcType=VARCHAR},
+        gender              = #{gender,jdbcType=VARCHAR},
+        `role`              = #{role,jdbcType=CHAR},
+        course_in_charge    = #{courseInCharge,jdbcType=CHAR},
+        specialty_in_charge = #{specialtyInCharge,jdbcType=CHAR}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <!--  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">-->
+  <!--    select id,-->
+  <!--           password,-->
+  <!--           name,-->
+  <!--           reasearch_id,-->
+  <!--           phone,-->
+  <!--           email,-->
+  <!--           department_school,-->
+  <!--           teaching_title,-->
+  <!--           education,-->
+  <!--           gender,-->
+  <!--           role,-->
+  <!--           course_in_charge,-->
+  <!--           specialty_in_charge-->
+  <!--    from teacher-->
+  <!--    where id = #{id,jdbcType=CHAR}-->
+  <!--  </select>-->
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id,
+           password,
+           name,
+           reasearch_id,
+           phone,
+           email,
+           teaching_title,
+           department_school,
+           education,
+           gender,
+           role,
+           course_in_charge,
+           specialty_in_charge
+    from teacher
+  </select>
+  <update id="updateResearch">
+    update teacher
+    set reasearch_id=#{researchId,jdbcType=VARCHAR}
+    where id = #{teaId,jdbcType=VARCHAR}
+  </update>
+  <select id="findTeacherByName" resultMap="BaseResultMap">
+    select id,
+           name,
+           reasearch_id,
+           phone,
+           email,
+           department_school,
+           role,
+           teaching_title,
+           education,
+           course_in_charge,
+           specialty_in_charge
+    from teacher
+    where name like concat('%', #{name}, '%')
+  </select>
+  <select id="getAllTeacherByRole" resultMap="BaseResultMap">
+    select id,
+           `name`,
+           reasearch_id,
+           phone,
+           teaching_title,
+           email,
+           department_school,
+           `role`,
+           education,
+           gender,
+           course_in_charge,
+           specialty_in_charge
+    from teacher
+    where role like concat('%', #{roleId}, '%')
+  </select>
+
+  <select id="getTeacherGroup" resultMap="TeacherGroupMap">
+    SELECT *
+    from course_group_view
+    where semester_id = #{semesterId}
+      and cou_id = #{courseId}
+  </select>
+
+  <select id="countTeacherGroup" resultType="java.lang.Integer">
+    SELECT count(tea_id)
+    from course_group_view
+    where semester_id = #{semesterId}
+      and cou_id = #{courseId}
+  </select>
+  <select id="getAllTeacherByCourseName" resultMap="BaseResultMap">
+    SELECT t.id,
+           t.`name`,
+           t.reasearch_id,
+           t.phone,
+           t.email,
+           t.department_school,
+           t.`role`,
+           t.education,
+           t.course_in_charge,
+           t.specialty_in_charge
+    FROM sortcourse
+           LEFT JOIN course c ON c.id = sortcourse.cou_id
+           LEFT JOIN teacher t ON t.id = sortcourse.tea_id
+    WHERE c.name = #{name,jdbcType=VARCHAR}
+  </select>
+  <select id="getTeacherGroupOnTeacher" resultMap="TeacherGroupMap">
+    select *
+    from course_group_view
+    where semester_id = #{semesterId}
+      and tea_id = #{teaId}
+  </select>
+  <select id="getById" resultMap="BaseResultMap">
+    select *
+    from teacher
+    where id = #{id}
+  </select>
+  <select id="getByName" resultMap="BaseResultMap">
+    select *
+    from teacher
+    where name = #{name}
+  </select>
+
+</mapper>
