@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import xyz.kingsword.course.exception.AuthException;
+import xyz.kingsword.course.exception.BaseException;
 import xyz.kingsword.course.pojo.Result;
 
 /**
@@ -16,24 +18,24 @@ import xyz.kingsword.course.pojo.Result;
 public class ExceptionHandle {
 
     @ExceptionHandler(value = AuthException.class)
+    @ResponseBody
     public Result exceptionGet(AuthException e) {
         log.error("【权限异常】{}", e.getMessage());
-        return new Result();
+        return new Result(e.getErrorEnum());
     }
 
-    @ExceptionHandler(value = ValidateException.class)
-    public String exceptionGet(ValidateException e, Model model) {
-        model.addAttribute("errorMessage", e.getMessage());
-        log.error("【系统异常】{}", e.getMessage());
-        e.printStackTrace();
-        return "error/errorMessage";
+    @ExceptionHandler(value = BaseException.class)
+    @ResponseBody
+    public Result exceptionGet(BaseException e) {
+        return new Result(-1, e.getMessage());
     }
 
 
     @ExceptionHandler(value = Exception.class)
-    public String exceptionGet(Exception e) {
+    @ResponseBody
+    public Result exceptionGet(Exception e) {
         log.error("【系统异常】{}", e.getMessage());
         e.printStackTrace();
-        return "error/500";
+        return new Result(-1, "系统异常");
     }
 }

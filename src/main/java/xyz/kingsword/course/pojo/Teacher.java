@@ -11,7 +11,7 @@ public class Teacher {
 
     private String name;
 
-    private Integer reasearchId;
+    private Integer researchId;
 
     private String phone;
 

@@ -5,7 +5,7 @@
     <id column="id" jdbcType="CHAR" property="id"/>
     <result column="password" jdbcType="CHAR" property="password"/>
     <result column="name" jdbcType="CHAR" property="name"/>
-    <result column="reasearch_id" jdbcType="INTEGER" property="reasearchId"/>
+    <result column="reasearch_id" jdbcType="INTEGER" property="researchId"/>
     <result column="phone" jdbcType="CHAR" property="phone"/>
     <result column="email" jdbcType="CHAR" property="email"/>
     <result column="department_school" jdbcType="CHAR" property="departmentSchool"/>
@@ -38,7 +38,7 @@
                          phone, email, department_school,
                          teaching_title, education, gender, role,
                          course_in_charge, specialty_in_charge)
-    values (#{id,jdbcType=CHAR}, #{password,jdbcType=CHAR}, #{name,jdbcType=CHAR}, #{reasearchId,jdbcType=INTEGER},
+    values (#{id,jdbcType=CHAR}, #{password,jdbcType=CHAR}, #{name,jdbcType=CHAR}, #{researchId,jdbcType=INTEGER},
             #{phone,jdbcType=CHAR}, #{email,jdbcType=CHAR}, #{departmentSchool,jdbcType=CHAR},
             #{teachingTitle,jdbcType=VARCHAR}, #{education,jdbcType=VARCHAR}, #{gender,jdbcType=VARCHAR},
             #{role,jdbcType=CHAR},
@@ -47,7 +47,7 @@
   <update id="updateByPrimaryKey" parameterType="xyz.kingsword.course.pojo.Teacher">
     update teacher
     set `name`              = #{name,jdbcType=CHAR},
-        reasearch_id        = #{reasearchId,jdbcType=INTEGER},
+        reasearch_id        = #{researchId,jdbcType=INTEGER},
         phone               = #{phone,jdbcType=CHAR},
         email               = #{email,jdbcType=CHAR},
         department_school   = #{departmentSchool,jdbcType=CHAR},

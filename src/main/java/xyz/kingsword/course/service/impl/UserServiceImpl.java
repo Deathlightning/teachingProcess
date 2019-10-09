@@ -1,21 +1,23 @@
 package xyz.kingsword.course.service.impl;
 
-import cn.hutool.core.lang.Validator;
 import cn.hutool.crypto.SecureUtil;
-import com.alibaba.fastjson.JSONArray;
-import lombok.NonNull;
+import com.alibaba.fastjson.JSON;
+import org.apache.poi.ss.formula.functions.T;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import xyz.kingsword.course.VO.StudentVo;
+import xyz.kingsword.course.VO.TeacherVo;
 import xyz.kingsword.course.dao.StudentMapper;
 import xyz.kingsword.course.dao.TeacherMapper;
 import xyz.kingsword.course.dao.UserMapper;
+import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.exception.AuthException;
 import xyz.kingsword.course.exception.DataException;
 import xyz.kingsword.course.pojo.Student;
 import xyz.kingsword.course.pojo.Teacher;
 import xyz.kingsword.course.pojo.User;
 import xyz.kingsword.course.service.UserService;
-import xyz.kingsword.course.util.ConditionUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,15 +33,11 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 通过用户名进行登录
-     *
-     * @return
      */
     @Override
     public User login(User user) {
-        user = userMapper.login(user.getUsername(), user.getPassword());
-        Optional.ofNullable(user).orElseThrow(AuthException::new);
-//        取第一个角色设置为当前角色
-        user.setCurrentRole(Integer.parseInt(user.getRole()));
+        user = userMapper.login(user.getUsername(), SecureUtil.md5(user.getUsername() + user.getPassword()));
+        Optional.ofNullable(user).orElseThrow(() -> new AuthException("账号或密码不正确"));
         return user;
     }
 
@@ -53,16 +51,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Student getStudentInfo(String userId) {
-        Student student = studentMapper.getById(userId);
-        Optional.ofNullable(student).orElseThrow(DataException::new);
-        return student;
+    public Object getUserInfo(User user) {
+        if (isStudent(user)) {
+            StudentVo studentVo = new StudentVo();
+            Student student = studentMapper.getById(user.getUsername());
+            Optional.ofNullable(student).orElseThrow(DataException::new);
+            BeanUtils.copyProperties(student, studentVo);
+            return studentVo;
+        }
+        TeacherVo teacherVo = new TeacherVo();
+        Teacher teacher = teacherMapper.getById(user.getUsername());
+        Optional.ofNullable(teacher).orElseThrow(DataException::new);
+        BeanUtils.copyProperties(teacher, teacherVo);
+        teacherVo.setCurrentRole(user.getCurrentRole());
+        return teacherVo;
     }
 
-    @Override
-    public Teacher getTeacherInfo(String userId) {
-        Teacher teacher = teacherMapper.getById(userId);
-        Optional.ofNullable(teacher).orElseThrow(DataException::new);
-        return teacher;
+    private boolean isStudent(User user) {
+        List<Integer> roleList = JSON.parseArray(user.getRole()).toJavaList(Integer.class);
+        return roleList.get(0) == RoleEnum.STUDENT.getCode();
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import xyz.kingsword.course.VO.ResultVO;
-import xyz.kingsword.course.VO.TeacherVO;
+import xyz.kingsword.course.VO.TeacherVo;
 import xyz.kingsword.course.dao.TeacherMapper;
 import xyz.kingsword.course.pojo.Course;
 import xyz.kingsword.course.pojo.Teacher;
@@ -106,8 +106,8 @@ public class TeacherController {
     @ResponseBody
     public ResultVO getAllTeacher() {
         List<Teacher> list = teacherMapper.selectAll();
-        List<TeacherVO> teachers = list.stream().map(e -> {
-            TeacherVO teacherVO = new TeacherVO();
+        List<TeacherVo> teachers = list.stream().map(e -> {
+            TeacherVo teacherVO = new TeacherVo();
             BeanUtils.copyProperties(e, teacherVO);
             return teacherVO;
         }).collect(Collectors.toList());

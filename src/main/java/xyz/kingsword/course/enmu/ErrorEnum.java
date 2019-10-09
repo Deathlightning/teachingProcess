@@ -7,6 +7,7 @@ public enum ErrorEnum {
     /*
      * 错误信息
      * */
+    ERROR_LOGIN(400, "账号或密码不正确"),
     UN_LOGIN(401, "尚未登陆"),
     NO_AUTH(403, "没有权限"),
     OPERATION_ERROR(405, "您不能在此执行此操作"),

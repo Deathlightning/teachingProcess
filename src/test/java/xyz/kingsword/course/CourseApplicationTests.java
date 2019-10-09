@@ -7,6 +7,7 @@ import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.text.StrBuilder;
+import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSON;
 import com.deepoove.poi.data.RowRenderData;
 import com.deepoove.poi.data.TextRenderData;
@@ -50,6 +51,7 @@ public class CourseApplicationTests {
 
     @Test
     public void contextLoads() throws IOException {
+        System.out.println(SecureUtil.md5("201719044105"+SecureUtil.md5("123456")));
 //        List<String> random = new ArrayList<>();
 //        for (int i = 0; i < 1000000; i++) {
 //            random.add(UUID.randomUUID().toString());
