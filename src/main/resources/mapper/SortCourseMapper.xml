@@ -45,6 +45,12 @@
       <if test="courseName !=null and courseName!=''">
         and course_name like concat('%',#{courseName},'%')
       </if>
+      <if test="sortCourseFlag==-1">
+        and tea_id is null
+      </if>
+      <if test="sortCourseFlag==1">
+        and tea_id is not null
+      </if>
     </where>
     order by semester_id
   </select>
@@ -103,8 +109,17 @@
     where id in (
     <foreach collection="list" item="item" separator=",">
       #{item}
-    </foreach>
+    </foreach>)
   </update>
+
+  <update id="mergeCourseHead">
+    update sortcourse set `status`=-1
+    where id in (
+    <foreach collection="list" item="item" separator=",">
+      #{item}
+    </foreach>)
+  </update>
+
   <update id="setSortCourse">
     update sortcourse
     <set>

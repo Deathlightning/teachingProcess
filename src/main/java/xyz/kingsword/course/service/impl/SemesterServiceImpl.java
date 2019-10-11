@@ -8,12 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import xyz.kingsword.course.dao.SemesterMapper;
 import xyz.kingsword.course.pojo.Semester;
 import xyz.kingsword.course.service.SemesterService;
+import xyz.kingsword.course.util.TimeUtil;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 @Service
 public class SemesterServiceImpl implements SemesterService {
@@ -33,8 +34,10 @@ public class SemesterServiceImpl implements SemesterService {
 
 
     @Override
-    public int addSemester(Semester semester) {
-        return semesterMapper.insert(semester);
+    @Transactional
+    public void addSemester(Semester semester) {
+        semester.setName(TimeUtil.getSemesterName(semester.getId()));
+        semesterMapper.insert(semester);
     }
 
 

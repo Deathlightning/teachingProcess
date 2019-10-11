@@ -3,11 +3,9 @@ package xyz.kingsword.course.service;
 import com.github.pagehelper.PageInfo;
 import xyz.kingsword.course.pojo.Semester;
 
-import java.util.List;
-
 public interface SemesterService {
 
-    int addSemester(Semester semester);
+    void addSemester(Semester semester);
 
     int updateById(Semester semester);
 

@@ -9,13 +9,11 @@
     <result column="status" jdbcType="INTEGER" property="status"/>
   </resultMap>
   <insert id="insert" parameterType="xyz.kingsword.course.pojo.Semester">
-    insert into semester (id, name, start_time,
-                          end_time, status)
-    values (#{id,jdbcType=CHAR}, #{name,jdbcType=CHAR}, #{startTime,jdbcType=DATE},
-            #{endTime,jdbcType=DATE}, #{status,jdbcType=INTEGER})
+    insert into semester (id, `name`, start_time, end_time)
+    values (#{id,jdbcType=CHAR}, #{name,jdbcType=CHAR}, #{startTime,jdbcType=DATE}, #{endTime,jdbcType=DATE})
   </insert>
   <select id="selectAll" resultMap="BaseResultMap">
-    select id, name, start_time, end_time, status
+    select id, `name`, start_time, end_time, `status`
     from semester
   </select>
   <update id="updateById" parameterType="xyz.kingsword.course.pojo.Semester">

@@ -2,14 +2,17 @@ package xyz.kingsword.course.controller;
 
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import xyz.kingsword.course.pojo.Result;
 import xyz.kingsword.course.pojo.Semester;
 import xyz.kingsword.course.service.SemesterService;
-
-import java.util.List;
 
 /**
  * 学期起始时间在八月和九月间变动，无法确定，需要由管理员进行学期起始时间设置
@@ -24,7 +27,7 @@ public class SemesterController {
 
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     @ApiOperation("新增学期")
-    public Result addSemester(Semester semester) {
+    public Result addSemester(@RequestBody Semester semester) {
         semesterService.addSemester(semester);
         return new Result<>();
     }
@@ -36,17 +39,21 @@ public class SemesterController {
         return new Result();
     }
 
-    @RequestMapping("/getAll")
+    @RequestMapping(value = "/getAll", method = RequestMethod.GET)
     @ApiOperation("获取全部学期")
     public Result getAllSemester() {
         PageInfo<Semester> list = semesterService.getAllSemester(1, 10);
         return new Result<>(list);
     }
 
-    @GetMapping("/getFuture")
+    @RequestMapping(value = "/getFuture", method = RequestMethod.GET)
     @ApiOperation("获取当前以及未来学期")
-    public Result getFutureSemester() {
-        PageInfo<Semester> list = semesterService.getFutureSemester(1, 10);
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageNum", paramType = "query", dataType = "int",required = true),
+            @ApiImplicitParam(name = "pageSize", paramType = "query", dataType = "int",required = true)
+    })
+    public Result getFutureSemester(int pageNum, int pageSize) {
+        PageInfo<Semester> list = semesterService.getFutureSemester(pageNum, pageSize);
         return new Result<>(list);
     }
 }

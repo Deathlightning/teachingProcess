@@ -12,6 +12,8 @@ public enum ErrorEnum {
     ERROR_PARAMETER(402, "参数异常"),
     NO_AUTH(403, "没有权限"),
     OPERATION_ERROR(405, "您不能在此执行此操作"),
+    DIFFERENT_COURSE(406, "不同课程无法合并"),
+    DIFFERENT_TEACHER(407, "不同教师无法合并"),
     ERROR(500, "系统内部异常");
 
     private Integer code;

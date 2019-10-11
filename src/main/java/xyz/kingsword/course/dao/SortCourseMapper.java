@@ -17,8 +17,9 @@ public interface SortCourseMapper {
 
     SortCourse selectByPrimaryKey(Integer id);
 
-    int restoreCourseHead(List<Integer> idList);
+    int mergeCourseHead(List<Integer> idList);
 
+    int restoreCourseHead(List<Integer> idList);
 
     int setTeacher(@Param("id") Integer id, @Param("teaId") String teaId);
 

@@ -90,6 +90,7 @@ public class TimeUtil {
         return month >= 2 && month <= 7 ? 2 : 1;
     }
 
+
     /**
      * 获取上一学期或下一学期,根据当前学期，另一个学期不是1就是2
      *

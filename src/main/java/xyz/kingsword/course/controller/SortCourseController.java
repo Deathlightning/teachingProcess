@@ -41,8 +41,8 @@ public class SortCourseController {
 
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     @ApiOperation(value = "排课列表搜索接口")
-    @ApiImplicitParam(name = "searchParam", value = "排课数据查询参数，字段可任意组合，至少传一个", required = true, dataType = "SearchParam")
-    public Result search(@RequestBody SearchParam searchParam) {
+    @ApiImplicitParam(name = "searchParam", value = "排课数据查询参数，字段可任意组合，sortCourseFlag为排课标志,已分配为1，未分配-1，全部为0", required = true, dataType = "SearchParam")
+    public Result<PageInfo> search(@RequestBody SearchParam searchParam) {
         PageInfo pageInfo = sortCourseService.search(searchParam);
         return new Result<>(pageInfo);
     }

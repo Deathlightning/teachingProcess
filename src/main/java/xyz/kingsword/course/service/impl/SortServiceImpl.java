@@ -20,6 +20,7 @@ import xyz.kingsword.course.dao.CourseMapper;
 import xyz.kingsword.course.dao.SortCourseMapper;
 import xyz.kingsword.course.dao.TeacherMapper;
 import xyz.kingsword.course.enmu.CourseTypeEnum;
+import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.exception.DataException;
 import xyz.kingsword.course.exception.OperationException;
 import xyz.kingsword.course.pojo.Classes;
@@ -134,12 +135,15 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
             mergedIdList.add(sortCourse.getId());
             classIdList.addAll(JSON.parseArray(sortCourse.getClassId()));
             studentNum += sortCourse.getStudentNum();
-            sortCourse.setStatus(-1);
         }
-
-        mainSortCourse.setClassId(classIdList.toJSONString());
+//将课程id去重
+        List<Object> collect = classIdList.stream().distinct().collect(toList());
+        mainSortCourse.setClassId(JSON.toJSONString(collect));
         mainSortCourse.setStudentNum(studentNum);
         mainSortCourse.setMergedId(JSON.toJSONString(mergedIdList));
+
+        sortcourseMapper.mergeCourseHead(idList);
+        sortcourseMapper.insert(mainSortCourse);
     }
 
     /**
@@ -148,18 +152,24 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
     @Override
     public void restoreCourseHead(List<Integer> idList) {
         sortcourseMapper.deleteSortCourseRecord(idList);
-        sortcourseMapper.restoreCourseHead(idList);
+        List<SortCourse> sortCourseList = sortcourseMapper.getById(idList);
+        List<Integer> mergedIdList = new ArrayList<>(sortCourseList.size() * 2);
+        for (SortCourse sortCourse : sortCourseList) {
+            mergedIdList.addAll(JSON.parseArray(sortCourse.getMergedId()).toJavaList(Integer.class));
+        }
+        mergedIdList = mergedIdList.stream().distinct().collect(Collectors.toList());
+        sortcourseMapper.restoreCourseHead(mergedIdList);
     }
 
     /**
      * 合并前检查courseId和teacherId
      */
     private void mergeCheck(List<SortCourse> sortCourseList) {
-        ConditionUtil.validateTrue(sortCourseList.size() != 1).orElseThrow(() -> new OperationException("单一课头无法合并"));
+        ConditionUtil.validateTrue(sortCourseList.size() != 1).orElseThrow(() -> new OperationException(ErrorEnum.OPERATION_ERROR));
         Set<String> set = sortCourseList.parallelStream().map(SortCourse::getCouId).collect(Collectors.toSet());
-        ConditionUtil.validateTrue(set.size() == 1).orElseThrow(() -> new OperationException("不同课程无法合并"));
+        ConditionUtil.validateTrue(set.size() == 1).orElseThrow(() -> new OperationException(ErrorEnum.DIFFERENT_COURSE));
         set = sortCourseList.parallelStream().map(SortCourse::getTeaId).collect(Collectors.toSet());
-        ConditionUtil.validateTrue(set.size() == 1).orElseThrow(() -> new OperationException("请检查被合并数据的排课情况"));
+        ConditionUtil.validateTrue(set.size() == 1).orElseThrow(() -> new OperationException(ErrorEnum.DIFFERENT_TEACHER));
     }
 
     private void setClassName(List<SortCourseVo> sortCourseVoList) {

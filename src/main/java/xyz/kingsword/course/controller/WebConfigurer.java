@@ -3,11 +3,11 @@ package xyz.kingsword.course.controller;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.*;
 
-
+/**
+ * 跨域配置
+ */
 @Configuration
 public class WebConfigurer implements WebMvcConfigurer {
-
-
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
