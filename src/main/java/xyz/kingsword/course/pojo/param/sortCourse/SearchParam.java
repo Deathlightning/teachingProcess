@@ -14,7 +14,6 @@ public class SearchParam {
     private String couId;
     private String courseName;
     private Integer classroomId;
-    private String classId;
     /**
      * 学期id
      */

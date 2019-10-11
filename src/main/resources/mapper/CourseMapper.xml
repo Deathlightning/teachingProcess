@@ -197,4 +197,11 @@
     from course
     where teacher_in_charge = #{teaId}
   </select>
+  <select id="getByIdList" resultMap="BaseResultMap">
+    select * from course where id in(
+    <foreach collection="list" item="item" separator=",">
+      #{item}
+    </foreach>
+    )
+  </select>
 </mapper>

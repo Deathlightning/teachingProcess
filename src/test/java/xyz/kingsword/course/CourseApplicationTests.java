@@ -1,13 +1,8 @@
 package xyz.kingsword.course;
 
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.date.TimeInterval;
 import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.io.resource.ClassPathResource;
-import cn.hutool.core.lang.Console;
-import cn.hutool.core.text.StrBuilder;
-import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSON;
 import com.deepoove.poi.data.RowRenderData;
 import com.deepoove.poi.data.TextRenderData;
@@ -20,24 +15,18 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.STJc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.ResourceUtils;
-import xyz.kingsword.course.dao.SortCourseMapper;
-import xyz.kingsword.course.pojo.SortCourse;
+import xyz.kingsword.course.VO.SortCourseVo;
 import xyz.kingsword.course.pojo.TeachingContent;
 import xyz.kingsword.course.pojo.param.sortCourse.SearchParam;
+import xyz.kingsword.course.service.SortCourseService;
 import xyz.kingsword.course.service.calendarExport.CalendarData;
 import xyz.kingsword.course.service.impl.ExecuteServiceImpl;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.RandomAccess;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -45,32 +34,14 @@ import java.util.stream.IntStream;
 public class CourseApplicationTests {
 
     @Autowired
-    private SortCourseMapper sortCourseMapper;
+    private SortCourseService sortCourseService;
     @Autowired
     private ExecuteServiceImpl executeService;
 
     @Test
     public void contextLoads() throws IOException {
-        System.out.println(SecureUtil.md5("201719044105"+SecureUtil.md5("123456")));
-//        List<String> random = new ArrayList<>();
-//        for (int i = 0; i < 1000000; i++) {
-//            random.add(UUID.randomUUID().toString());
-//        }
-//        for (int i = 0; i < 1000; i++) {
-//            TimeInterval timer = DateUtil.timer();
-//            List<String> list = new ArrayList<>();
-////            random.stream().filter(v -> v.contains("hs")).collect(Collectors.toList());
-//            for (String s : random) {
-//                if (s.contains("hs")) {
-//                    list.add(s);
-//                }
-//            }
-//            Console.log(timer.interval());
-//        }
-
-//        timer = DateUtil.timer();
-//        collect.stream().filter(v -> v / 2 == 0).collect(Collectors.toList());
-//        Console.log(timer.interval());
+        List<SortCourseVo> sortCourseList = sortCourseService.search(new SearchParam().setPageNum(1).setPageSize(10)).getList();
+        sortCourseList.forEach(System.out::println);
     }
 
     @Test

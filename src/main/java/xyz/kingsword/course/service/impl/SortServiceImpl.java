@@ -6,14 +6,15 @@ import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.ReUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import xyz.kingsword.course.VO.SortCourseVo;
 import xyz.kingsword.course.dao.ClassesMapper;
 import xyz.kingsword.course.dao.CourseMapper;
 import xyz.kingsword.course.dao.SortCourseMapper;
@@ -25,6 +26,7 @@ import xyz.kingsword.course.pojo.Classes;
 import xyz.kingsword.course.pojo.Course;
 import xyz.kingsword.course.pojo.SortCourse;
 import xyz.kingsword.course.pojo.param.sortCourse.SearchParam;
+import xyz.kingsword.course.pojo.param.sortCourse.UpdateParam;
 import xyz.kingsword.course.service.ExcelService;
 import xyz.kingsword.course.service.SortCourseService;
 import xyz.kingsword.course.util.ConditionUtil;
@@ -33,7 +35,10 @@ import xyz.kingsword.course.util.TimeUtil;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -73,6 +78,12 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
         ConditionUtil.validateTrue(flag != 0).orElseThrow(DataException::new);
     }
 
+    @Override
+    public void setSortCourse(UpdateParam updateParam) {
+        int flag = sortcourseMapper.setSortCourse(updateParam);
+        log.debug("排课更新数据：{}", flag);
+    }
+
 
     @Override
     public void deleteSortCourseRecord(List<Integer> id) {
@@ -80,13 +91,28 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
     }
 
     @Override
-    public PageInfo<SortCourse> search(SearchParam param) {
-        return null;
+    public List<SortCourseVo> getCourseHistory(String courseId) {
+        String nowSemesterId = TimeUtil.getFutureSemester().get(0).getId();
+        List<SortCourseVo> sortCourseVoList = sortcourseMapper.getCourseHistory(courseId, nowSemesterId);
+        setClassName(sortCourseVoList);
+        return sortCourseVoList;
     }
 
     @Override
-    public PageInfo<SortCourse> searchOnName(String couName) {
-        return null;
+//    需要优化
+    public List<SortCourseVo> getTeacherHistory(String teacherId) {
+        String nowSemesterId = TimeUtil.getFutureSemester().get(0).getId();
+        List<SortCourseVo> sortCourseVoList = sortcourseMapper.getTeacherHistory(teacherId, nowSemesterId);
+        setClassName(sortCourseVoList);
+        return sortCourseVoList;
+    }
+
+    @Override
+    public PageInfo<SortCourseVo> search(SearchParam param) {
+        PageInfo<SortCourseVo> pageInfo = PageHelper.startPage(param.getPageNum(), param.getPageSize()).doSelectPageInfo(() -> sortcourseMapper.search(param));
+        List<SortCourseVo> sortCourseVoList = pageInfo.getList();
+        setClassName(sortCourseVoList);
+        return pageInfo;
     }
 
 
@@ -134,6 +160,15 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
         ConditionUtil.validateTrue(set.size() == 1).orElseThrow(() -> new OperationException("不同课程无法合并"));
         set = sortCourseList.parallelStream().map(SortCourse::getTeaId).collect(Collectors.toSet());
         ConditionUtil.validateTrue(set.size() == 1).orElseThrow(() -> new OperationException("请检查被合并数据的排课情况"));
+    }
+
+    private void setClassName(List<SortCourseVo> sortCourseVoList) {
+        for (SortCourseVo sortCourseVo : sortCourseVoList) {
+            List<Classes> classesList = classesMapper.selectByIdList(JSON.parseArray(sortCourseVo.getClassId()).toJavaList(Integer.class));
+            String className = classesList.parallelStream().map(Classes::getClassname).collect(Collectors.joining(" "));
+            sortCourseVo.setClassName(className);
+            sortCourseVo.setSemesterName(TimeUtil.getSemesterName(sortCourseVo.getSemesterId()));
+        }
     }
 
 
@@ -213,17 +248,17 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
      * （课序号未导出）
      */
     private String[][] renderExportData(String semesterId) {
-        List<SortCourse> sortCourseList = sortcourseMapper.search(new SearchParam().setSemesterId(semesterId));
+        List<SortCourseVo> sortCourseList = sortcourseMapper.search(new SearchParam().setSemesterId(semesterId));
         String[][] data = new String[sortCourseList.size()][19];
         for (int i = 0; i < sortCourseList.size(); i++) {
-            SortCourse sortCourse = sortCourseList.get(i);
+            SortCourseVo sortCourseVo = sortCourseList.get(i);
             String[] strings = new String[20];
-            String courseId = sortCourse.getCouId();
+            String courseId = sortCourseVo.getCourseId();
             Course course = courseMapper.selectByPrimaryKey(courseId);
             strings[0] = String.valueOf(i + 1);
             strings[1] = courseId;
             strings[2] = course.getName();
-            List<Integer> idList = JSON.parseArray(sortCourse.getClassId()).toJavaList(Integer.class);
+            List<Integer> idList = JSON.parseArray(sortCourseVo.getClassId()).toJavaList(Integer.class);
             List<Classes> classesList = classesMapper.selectByIdList(idList);
             int allStudentNum = 0;
             strings[3] = "";
@@ -241,7 +276,7 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
             strings[8] = CourseTypeEnum.getContent(course.getType()).getContent();
             strings[9] = course.getNature() == 1 ? "选修" : "必修";
             strings[10] = course.getExaminationWay();
-            strings[11] = teacherMapper.getById(sortCourse.getTeaId()).getName();
+            strings[11] = sortCourseVo.getTeacherName();
             strings[12] = String.valueOf(course.getTimeTheory());
             strings[15] = String.valueOf(course.getTimeAll() - course.getTimeTheory());
             data[i] = strings;

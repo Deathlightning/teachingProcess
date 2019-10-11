@@ -59,13 +59,9 @@ public class HttpAspect {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes != null) {
             HttpServletRequest request = attributes.getRequest();
-
             log.info("aop url = {}", request.getRequestURL());
-            log.info("aop query = {}", request.getQueryString());
             log.info("aop method = {}", request.getMethod());
-//            log.info("aop class_method = {}",
-//                    joinPoint.getSignature().getDeclaringTypeName() + "," + joinPoint.getSignature().getName());
-//            log.info("aop args = {}", joinPoint.getArgs());
+            log.info("aop args = {}", joinPoint.getArgs());
         }
     }
 }

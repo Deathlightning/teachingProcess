@@ -3,8 +3,11 @@ package xyz.kingsword.course.service.impl;
 import cn.hutool.crypto.SecureUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.poi.ss.formula.functions.T;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import xyz.kingsword.course.VO.TeacherVo;
 import xyz.kingsword.course.dao.CourseMapper;
 import xyz.kingsword.course.dao.TeacherMapper;
 import xyz.kingsword.course.pojo.Teacher;
@@ -13,7 +16,9 @@ import xyz.kingsword.course.service.TeacherService;
 import xyz.kingsword.course.util.Constant;
 import xyz.kingsword.course.util.TimeUtil;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -58,7 +63,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<Teacher> getAllPersonIncharge() {
+    public List<Teacher> getAllPersonInCharge() {
         String roleId = "4"; //专业负责人id
         return teacherMapper.getAllTeacherByRole(roleId);
     }

@@ -9,6 +9,7 @@ public enum ErrorEnum {
      * */
     ERROR_LOGIN(400, "账号或密码不正确"),
     UN_LOGIN(401, "尚未登陆"),
+    ERROR_PARAMETER(402, "参数异常"),
     NO_AUTH(403, "没有权限"),
     OPERATION_ERROR(405, "您不能在此执行此操作"),
     ERROR(500, "系统内部异常");

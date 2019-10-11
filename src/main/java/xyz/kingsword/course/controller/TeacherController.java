@@ -2,6 +2,10 @@ package xyz.kingsword.course.controller;
 
 
 import com.github.pagehelper.PageInfo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,10 +15,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import xyz.kingsword.course.VO.ResultVO;
 import xyz.kingsword.course.VO.TeacherVo;
 import xyz.kingsword.course.dao.TeacherMapper;
-import xyz.kingsword.course.pojo.Course;
-import xyz.kingsword.course.pojo.Teacher;
-import xyz.kingsword.course.pojo.TeacherGroup;
-import xyz.kingsword.course.pojo.User;
+import xyz.kingsword.course.pojo.*;
 import xyz.kingsword.course.service.CourseService;
 import xyz.kingsword.course.service.TeacherService;
 import xyz.kingsword.course.util.ResultVOUtil;
@@ -22,9 +23,10 @@ import xyz.kingsword.course.util.contant.FormWorkPrefix;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Controller
+@RestController
+@RequestMapping("/teacher")
+@Api("教师管理")
 public class TeacherController {
 
     @Autowired
@@ -97,21 +99,21 @@ public class TeacherController {
 
     @RequestMapping("/teacherPersonInCharge")
     public String teacher(Model model) {
-        List<Teacher> list = teacherService.getAllPersonIncharge();
+        List<Teacher> list = teacherService.getAllPersonInCharge();
         model.addAttribute("list", list);
         return "admin/personInCharge";
     }
 
-    @RequestMapping("getAllTeacher")
+    @RequestMapping(value = "getAllTeacher",method = RequestMethod.POST)
     @ResponseBody
-    public ResultVO getAllTeacher() {
-        List<Teacher> list = teacherMapper.selectAll();
-        List<TeacherVo> teachers = list.stream().map(e -> {
-            TeacherVo teacherVO = new TeacherVo();
-            BeanUtils.copyProperties(e, teacherVO);
-            return teacherVO;
-        }).collect(Collectors.toList());
-        return ResultVOUtil.success(teachers);
+    @ApiOperation("查询全部老师信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageNum", value = "页码，从1开始", required = true, dataType = "int", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "最小值为1", required = true, dataType = "int", paramType = "query")
+    })
+    public Result getAllTeacher(int pageNum, int pageSize) {
+        PageInfo<Teacher> list = teacherService.getAllTeachers(pageNum, pageSize);
+        return new Result<>(list);
     }
 
     /**

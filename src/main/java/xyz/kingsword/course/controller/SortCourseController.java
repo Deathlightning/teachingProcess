@@ -4,32 +4,26 @@ import cn.hutool.core.exceptions.ValidateException;
 import cn.hutool.core.lang.Validator;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.POIDocument;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import xyz.kingsword.course.VO.ResultVO;
+import xyz.kingsword.course.VO.SortCourseVo;
 import xyz.kingsword.course.annocations.Role;
 import xyz.kingsword.course.pojo.Result;
-import xyz.kingsword.course.pojo.Semester;
 import xyz.kingsword.course.pojo.SortCourse;
-import xyz.kingsword.course.pojo.Teacher;
 import xyz.kingsword.course.pojo.param.sortCourse.SearchParam;
 import xyz.kingsword.course.pojo.param.sortCourse.UpdateParam;
 import xyz.kingsword.course.service.ExcelService;
 import xyz.kingsword.course.service.SortCourseService;
-import xyz.kingsword.course.service.TeacherService;
 import xyz.kingsword.course.util.ConditionUtil;
-import xyz.kingsword.course.util.ResultVOUtil;
 import xyz.kingsword.course.util.TimeUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -47,9 +41,26 @@ public class SortCourseController {
 
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     @ApiOperation(value = "排课列表搜索接口")
-    public Result search(@RequestBody SearchParam param) {
-        PageInfo pageInfo = sortCourseService.search(param);
+    @ApiImplicitParam(name = "searchParam", value = "排课数据查询参数，字段可任意组合，至少传一个", required = true, dataType = "SearchParam")
+    public Result search(@RequestBody SearchParam searchParam) {
+        PageInfo pageInfo = sortCourseService.search(searchParam);
         return new Result<>(pageInfo);
+    }
+
+    @RequestMapping(value = "/courseHistory", method = RequestMethod.GET)
+    @ApiOperation(value = "课程教授记录")
+    @ApiImplicitParam(name = "courseId", value = "课程id", paramType = "query", required = true, dataType = "String")
+    public Result courseHistory(String courseId) {
+        List<SortCourseVo> sortCourseVoList = sortCourseService.getCourseHistory(courseId);
+        return new Result<>(sortCourseVoList);
+    }
+
+    @RequestMapping(value = "/teacherHistory", method = RequestMethod.GET)
+    @ApiOperation(value = "课程教授记录")
+    @ApiImplicitParam(name = "teacherId", value = "教师id", paramType = "query", required = true, dataType = "String")
+    public Result teacherHistory(String teacherId) {
+        List<SortCourseVo> sortCourseVoList = sortCourseService.getTeacherHistory(teacherId);
+        return new Result<>(sortCourseVoList);
     }
 
 
@@ -62,14 +73,15 @@ public class SortCourseController {
     }
 
 
-    @RequestMapping(value = "/setTeacher", method = RequestMethod.PUT)
-    @ApiOperation(value = "给课程设置老师")
-    public Result setTeacher(@RequestBody UpdateParam param) {
-        sortCourseService.setTeacher(param.getId(), param.getTeaId());
+    @RequestMapping(value = "/setSortCourse", method = RequestMethod.PUT)
+    @ApiOperation(value = "给课程设置老师，或者给老师设置课程")
+    @ApiImplicitParam(name = "param", value = "id为排课数据id必传，其他任给一个", required = true, dataType = "UpdateParam")
+    public Result setSortCourse(@RequestBody UpdateParam param) {
+        sortCourseService.setSortCourse(param);
         return new Result();
     }
 
-    @RequestMapping(value = "/sortCourseImport",method = RequestMethod.POST)
+    @RequestMapping(value = "/sortCourseImport", method = RequestMethod.POST)
     @ResponseBody
     @ApiOperation(value = "排课数据导入")
     public Result sortCourseImport(MultipartFile file) throws IOException {
@@ -99,7 +111,7 @@ public class SortCourseController {
     /**
      * 教学任务导出
      */
-    @RequestMapping(value = "/sortCourseExport",method = RequestMethod.GET)
+    @RequestMapping(value = "/sortCourseExport", method = RequestMethod.GET)
     @ResponseBody
     @ApiOperation(value = "教学任务导出")
     public void export(HttpServletResponse response, @RequestBody String semesterId) throws IOException {

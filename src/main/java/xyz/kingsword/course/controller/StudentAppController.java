@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import xyz.kingsword.course.VO.ResultVO;
 import xyz.kingsword.course.pojo.BuyBook;
-import xyz.kingsword.course.pojo.SortCourse;
 import xyz.kingsword.course.pojo.Student;
 import xyz.kingsword.course.service.StudentAppService;
 import xyz.kingsword.course.util.Constant;
@@ -47,7 +46,7 @@ public class StudentAppController {
         System.out.println("buyBookList = " + buyBookList);
         buyBookList.forEach(e -> {
             e.setStuId(student.getId());
-            e.setSemesterId(TimeUtil.getNextSemesterId());
+            e.setSemesterId(TimeUtil.getFutureSemester().get(0).getId());
         });
         studentAppService.subscribeBook(buyBookList);
         return ResultVOUtil.success();

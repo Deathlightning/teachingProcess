@@ -2,6 +2,7 @@ package xyz.kingsword.course.service.impl;
 
 import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSON;
+import lombok.NonNull;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import xyz.kingsword.course.VO.TeacherVo;
 import xyz.kingsword.course.dao.StudentMapper;
 import xyz.kingsword.course.dao.TeacherMapper;
 import xyz.kingsword.course.dao.UserMapper;
+import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.exception.AuthException;
 import xyz.kingsword.course.exception.DataException;
@@ -37,17 +39,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public User login(User user) {
         user = userMapper.login(user.getUsername(), SecureUtil.md5(user.getUsername() + user.getPassword()));
-        Optional.ofNullable(user).orElseThrow(() -> new AuthException("账号或密码不正确"));
+        Optional.ofNullable(user).orElseThrow(() -> new AuthException(ErrorEnum.ERROR_LOGIN));
         return user;
     }
 
 
     @Override
-    public int resetPassword(String password, User user) {
+    public int resetPassword(@NonNull String password, @NonNull User user) {
         if (user.getCurrentRole() == 3) {
-            return userMapper.resetPasswordStudent(user.getUsername(), password);
+            return userMapper.resetPasswordStudent(user.getUsername(), SecureUtil.md5(user.getUsername() + SecureUtil.md5(password)));
         }
-        return userMapper.resetPasswordTeacher(user.getUsername(), password);
+        return userMapper.resetPasswordTeacher(user.getUsername(), SecureUtil.md5(user.getUsername() + SecureUtil.md5(password)));
     }
 
     @Override

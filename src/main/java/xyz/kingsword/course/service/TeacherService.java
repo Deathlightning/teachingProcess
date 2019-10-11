@@ -20,7 +20,7 @@ public interface TeacherService {
 
     PageInfo<Teacher> getAllTeachers(Integer pageNumber, Integer pageSize);
 
-    List<Teacher> getAllPersonIncharge();
+    List<Teacher> getAllPersonInCharge();
 
     int setResearch(String teaId, String researchId);
 

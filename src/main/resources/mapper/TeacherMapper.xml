@@ -78,8 +78,7 @@
   <!--  </select>-->
   <select id="selectAll" resultMap="BaseResultMap">
     select id,
-           password,
-           name,
+           `name`,
            reasearch_id,
            phone,
            email,
@@ -87,7 +86,7 @@
            department_school,
            education,
            gender,
-           role,
+           `role`,
            course_in_charge,
            specialty_in_charge
     from teacher
@@ -173,6 +172,13 @@
     select *
     from teacher
     where name = #{name}
+  </select>
+  <select id="getByIdList" resultMap="BaseResultMap">
+    select * from teacher where id in(
+    <foreach collection="list" separator="," item="item">
+      #{item}
+    </foreach>
+    )
   </select>
 
 </mapper>

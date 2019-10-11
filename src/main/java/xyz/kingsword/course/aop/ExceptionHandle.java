@@ -20,7 +20,7 @@ public class ExceptionHandle {
     @ExceptionHandler(value = AuthException.class)
     @ResponseBody
     public Result exceptionGet(AuthException e) {
-        log.error("【权限异常】{}", e.getMessage());
+        log.error("【权限异常】{}", e.getErrorEnum());
         return new Result(e.getErrorEnum());
     }
 

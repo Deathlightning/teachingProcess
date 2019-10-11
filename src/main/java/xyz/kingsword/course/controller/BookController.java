@@ -88,7 +88,7 @@ public class BookController {
 
     @RequestMapping(value = "/queryBook", method = RequestMethod.GET)
     public String queryBook(String ISBN, String courseId, Model model) {
-        List<TeacherGroup> teacherList = teacherService.getTeacherGroup(courseId, TimeUtil.getNextSemesterId(), 1, 10).getList();
+        List<TeacherGroup> teacherList = teacherService.getTeacherGroup(courseId, TimeUtil.getFutureSemester().get(0).getId(), 1, 10).getList();
         Book book = BookUtil.getBook(ISBN);
         model.addAttribute("courseId", courseId)
                 .addAttribute("book", book)

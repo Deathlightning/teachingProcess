@@ -1,7 +1,9 @@
 package xyz.kingsword.course.dao;
 
 import org.apache.ibatis.annotations.Param;
+import org.openxmlformats.schemas.drawingml.x2006.main.STAdjAngle;
 import xyz.kingsword.course.pojo.Course;
+import xyz.kingsword.course.pojo.SortCourse;
 import xyz.kingsword.course.pojo.TeacherGroup;
 
 import java.util.List;
@@ -13,6 +15,8 @@ public interface CourseMapper {
     int deleteCourse(List<String> list);
 
     Optional<Course> findCourseById(String id);
+
+    List<Course> getByIdList(List<String> idList);
 
     int insert(Course record);
 

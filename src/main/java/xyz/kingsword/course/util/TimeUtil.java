@@ -5,9 +5,11 @@ import cn.hutool.core.lang.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import xyz.kingsword.course.dao.SemesterMapper;
+import xyz.kingsword.course.pojo.Semester;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * 与学期，学年有关的日期util
@@ -29,24 +31,14 @@ public class TimeUtil {
         timeUtil = this;
     }
 
-    /**
-     * 获取下一学期的semester
-     *
-     * @return eg:18191
-     */
-    public static String getNextSemesterId() {
-        int semesterIndex = getOtherSemesterIndex();
-        return composeSemesterPrefix(semesterIndex);
-    }
 
     /**
      * 获取当前学期的semester
      *
      * @return eg:18191
      */
-    public static String getNowSemesterId() {
-        int semesterIndex = getNowSemesterIndex();
-        return composeSemesterPrefix(semesterIndex);
+    public static List<Semester> getFutureSemester() {
+        return timeUtil.semesterMapper.getFutureSemester();
     }
 
     /**

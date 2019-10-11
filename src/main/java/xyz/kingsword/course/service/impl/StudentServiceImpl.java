@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import xyz.kingsword.course.VO.SortCourseVo;
 import xyz.kingsword.course.dao.SortCourseMapper;
 import xyz.kingsword.course.dao.StudentMapper;
 import xyz.kingsword.course.pojo.SortCourse;
@@ -57,7 +58,8 @@ public class StudentServiceImpl implements StudentService {
      */
     @Override
     public List<SortCourse> getCurriculum(SearchParam param) {
-        List<SortCourse> sortCourseList = sortCourseMapper.search(param);
-        return sortCourseList.parallelStream().filter(v -> v.getFlag() == 1).collect(Collectors.toList());
+//        List<SortCourseVo> sortCourseList = sortCourseMapper.search(param);
+//        return sortCourseList.parallelStream().filter(v -> v.getFlag() == 1).collect(Collectors.toList());
+        return null;
     }
 }

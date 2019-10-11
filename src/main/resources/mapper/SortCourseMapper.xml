@@ -13,32 +13,37 @@
     <result column="flag" jdbcType="INTEGER" property="flag"/>
     <result column="merged_id" jdbcType="CHAR" property="mergedId"/>
   </resultMap>
+  <resultMap id="SortCourseViewMap" type="xyz.kingsword.course.VO.SortCourseVo">
+    <id column="id" jdbcType="INTEGER" property="id"/>
+    <result column="tea_id" jdbcType="CHAR" property="teacherId"/>
+    <result column="teacher_name" jdbcType="CHAR" property="teacherName"/>
+    <result column="cou_id" jdbcType="CHAR" property="courseId"/>
+    <result column="course_name" jdbcType="INTEGER" property="courseName"/>
+    <result column="nature" jdbcType="CHAR" property="nature"/>
+    <result column="student_num" jdbcType="INTEGER" property="studentNum"/>
+    <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
+    <result column="class_id" jdbcType="CHAR" property="classId"/>
+  </resultMap>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select *
     from sortcourse
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <select id="search" resultMap="BaseResultMap">
+  <select id="search" resultMap="SortCourseViewMap">
     select *
-    <if test="classId !=null">
-      ,JSON_CONTAINS ( class_id, #{classId,jdbcType=CHAR}, '$' ) as flag
-    </if>
-    from sortcourse
+    from sortcourse_view
     <where>
-      <if test="teaId !=null">
+      <if test="teaId !=null and teaId !=''">
         tea_id=#{teaId}
       </if>
-      <if test="couId !=null">
+      <if test="couId !=null and couId !=''">
         and cou_id=#{couId}
       </if>
-      <if test="classroomId !=null">
-        and classroom_id=#{classroomId}
-      </if>
-      <if test="semesterId !=null">
+      <if test="semesterId !=null and semesterId !=''">
         and semester_id=#{semesterId}
       </if>
-      <if test="courseName !=null">
-        and cou_id in (select id from course where `name` like concat('%',#{courseName},'%') )
+      <if test="courseName !=null and courseName!=''">
+        and course_name like concat('%',#{courseName},'%')
       </if>
     </where>
     order by semester_id
@@ -49,6 +54,19 @@
       #{item}
     </foreach>
     )
+  </select>
+  <select id="getTeacherHistory" resultMap="SortCourseViewMap">
+    SELECT *
+    from sortcourse_view
+    where tea_id = #{teacherId}
+      and semester_id &lt; #{semesterId}
+  </select>
+
+  <select id="getCourseHistory" resultMap="SortCourseViewMap">
+    SELECT *
+    from sortcourse_view
+    where cou_id = #{courseId}
+      and semester_id &lt; #{semesterId}
   </select>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="xyz.kingsword.course.pojo.SortCourse"
           useGeneratedKeys="true">
@@ -86,5 +104,17 @@
     <foreach collection="list" item="item" separator=",">
       #{item}
     </foreach>
+  </update>
+  <update id="setSortCourse">
+    update sortcourse
+    <set>
+      <if test="teacherId!=null and teacherId!=''">
+        tea_id=#{teacherId},
+      </if>
+      <if test="courseId!=null and courseId!=''">
+        `cou_id`=#{courseId}
+      </if>
+    </set>
+    where id=#{id}
   </update>
 </mapper>

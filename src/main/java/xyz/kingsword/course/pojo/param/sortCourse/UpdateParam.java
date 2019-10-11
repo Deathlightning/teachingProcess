@@ -8,6 +8,6 @@ import lombok.Data;
 @Data
 public class UpdateParam {
     private Integer id;
-    private String teaId;
-    private String couId;
+    private String teacherId;
+    private String courseId;
 }

@@ -14,6 +14,8 @@ public interface TeacherMapper {
 
     List<Teacher> selectAll();
 
+    List<Teacher> getByIdList(List<String> idList);
+
     List<Teacher> getAllTeacherByRole(@Param("roleId") String id);
 
     List<Teacher> findTeacherByName(@Param("name") String name);

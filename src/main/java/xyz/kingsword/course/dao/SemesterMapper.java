@@ -21,5 +21,4 @@ public interface SemesterMapper {
      */
     List<Semester> getFutureSemester();
 
-    Semester getNextSemester();
 }
