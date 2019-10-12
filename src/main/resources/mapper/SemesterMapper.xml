@@ -42,4 +42,12 @@
     order by id
     limit 1
   </select>
+
+
+  <!--根据id获取学期-->
+  <select id="findById" resultMap="BaseResultMap">
+    select *
+    from semester
+    where id = #{id,jdbcType=CHAR}
+  </select>
 </mapper>
