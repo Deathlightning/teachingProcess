@@ -15,14 +15,14 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.STJc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import xyz.kingsword.course.VO.SortCourseVo;
 import xyz.kingsword.course.pojo.TeachingContent;
-import xyz.kingsword.course.pojo.param.sortCourse.SearchParam;
 import xyz.kingsword.course.service.SortCourseService;
 import xyz.kingsword.course.service.calendarExport.CalendarData;
 import xyz.kingsword.course.service.impl.ExecuteServiceImpl;
+import xyz.kingsword.course.service.impl.SortServiceImpl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,8 +40,8 @@ public class CourseApplicationTests {
 
     @Test
     public void contextLoads() throws IOException {
-        List<SortCourseVo> sortCourseList = sortCourseService.search(new SearchParam().setPageNum(1).setPageSize(10)).getList();
-        sortCourseList.forEach(System.out::println);
+        InputStream inputStream = SortServiceImpl.class.getClassLoader().getResourceAsStream("templates/sortCourse.xls");
+        System.out.println(inputStream.available());
     }
 
     @Test

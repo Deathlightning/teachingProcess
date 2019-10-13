@@ -1,7 +1,6 @@
 package xyz.kingsword.course.pojo;
 
 import lombok.Data;
-import lombok.ToString;
 
 @Data
 public class Student {
@@ -11,10 +10,10 @@ public class Student {
 
     private String name;
 
-    private int classId;
+    private String className;
 
     private String gender;
 
-    private String role;
+    private final int roleId = 3;
 
 }

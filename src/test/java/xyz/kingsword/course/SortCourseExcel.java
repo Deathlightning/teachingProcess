@@ -23,7 +23,7 @@ public class SortCourseExcel {
 
     @Test
     public void excelImport() throws IOException {
-//      '  String a = "C:\\Users\\wang1\\Desktop\\19201教学任务.xls";
+//      '  String a = "C:\\Users\\wang1\\Desktop\\sortCourse.xls";
 //        List<SortCourse> sortCourseList = sortService.excelImport(new FileInputStream(a));
 //        sortCourseList.forEach(System.out::println);'
     }

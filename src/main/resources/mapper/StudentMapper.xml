@@ -7,26 +7,20 @@
     <result column="name" jdbcType="CHAR" property="name"/>
     <result column="class_name" jdbcType="CHAR" property="className"/>
     <result column="gender" jdbcType="VARCHAR" property="gender"/>
-    <result column="role" jdbcType="CHAR" property="role"/>
   </resultMap>
   <insert id="insert" parameterType="xyz.kingsword.course.pojo.Student">
-    insert into student (id, password, name, class_name,
-                         gender, role)
+    insert into student (id, password, name, class_name, gender, `role`)
     values (#{id,jdbcType=CHAR}, #{password,jdbcType=CHAR}, #{name,jdbcType=CHAR}, #{className,jdbcType=CHAR},
-            #{gender,jdbcType=VARCHAR}, #{role,jdbcType=CHAR})
+            #{gender,jdbcType=VARCHAR}, 3)
   </insert>
   <select id="selectAll" resultMap="BaseResultMap">
     select id, password, name, class_name, gender, role
     from student
   </select>
-  <delete id="deleteById">
-    delete student
-    where id = #{id,jdbcType=VARCHAR}
-  </delete>
   <select id="findByName" resultMap="BaseResultMap">
     select *
     from student
-    where name like concat('%', #{name,jdbcType=VARCHAR}, "%")
+    where name like concat('%', #{name,jdbcType=VARCHAR}, '%')
   </select>
   <select id="getById" resultMap="BaseResultMap">
     select *

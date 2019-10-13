@@ -6,15 +6,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import xyz.kingsword.course.VO.ResultVO;
-import xyz.kingsword.course.VO.TeacherVo;
-import xyz.kingsword.course.dao.TeacherMapper;
 import xyz.kingsword.course.pojo.*;
 import xyz.kingsword.course.service.CourseService;
 import xyz.kingsword.course.service.TeacherService;
@@ -33,21 +29,7 @@ public class TeacherController {
     private TeacherService teacherService;
 
     @Autowired
-    private TeacherMapper teacherMapper;
-
-    @Autowired
     private CourseService courseService;
-
-    @RequestMapping("teacherInfo")
-    public String teacherInfo(@RequestParam(defaultValue = "") String role,
-                              @RequestParam(defaultValue = "1") Integer pageNumber,
-                              @RequestParam(defaultValue = "15") Integer pageSize,
-                              Model model) {
-        PageInfo<Teacher> teacherPageInfo = teacherService.getAllTeachers(pageNumber, pageSize);
-        model.addAttribute("pageInfo", teacherPageInfo);
-        System.out.println(teacherPageInfo);
-        return "admin/teacherInfo";
-    }
 
 
     @RequestMapping("findTeacherByName")
@@ -104,12 +86,11 @@ public class TeacherController {
         return "admin/personInCharge";
     }
 
-    @RequestMapping(value = "getAllTeacher",method = RequestMethod.POST)
-    @ResponseBody
+    @RequestMapping(value = "getAllTeacher", method = RequestMethod.GET)
     @ApiOperation("查询全部老师信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageNum", value = "页码，从1开始", required = true, dataType = "int", paramType = "query"),
-            @ApiImplicitParam(name = "pageSize", value = "最小值为1", required = true, dataType = "int", paramType = "query")
+            @ApiImplicitParam(name = "pageSize", value = "全部可传0", required = true, dataType = "int", paramType = "query")
     })
     public Result getAllTeacher(int pageNum, int pageSize) {
         PageInfo<Teacher> list = teacherService.getAllTeachers(pageNum, pageSize);

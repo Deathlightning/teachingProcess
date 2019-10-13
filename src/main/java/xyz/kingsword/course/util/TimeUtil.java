@@ -86,8 +86,7 @@ public class TimeUtil {
      * @return 1 or 2
      */
 
-    //private 改为 public
-    public static int getNowSemesterIndex() {
+    private static int getNowSemesterIndex() {
         int month = LocalDate.now().getMonthValue();
         return month >= 2 && month <= 7 ? 2 : 1;
     }

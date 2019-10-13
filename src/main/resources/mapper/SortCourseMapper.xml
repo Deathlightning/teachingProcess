@@ -5,7 +5,7 @@
     <id column="id" jdbcType="INTEGER" property="id"/>
     <result column="tea_id" jdbcType="CHAR" property="teaId"/>
     <result column="cou_id" jdbcType="CHAR" property="couId"/>
-    <result column="class_id" jdbcType="CHAR" property="classId"/>
+    <result column="class" jdbcType="CHAR" property="className"/>
     <result column="student_num" jdbcType="INTEGER" property="studentNum"/>
     <result column="classroom_id" jdbcType="INTEGER" property="classroomId"/>
     <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
@@ -22,7 +22,7 @@
     <result column="nature" jdbcType="CHAR" property="nature"/>
     <result column="student_num" jdbcType="INTEGER" property="studentNum"/>
     <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
-    <result column="class_id" jdbcType="CHAR" property="classId"/>
+    <result column="class" jdbcType="CHAR" property="className"/>
   </resultMap>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select *
@@ -76,16 +76,16 @@
   </select>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="xyz.kingsword.course.pojo.SortCourse"
           useGeneratedKeys="true">
-    insert into sortcourse(cou_id, tea_id, class_id, student_num, classroom_id, semester_id, `merged_id`)
-    values (#{couId}, #{teaId}, #{classId}, #{studentNum}, #{classroomId}, #{semesterId}, #{mergedId})
+    insert into sortcourse(cou_id, tea_id, class, student_num, classroom_id, semester_id, `merged_id`)
+    values (#{couId}, #{teaId}, #{className}, #{studentNum}, #{classroomId}, #{semesterId}, #{mergedId})
   </insert>
 
   <insert id="insertList" keyColumn="id" keyProperty="id" parameterType="xyz.kingsword.course.pojo.SortCourse"
           useGeneratedKeys="true">
-    insert into sortcourse(cou_id,tea_id,class_id,student_num,classroom_id,semester_id,`merged_id`)
+    insert into sortcourse(cou_id,tea_id,class,student_num,classroom_id,semester_id,`merged_id`)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.couId},#{item.teaId},#{item.classId},#{item.studentNum},#{item.classroomId},#{item.semesterId},#{item.mergedId})
+      (#{item.couId},#{item.teaId},#{item.className},#{item.studentNum},#{item.classroomId},#{item.semesterId},#{item.mergedId})
     </foreach>
   </insert>
 

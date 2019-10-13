@@ -1,6 +1,7 @@
 package xyz.kingsword.course.VO;
 
 import lombok.Data;
+import xyz.kingsword.course.util.TimeUtil;
 
 @Data
 public class SortCourseVo {
@@ -33,8 +34,12 @@ public class SortCourseVo {
     private String semesterName;
 
     private String className;
-    private String classId;
 
 
     private static final long serialVersionUID = 1L;
+
+    public void setSemesterId(String semesterId) {
+        this.semesterId = semesterId;
+        this.semesterName = TimeUtil.getSemesterName(semesterId);
+    }
 }

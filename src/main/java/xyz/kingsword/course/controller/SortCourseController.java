@@ -82,7 +82,6 @@ public class SortCourseController {
     }
 
     @RequestMapping(value = "/sortCourseImport", method = RequestMethod.POST)
-    @ResponseBody
     @ApiOperation(value = "排课数据导入")
     public Result sortCourseImport(MultipartFile file) throws IOException {
         Optional.ofNullable(file).orElseThrow(() -> new ValidateException("文件上传错误"));
@@ -112,9 +111,9 @@ public class SortCourseController {
      * 教学任务导出
      */
     @RequestMapping(value = "/sortCourseExport", method = RequestMethod.GET)
-    @ResponseBody
     @ApiOperation(value = "教学任务导出")
-    public void export(HttpServletResponse response, @RequestBody String semesterId) throws IOException {
+    @ApiImplicitParam(name = "semesterId", required = true, dataType = "String", paramType = "query")
+    public void export(HttpServletResponse response, String semesterId) throws IOException {
         Workbook workbook = sortCourseService.excelExport(semesterId);
         String fileName = TimeUtil.getSemesterName(semesterId) + "教学任务.xls";
         fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), "ISO8859-1");

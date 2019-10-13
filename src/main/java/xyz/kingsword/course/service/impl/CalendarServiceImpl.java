@@ -91,7 +91,7 @@ public class CalendarServiceImpl implements CalendarService {
         CalendarData calendarData = renderExportData(calendarId);
         Constant.threadLocal.set(calendarData);
         //读取模版
-        ClassPathResource resource = new ClassPathResource("word/calendar.docx");
+        ClassPathResource resource = new ClassPathResource("templates/calendar.docx");
         Configure config = Configure.newBuilder().customPolicy("tableData", new TableRenderPolicy()).build();
         return XWPFTemplate.compile(resource.getStream(), config).render(calendarData);
     }

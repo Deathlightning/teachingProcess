@@ -9,13 +9,10 @@ import org.springframework.stereotype.Service;
 import xyz.kingsword.course.dao.BookMapper;
 import xyz.kingsword.course.dao.CourseMapper;
 import xyz.kingsword.course.exception.DataException;
-import xyz.kingsword.course.pojo.Book;
-import xyz.kingsword.course.pojo.CourseBook;
-import xyz.kingsword.course.pojo.TeacherGroup;
-import xyz.kingsword.course.pojo.TrainingProgram;
+import xyz.kingsword.course.pojo.*;
 import xyz.kingsword.course.service.BookService;
+import xyz.kingsword.course.service.ClassesService;
 import xyz.kingsword.course.service.ExcelService;
-import xyz.kingsword.course.util.ClassNameUtil;
 import xyz.kingsword.course.util.ConditionUtil;
 import xyz.kingsword.course.util.TimeUtil;
 
@@ -23,6 +20,7 @@ import javax.annotation.Resource;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,6 +29,8 @@ public class BookServiceImpl implements BookService, ExcelService {
     private BookMapper bookMapper;
     @Resource
     private CourseMapper courseMapper;
+    @Resource
+    private ClassesService classesService;
     /**
      * 在校的班级数量
      */
@@ -79,7 +79,7 @@ public class BookServiceImpl implements BookService, ExcelService {
         cellStyle1.setFont(font1);
         cellStyle2.setFont(font2);
 
-        List<String> classNameList = ClassNameUtil.getSchoolClass(Integer.parseInt(semesterId.substring(4)));
+        List<String> classNameList = classesService.getSchoolClass().parallelStream().map(Classes::getClassname).collect(Collectors.toList());
         this.classSize = classNameList.size();
         String[] row2Content = new String[15 + classSize];
         row2Content[0] = "课程号";

@@ -1,10 +1,8 @@
 package xyz.kingsword.course.pojo;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * SortCourse
@@ -37,7 +35,7 @@ public class SortCourse implements Serializable {
     private Integer status;
 
 
-    private String classId;
+    private String className;
 
     /**
      * 被合并的课头id

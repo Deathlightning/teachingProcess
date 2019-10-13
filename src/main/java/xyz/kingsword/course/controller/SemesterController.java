@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import xyz.kingsword.course.annocations.Role;
 import xyz.kingsword.course.pojo.Result;
 import xyz.kingsword.course.pojo.Semester;
 import xyz.kingsword.course.service.SemesterService;
@@ -27,6 +28,7 @@ public class SemesterController {
 
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     @ApiOperation("新增学期")
+    @Role({0})
     public Result addSemester(@RequestBody Semester semester) {
         semesterService.addSemester(semester);
         return new Result<>();
@@ -49,8 +51,8 @@ public class SemesterController {
     @RequestMapping(value = "/getFuture", method = RequestMethod.GET)
     @ApiOperation("获取当前以及未来学期")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", paramType = "query", dataType = "int",required = true),
-            @ApiImplicitParam(name = "pageSize", paramType = "query", dataType = "int",required = true)
+            @ApiImplicitParam(name = "pageNum", paramType = "query", dataType = "int", required = true),
+            @ApiImplicitParam(name = "pageSize", paramType = "query", dataType = "int", required = true)
     })
     public Result getFutureSemester(int pageNum, int pageSize) {
         PageInfo<Semester> list = semesterService.getFutureSemester(pageNum, pageSize);
