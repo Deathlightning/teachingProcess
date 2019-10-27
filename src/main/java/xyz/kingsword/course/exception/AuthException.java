@@ -1,7 +1,5 @@
 package xyz.kingsword.course.exception;
 
-import cn.hutool.core.exceptions.ValidateException;
-import lombok.Data;
 import lombok.Getter;
 import xyz.kingsword.course.enmu.ErrorEnum;
 
@@ -14,10 +12,6 @@ public class AuthException extends BaseException {
         this.errorEnum = errorEnum;
     }
 
-
-    public AuthException(String message) {
-        super(message);
-    }
 
     public AuthException() {
 

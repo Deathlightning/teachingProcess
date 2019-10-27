@@ -15,33 +15,33 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.STJc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import xyz.kingsword.course.dao.BookMapper;
 import xyz.kingsword.course.pojo.TeachingContent;
-import xyz.kingsword.course.service.SortCourseService;
+import xyz.kingsword.course.service.TrainingProgramService;
 import xyz.kingsword.course.service.calendarExport.CalendarData;
-import xyz.kingsword.course.service.impl.ExecuteServiceImpl;
-import xyz.kingsword.course.service.impl.SortServiceImpl;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class CourseApplicationTests {
-
     @Autowired
-    private SortCourseService sortCourseService;
+    private BookMapper bookMapper;
     @Autowired
-    private ExecuteServiceImpl executeService;
+    private TrainingProgramService trainingProgramService;
 
     @Test
-    public void contextLoads() throws IOException {
-        InputStream inputStream = SortServiceImpl.class.getClassLoader().getResourceAsStream("templates/sortCourse.xls");
-        System.out.println(inputStream.available());
+    public void contextLoads() {
+        Map<Integer, Long> collect = IntStream.of(1, 2, 3, 4).boxed().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
     }
 
     @Test

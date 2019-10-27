@@ -2,20 +2,32 @@ package xyz.kingsword.course.service;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import xyz.kingsword.course.pojo.Book;
+import xyz.kingsword.course.pojo.BookOrder;
 
 import java.util.List;
 
 public interface BookService {
 
-    Book getBookById(int id);
+    void insert(Book book, String courseId);
 
-    Workbook exportBookSubscription(String semesterId);
+    void delete(int id);
+
+    Book getBook(int id);
+
+    void update(Book book);
 
     void updateForTeacher(int num, int id);
 
-    List<Book> selectBookList(List<Integer> idList);
+    List<Book> getTextBook(String courseId);
 
-    void updateBook(Book book);
+    List<Book> getReferenceBook(String courseId);
 
-    void insert(Book book, String courseId);
+    List<Book> getByIdList(List<Integer> idList);
+
+    List<Book> getBookOrder(String studentId,String semesterId);
+
+    void purchase(List<BookOrder> bookOrderList);
+
+    Workbook exportBookSubscription(String semesterId);
+
 }

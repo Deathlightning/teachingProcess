@@ -1,73 +1,89 @@
 package xyz.kingsword.course.controller;
 
 import com.github.pagehelper.PageInfo;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import xyz.kingsword.course.pojo.ExecutePlan;
+import xyz.kingsword.course.VO.VerifyResult;
+import xyz.kingsword.course.pojo.ExecutionPlan;
+import xyz.kingsword.course.pojo.Result;
 import xyz.kingsword.course.pojo.TrainingProgram;
-import xyz.kingsword.course.service.ExcelService;
-import xyz.kingsword.course.service.ExecuteService;
+import xyz.kingsword.course.pojo.param.ExecutionPlanSearchParam;
+import xyz.kingsword.course.pojo.param.TrainingProgramSearchParam;
+import xyz.kingsword.course.service.ExecutionPlanService;
+import xyz.kingsword.course.service.ExecutionVerify;
 import xyz.kingsword.course.service.TrainingProgramService;
-import xyz.kingsword.course.util.ResultVOUtil;
-import xyz.kingsword.course.util.contant.FormWorkPrefix;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * 执行计划控制类
- */
-@Controller
+@RestController
 @RequestMapping("/executePlan")
+@Api(tags = "执行计划控制类")
 public class ExecutePlanController {
     @Resource
-    private TrainingProgramService trainingProgramService;
+    private ExecutionPlanService executionPlanService;
     @Resource
-    private ExecuteService executeService;
-    @Resource(name = "ExecuteServiceImpl")
-    private ExcelService<ExecutePlan> excelService;
+    private ExecutionVerify executionVerify;
+    @Resource
+    private TrainingProgramService trainingProgramService;
 
     /**
      * 通过上传执行计划检测与培养方案的不同
-     * errorList为存在问题的执行计划的课程id+课程名
      */
-    @RequestMapping(value = "/verify", method = RequestMethod.POST)
-    @ResponseBody
-    public Object verify(MultipartFile file) throws IOException {
-        List<ExecutePlan> executePlanList = excelService.excelImport(file.getInputStream());
-        final int grade = executePlanList.get(0).getGrade();
-        List<String> courseIdList = executePlanList.stream().map(ExecutePlan::getCourseId).collect(Collectors.toList());
-        List<TrainingProgram> trainingProgramList = trainingProgramService.getByCourseId(courseIdList).stream().filter(v -> v.getGrade() == grade).collect(Collectors.toList());
-        List<String> errorList = executeService.verify(executePlanList, trainingProgramList);
-        return ResultVOUtil.success(errorList);
+    @RequestMapping(value = "/import", method = RequestMethod.POST)
+    @ApiOperation("插入")
+    public Result importData(MultipartFile file, int grade, String semesterId, int specialityId) throws IOException {
+        List<ExecutionPlan> executionPlanList = executionPlanService.importData(file.getInputStream());
+        executionPlanList.parallelStream().forEach(v -> {
+            v.setGrade(grade);
+            v.setSemesterId(semesterId);
+            v.setSpecialityId(specialityId);
+        });
+        executionPlanService.insert(executionPlanList);
+        return new Result();
     }
 
-    /**
-     * 查看培养方案
-     *
-     * @param grade      对应届别 eg：2017级 2018级
-     * @param courseName 课程名称
-     */
-    @RequestMapping("/trainingProgramIndex")
-    public String trainingProgramIndex(Integer grade, String courseName,
-                                       @RequestParam(defaultValue = "1") int pageNum,
-                                       @RequestParam(defaultValue = "10") int pageSize,
-                                       Model model
-    ) {
-        PageInfo<TrainingProgram> pageInfo = trainingProgramService.select(grade, courseName, pageNum, pageSize);
-        List<Integer> gradeList = trainingProgramService.getGrades();
-        model.addAttribute("data", pageInfo)
-                .addAttribute("gradeList", gradeList)
-                .addAttribute("courseName", courseName)
-                .addAttribute("grade", grade)
-                .addAttribute("main", FormWorkPrefix.SPECIALTY + "/trainingProgramIndex");
-        return "index";
+    @RequestMapping(value = "/insert", method = RequestMethod.POST)
+    @ApiOperation("新增")
+    public Result insert(@RequestBody ExecutionPlan executionPlan) {
+        executionPlanService.insert(executionPlan);
+        return new Result();
+    }
+
+
+    @RequestMapping(value = "/select", method = RequestMethod.POST)
+    @ApiOperation("多条件查询,参数有自组合")
+    public Result select(@RequestBody ExecutionPlanSearchParam param) {
+        PageInfo<ExecutionPlan> pageInfo = executionPlanService.select(param);
+        return new Result<>(pageInfo);
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.PUT)
+    @ApiOperation("更新")
+    public Result update(@RequestBody ExecutionPlan executionPlan) {
+        executionPlanService.update(executionPlan);
+        return new Result();
+    }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    @ApiOperation("删除")
+    public Result delete(int id) {
+        executionPlanService.delete(Collections.singletonList(id));
+        return new Result();
+    }
+
+    @RequestMapping(value = "/verify", method = RequestMethod.GET)
+    @ApiOperation(value = "认证，三个参数必填")
+    public Result verify(int grade, String semesterId, int specialityId) {
+        ExecutionPlanSearchParam executionPlanSearchParam = ExecutionPlanSearchParam.builder().grade(grade).semesterId(semesterId).specialityId(specialityId).build();
+        TrainingProgramSearchParam trainingProgramSearchParam = TrainingProgramSearchParam.builder().grade(grade).semesterId(semesterId).specialityId(specialityId).build();
+        List<ExecutionPlan> executionPlanList = executionPlanService.select(executionPlanSearchParam).getList();
+        List<TrainingProgram> trainingProgramList = trainingProgramService.select(trainingProgramSearchParam).getList();
+        VerifyResult verifyResult = executionVerify.verify(executionPlanList, trainingProgramList);
+        return new Result<>(verifyResult);
     }
 }

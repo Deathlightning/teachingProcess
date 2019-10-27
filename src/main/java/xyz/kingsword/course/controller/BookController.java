@@ -1,53 +1,71 @@
 package xyz.kingsword.course.controller;
 
+import cn.hutool.core.lang.Dict;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import xyz.kingsword.course.VO.ResultVO;
+import org.springframework.web.bind.annotation.RestController;
 import xyz.kingsword.course.pojo.Book;
-import xyz.kingsword.course.pojo.TeacherGroup;
+import xyz.kingsword.course.pojo.BookOrder;
+import xyz.kingsword.course.pojo.Result;
+import xyz.kingsword.course.pojo.User;
 import xyz.kingsword.course.service.BookService;
-import xyz.kingsword.course.service.CourseService;
-import xyz.kingsword.course.service.TeacherService;
 import xyz.kingsword.course.util.BookUtil;
 import xyz.kingsword.course.util.TimeUtil;
-import xyz.kingsword.course.util.contant.FormWorkPrefix;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/book")
+@Api(tags = "教材相关接口")
 public class BookController {
     @Resource
     private BookService bookService;
-    @Resource
-    private CourseService courseService;
-    @Resource
-    private TeacherService teacherService;
+
+    @RequestMapping(value = "/insert", method = RequestMethod.POST)
+    @ApiOperation("新增")
+    public Result insert(@RequestBody Book book, String courseId) {
+        bookService.insert(book, courseId);
+        return new Result();
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.PUT)
+    @ApiOperation("更新")
+    public void update(@RequestBody Book book) {
+        bookService.update(book);
+    }
 
     /**
      * 按课程查看教材列表
      *
      * @param courseId 课程id
      */
-    @RequestMapping(value = "/selectBookByCourse")
-    public String selectBookByCourse(String courseId, String semesterId, Model model) {
-        List<Book> bookList = courseService.getBookByCourse(courseId);
-        Book book=new Book();
-        int count = teacherService.countTeacherGroup(courseId, semesterId);
-        model.addAttribute("textBookList", bookList)
-                .addAttribute("course", courseService.findCourseById(courseId))
-                .addAttribute("forTeacher", count)
-                .addAttribute("main", FormWorkPrefix.TEACHER + "/textBookList");
-        return "index";
+    @RequestMapping(value = "/getTextBook", method = RequestMethod.GET)
+    @ApiOperation("按课程查询教材")
+    public Result getTextBook(String courseId) {
+        List<Book> bookList = bookService.getTextBook(courseId);
+        return new Result<>(bookList);
+    }
+
+    /**
+     * 按课程查看参考书列表
+     *
+     * @param courseId 课程id
+     */
+    @RequestMapping(value = "/getReferenceBook", method = RequestMethod.GET)
+    @ApiOperation("按课程查询参考书")
+    public Result selectReferenceBookByCourse(String courseId) {
+        List<Book> bookList = bookService.getReferenceBook(courseId);
+        return new Result<>(bookList);
     }
 
     /**
@@ -56,11 +74,10 @@ public class BookController {
      * @param id 教材id
      */
     @RequestMapping(value = "/bookInfo", method = RequestMethod.GET)
-    public String bookInfo(int id, Model model) {
-        Book book = bookService.getBookById(id);
-        model.addAttribute("book", book)
-                .addAttribute("main", FormWorkPrefix.ACADEMIC_MANAGER + "/bookInfo");
-        return "index";
+    @ApiOperation("查看单个教材的详情")
+    public Result bookInfo(int id) {
+        Book book = bookService.getBook(id);
+        return new Result<>(book);
     }
 
     /**
@@ -70,55 +87,40 @@ public class BookController {
      * @param id  教材id
      */
     @RequestMapping(value = "/updateForTeacher", method = RequestMethod.POST)
-    public String updateForTeacher(int num, int id) {
+    @ApiOperation("更新给老师留几本教材")
+    public Result updateForTeacher(int num, int id) {
         bookService.updateForTeacher(num, id);
-        return "index";
+        return new Result<>();
     }
 
 
-    /**
-     * 新增教材
-     */
-    @RequestMapping(value = "/insert", method = RequestMethod.POST)
-    public String insert(Book book, String courseId) {
-        System.out.println(book);
-        bookService.insert(book, courseId);
-        return "redirect:" + "/book/selectBookByCourse?courseId=" + courseId;
-    }
-
-    @RequestMapping(value = "/queryBook", method = RequestMethod.GET)
-    public String queryBook(String ISBN, String courseId, Model model) {
-        List<TeacherGroup> teacherList = teacherService.getTeacherGroup(courseId, TimeUtil.getFutureSemester().get(0).getId(), 1, 10).getList();
+    @RequestMapping(value = "/isbn", method = RequestMethod.GET)
+    @ApiOperation("教材查询接口，同步远程接口信息")
+    public Result queryBook(String ISBN) {
         Book book = BookUtil.getBook(ISBN);
-        model.addAttribute("courseId", courseId)
-                .addAttribute("book", book)
-                .addAttribute("forTeacher", teacherList.size())
-                .addAttribute("main", FormWorkPrefix.TEACHER + "/fullInBookInfo");
-        return "index";
+        return new Result<>(book);
     }
 
-    @RequestMapping(value = "/queryBookName", method = RequestMethod.GET)
-    @ResponseBody
-    public Object queryBookName(String ISBN) {
-        ResultVO<String> resultVO = new ResultVO<>();
-        resultVO.setData(BookUtil.getBookName(ISBN));
-        return resultVO;
+    @RequestMapping(value = "/purchase", method = RequestMethod.POST)
+    @ApiOperation("学生订书接口")
+    public Result purchase(@RequestBody List<BookOrder> bookOrderList) {
+        bookService.purchase(bookOrderList);
+        return new Result();
     }
 
-
-    @RequestMapping(value = "/toUpdateBook", method = RequestMethod.GET)
-    public String toUpdateBook(int id, Model model) {
-        Book book = bookService.getBookById(id);
-        model.addAttribute("book", book)
-                .addAttribute("main", FormWorkPrefix.TEACHER + "/updateBookInfo");
-        return "index";
+    @RequestMapping(value = "/getStudentOrder", method = RequestMethod.POST)
+    @ApiOperation("获取学生订书记录")
+    public Result getStudentOrder(String semesterId, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        String username = user.getUsername();
+        List<Book> bookList = bookService.getBookOrder(username, semesterId);
+        BigDecimal sum = bookList.parallelStream().map(v -> BigDecimal.valueOf(v.getPrice())).reduce(BigDecimal::add).orElse(new BigDecimal(0));
+        Dict dict = Dict.create()
+                .set("bookList", bookList)
+                .set("sum", sum.toString());
+        return new Result<>(dict);
     }
 
-    @RequestMapping(value = "/updateBook", method = RequestMethod.POST)
-    @ResponseBody
-    public void updateBook(@RequestBody Book book) {
-        bookService.updateBook(book);
-    }
 
     /**
      * 教材订购信息导出
@@ -126,6 +128,7 @@ public class BookController {
      * @param semesterId 学期id
      */
     @RequestMapping(value = "/exportBookInfo", method = RequestMethod.GET)
+    @ApiOperation("教材订购信息导出")
     public void exportBookInfo(HttpServletResponse response, String semesterId) throws IOException {
         Workbook workbook = bookService.exportBookSubscription(semesterId);
         String fileName = TimeUtil.getSemesterName(semesterId) + "教材征订计划表.xlsx";

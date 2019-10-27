@@ -19,7 +19,6 @@
            `role` -> '$[0]' as `current_role`
     FROM user_view
     where username = #{username}
-      and `password` = #{password}
   </select>
   <select id="loginOnUsername" resultMap="BaseResultMap">
     select *

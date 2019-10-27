@@ -6,6 +6,11 @@
     <result column="student_num" jdbcType="INTEGER" property="studentNum"/>
     <result column="admission_time" jdbcType="INTEGER" property="admissionTime"/>
   </resultMap>
+  <resultMap id="CourseMap" type="xyz.kingsword.course.pojo.Course">
+    <result column="cou_id" jdbcType="CHAR" property="id"/>
+    <result column="course_name" jdbcType="CHAR" property="name"/>
+  </resultMap>
+
   <insert id="insert" parameterType="xyz.kingsword.course.pojo.Classes">
     insert into classes (classname, student_num)
     values (#{classname,jdbcType=CHAR}, #{studentNum,jdbcType=INTEGER})
@@ -45,5 +50,11 @@
     select classname
     from classes
     where admission_time &lt;= #{admissionTime,jdbcType=INTEGER}
+  </select>
+  <select id="getCurriculum" resultMap="CourseMap">
+    SELECT cou_id, course_name
+    from course_group_view
+    where class_name LIKE CONCAT('%', #{className}, '%')
+      and semester_id = #{semesterId}
   </select>
 </mapper>

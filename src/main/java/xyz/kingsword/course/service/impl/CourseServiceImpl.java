@@ -1,18 +1,23 @@
 package xyz.kingsword.course.service.impl;
 
-import cn.hutool.core.lang.Validator;
-import cn.hutool.core.util.ObjectUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import xyz.kingsword.course.VO.CourseVo;
 import xyz.kingsword.course.dao.BookMapper;
 import xyz.kingsword.course.dao.CourseMapper;
+import xyz.kingsword.course.enmu.AssessmentEnum;
+import xyz.kingsword.course.enmu.CourseTypeEnum;
+import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.exception.DataException;
 import xyz.kingsword.course.pojo.Book;
 import xyz.kingsword.course.pojo.Course;
 import xyz.kingsword.course.pojo.TeacherGroup;
+import xyz.kingsword.course.pojo.param.CourseSelectParam;
 import xyz.kingsword.course.service.CourseService;
 import xyz.kingsword.course.util.TimeUtil;
 
@@ -20,6 +25,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class CourseServiceImpl implements CourseService {
 
@@ -30,9 +36,10 @@ public class CourseServiceImpl implements CourseService {
     private BookMapper bookMapper;
 
     @Override
+    @Transactional
     public void insert(Course course) {
         int flag = courseMapper.insert(course);
-        Validator.validateTrue(flag == 1, "课程插入错误，请检查表单内容");
+        log.debug("课程插入，{}", flag);
     }
 
     @Override
@@ -41,8 +48,14 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Course findCourseById(String id) {
-        return courseMapper.findCourseById(id).orElseThrow(DataException::new);
+    public PageInfo<Course> select(CourseSelectParam param) {
+        return PageHelper.startPage(param.getPageNum(), param.getPageSize()).doSelectPageInfo(() -> courseMapper.select(param));
+    }
+
+    @Override
+    public CourseVo findCourseById(String id) {
+        Course course = courseMapper.findCourseById(id).orElseThrow(() -> new DataException(ErrorEnum.DATA_ERROR));
+        return renderCourseVo(course);
     }
 
     @Override
@@ -61,8 +74,8 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public int setTeacherInCharge(String id, String teaId) {
-        return courseMapper.setTeacherInCharge(id, teaId);
+    public void setTeacherInCharge(String id, String teaId) {
+        courseMapper.setTeacherInCharge(id, teaId);
     }
 
 
@@ -80,11 +93,6 @@ public class CourseServiceImpl implements CourseService {
         return pageInfo;
     }
 
-    @Override
-    public PageInfo<Course> getCourseOnSemester(String courseName, String semesterId, int pageNum, int pageSize) {
-        return PageHelper.startPage(pageNum, pageSize)
-                .doSelectPageInfo(() -> courseMapper.getCourseOnSemester(courseName, semesterId));
-    }
 
     @Override
     public List<Course> getCourseByClassName(String className, String semesterId) {
@@ -101,21 +109,10 @@ public class CourseServiceImpl implements CourseService {
         return pageInfo;
     }
 
-    @Override
-    public List<Book> getBookByCourse(String courseId) {
-        Course course = courseMapper.selectByPrimaryKey(courseId);
-        String bookListJson = course.getTextBook();
-        List<Book> bookList = new ArrayList<>();
-        if (bookListJson.length() > 2)
-            bookList = bookMapper.selectBookList(JSON.parseArray(bookListJson, Integer.class));
-        return bookList;
-    }
 
     @Override
     public Course checkCourseInCharge(String courseId, String teaId) {
-        Course course = findCourseById(courseId);
-        Validator.validateTrue(ObjectUtil.equal(course.getTeacherInCharge(), teaId), "您不是该课程管理员", courseId, teaId);
-        return course;
+        return null;
     }
 
     @Override
@@ -133,5 +130,24 @@ public class CourseServiceImpl implements CourseService {
             e.setBookList(bookList);
             e.setReferenceBookList(referenceBookList);
         });
+    }
+
+    private CourseVo renderCourseVo(Course course) {
+        List<Integer> textBookIdList = JSONArray.parseArray(course.getTextBook(), Integer.class);
+        List<Integer> referenceBookIdList = JSONArray.parseArray(course.getReferenceBook(), Integer.class);
+        if (textBookIdList.isEmpty())
+            textBookIdList.add(-1);
+        if (referenceBookIdList.isEmpty())
+            referenceBookIdList.add(-1);
+        List<Book> textBookList = bookMapper.selectBookList(textBookIdList);
+        List<Book> referenceBookList = bookMapper.selectBookList(referenceBookIdList);
+        CourseVo courseVo = new CourseVo();
+
+        BeanUtils.copyProperties(course, courseVo);
+        courseVo.setType(CourseTypeEnum.get(course.getType()).getContent());
+        courseVo.setAssessmentWay(AssessmentEnum.getContent(course.getAssessmentWay()).getContent());
+        courseVo.setBookList(textBookList);
+        courseVo.setReferenceBookList(referenceBookList);
+        return courseVo;
     }
 }

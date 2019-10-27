@@ -3,7 +3,7 @@ package xyz.kingsword.course.dao;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import xyz.kingsword.course.dao.DO.CalendarDataDO;
+import xyz.kingsword.course.pojo.DO.CalendarDataDO;
 import xyz.kingsword.course.pojo.Calendar;
 import xyz.kingsword.course.pojo.TeacherGroup;
 

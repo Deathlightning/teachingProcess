@@ -4,16 +4,14 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import xyz.kingsword.course.VO.SortCourseVo;
 import xyz.kingsword.course.dao.SortCourseMapper;
 import xyz.kingsword.course.dao.StudentMapper;
 import xyz.kingsword.course.pojo.SortCourse;
 import xyz.kingsword.course.pojo.Student;
-import xyz.kingsword.course.pojo.param.sortCourse.SearchParam;
+import xyz.kingsword.course.pojo.param.SortCourseSearchParam;
 import xyz.kingsword.course.service.StudentService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class StudentServiceImpl implements StudentService {
@@ -57,7 +55,7 @@ public class StudentServiceImpl implements StudentService {
      * 获取班级课程表
      */
     @Override
-    public List<SortCourse> getCurriculum(SearchParam param) {
+    public List<SortCourse> getCurriculum(SortCourseSearchParam param) {
 //        List<SortCourseVo> sortCourseList = sortCourseMapper.search(param);
 //        return sortCourseList.parallelStream().filter(v -> v.getFlag() == 1).collect(Collectors.toList());
         return null;

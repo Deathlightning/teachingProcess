@@ -12,8 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import xyz.kingsword.course.dao.CalendarMapper;
 import xyz.kingsword.course.dao.CourseGroupMapper;
-import xyz.kingsword.course.dao.DO.CalendarDataDO;
+import xyz.kingsword.course.pojo.DO.CalendarDataDO;
 import xyz.kingsword.course.dao.SemesterMapper;
+import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.exception.DataException;
 import xyz.kingsword.course.pojo.Calendar;
 import xyz.kingsword.course.pojo.CourseGroup;
@@ -118,7 +119,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     private CalendarData renderExportData(int calendarId) {
         CalendarDataDO calendarDataDO = calendarMapper.exportCalendar(calendarId);
-        Optional.ofNullable(calendarDataDO).orElseThrow(() -> new DataException("教学日历导出错误，id：" + calendarId));
+        Optional.ofNullable(calendarDataDO).orElseThrow(() -> new DataException(ErrorEnum.ERROR));
         return new CalendarData(calendarDataDO);
     }
 }

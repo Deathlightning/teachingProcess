@@ -1,12 +1,8 @@
 package xyz.kingsword.course.service.impl;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.kingsword.course.dao.SemesterMapper;
@@ -14,23 +10,21 @@ import xyz.kingsword.course.pojo.Semester;
 import xyz.kingsword.course.service.SemesterService;
 import xyz.kingsword.course.util.TimeUtil;
 
-import java.text.SimpleDateFormat;
-
 @Service
 public class SemesterServiceImpl implements SemesterService {
 
     @Autowired
     private SemesterMapper semesterMapper;
 
-    @Bean
-    public MappingJackson2HttpMessageConverter jackson2HttpMessageConverter() {
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-        converter.setObjectMapper(mapper);
-        return converter;
-    }//添加转换器@Override
+//    @Bean
+//    public MappingJackson2HttpMessageConverter jackson2HttpMessageConverter() {
+//        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+//        ObjectMapper mapper = new ObjectMapper();
+//        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+//        converter.setObjectMapper(mapper);
+//        return converter;
+//    }//添加转换器@Override
 
 
     @Override

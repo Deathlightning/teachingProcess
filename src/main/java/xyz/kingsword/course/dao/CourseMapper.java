@@ -1,10 +1,9 @@
 package xyz.kingsword.course.dao;
 
 import org.apache.ibatis.annotations.Param;
-import org.openxmlformats.schemas.drawingml.x2006.main.STAdjAngle;
 import xyz.kingsword.course.pojo.Course;
-import xyz.kingsword.course.pojo.SortCourse;
 import xyz.kingsword.course.pojo.TeacherGroup;
+import xyz.kingsword.course.pojo.param.CourseSelectParam;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +27,7 @@ public interface CourseMapper {
 
     int updateByPrimaryKey(Course record);
 
-    int setTeacherInCharge(@Param("id") String id, @Param("teaId") String teaId);
+    int setTeacherInCharge(@Param("courseId") String courseId, @Param("teaId") String teaId);
 
     List<Course> getAllCourseByIdList(List<String> list);
 
@@ -39,6 +38,8 @@ public interface CourseMapper {
      */
     List<Course> getCourseOnSemester(@Param("courseName") String courseName, @Param("semesterId") String semesterId);
 
+    List<Course> getCourseBySemester(String semesterId);
+
     List<TeacherGroup> getCourseByTeacher(@Param("teacherId") String teacherId, @Param("semesterId") String semesterId);
 
     void addCourseBook(@Param("bookId") int bookId, @Param("courseId") String courseId);
@@ -46,4 +47,8 @@ public interface CourseMapper {
     List<TeacherGroup> selectTeacherGroup(@Param("semesterId") String semesterId, @Param("courseId") String courseId);
 
     List<Course> getCourseByInCharge(String teaId);
+
+    List<Course> select(CourseSelectParam param);
+
+
 }

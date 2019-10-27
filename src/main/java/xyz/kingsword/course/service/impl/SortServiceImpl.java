@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.ReUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -24,10 +25,9 @@ import xyz.kingsword.course.exception.OperationException;
 import xyz.kingsword.course.pojo.Classes;
 import xyz.kingsword.course.pojo.Course;
 import xyz.kingsword.course.pojo.SortCourse;
-import xyz.kingsword.course.pojo.param.sortCourse.SearchParam;
-import xyz.kingsword.course.pojo.param.sortCourse.UpdateParam;
+import xyz.kingsword.course.pojo.param.SortCourseSearchParam;
+import xyz.kingsword.course.pojo.param.SortCourseUpdateParam;
 import xyz.kingsword.course.service.ClassesService;
-import xyz.kingsword.course.service.ExcelService;
 import xyz.kingsword.course.service.SortCourseService;
 import xyz.kingsword.course.util.ConditionUtil;
 import xyz.kingsword.course.util.TimeUtil;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service("SortServiceImpl")
-public class SortServiceImpl implements SortCourseService, ExcelService<SortCourse> {
+public class SortServiceImpl implements SortCourseService {
 
     @Resource
     private SortCourseMapper sortcourseMapper;
@@ -60,33 +60,20 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
 
 
     @Override
-    @Transactional
-    public void insertSortCourse(SortCourse sortCourse) {
-        sortcourseMapper.insert(sortCourse);
-    }
-
-    @Override
     public void insertSortCourseList(List<SortCourse> sortCourseList) {
         sortcourseMapper.insertList(sortCourseList);
     }
 
     @Override
-    @Transactional
-    public void setTeacher(Integer id, String teaId) {
-        int flag = sortcourseMapper.setTeacher(id, teaId);
-        ConditionUtil.validateTrue(flag != 0).orElseThrow(DataException::new);
-    }
-
-    @Override
-    public void setSortCourse(UpdateParam updateParam) {
-        int flag = sortcourseMapper.setSortCourse(updateParam);
+    public void setSortCourse(SortCourseUpdateParam sortCourseUpdateParam) {
+        int flag = sortcourseMapper.setSortCourse(sortCourseUpdateParam);
         log.debug("排课更新数据：{}", flag);
     }
 
 
     @Override
     public void deleteSortCourseRecord(List<Integer> id) {
-
+        sortcourseMapper.deleteSortCourseRecord(id);
     }
 
     @Override
@@ -96,35 +83,36 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
     }
 
     @Override
-//    需要优化
     public List<SortCourseVo> getTeacherHistory(String teacherId) {
         String nowSemesterId = TimeUtil.getFutureSemester().get(0).getId();
         return sortcourseMapper.getTeacherHistory(teacherId, nowSemesterId);
     }
 
     @Override
-    public PageInfo<SortCourseVo> search(SearchParam param) {
+    public PageInfo<SortCourseVo> search(SortCourseSearchParam param) {
         return PageHelper.startPage(param.getPageNum(), param.getPageSize()).doSelectPageInfo(() -> sortcourseMapper.search(param));
     }
 
 
     /**
-     * 课头合并类，需要合并学生人数，班级id，课头id
-     *
      * @param idList 待合并课头id
      */
     @Override
+    @Transactional
     public void mergeCourseHead(List<Integer> idList) {
         List<SortCourse> sortCourseList = sortcourseMapper.getById(idList);
         mergeCheck(sortCourseList);
         SortCourse mainSortCourse = new SortCourse();
         BeanUtil.copyProperties(sortCourseList.get(0), mainSortCourse);
-        List<Integer> mergedIdList = new ArrayList<>(sortCourseList.size());
-        String className = sortCourseList.parallelStream().map(SortCourse::getClassName).distinct().collect(Collectors.joining(" "));
+        String className = sortCourseList.parallelStream()
+                .map(SortCourse::getClassName)
+                .distinct()
+                .sorted((a, b) -> StrUtil.compare(a, b, true))
+                .collect(Collectors.joining(" "));
         int studentNum = sortCourseList.parallelStream().mapToInt(SortCourse::getStudentNum).sum();
         mainSortCourse.setClassName(className);
         mainSortCourse.setStudentNum(studentNum);
-        mainSortCourse.setMergedId(JSON.toJSONString(mergedIdList));
+        mainSortCourse.setMergedId(JSON.toJSONString(idList));
 
         sortcourseMapper.mergeCourseHead(idList);
         sortcourseMapper.insert(mainSortCourse);
@@ -134,6 +122,7 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
      * 重置课头，先把合并的课头删除，再把被合并进去的课头状态改为正常显示
      */
     @Override
+    @Transactional
     public void restoreCourseHead(List<Integer> idList) {
         sortcourseMapper.deleteSortCourseRecord(idList);
         List<SortCourse> sortCourseList = sortcourseMapper.getById(idList);
@@ -149,21 +138,12 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
      * 合并前检查courseId和teacherId
      */
     private void mergeCheck(List<SortCourse> sortCourseList) {
-        ConditionUtil.validateTrue(sortCourseList.size() != 1).orElseThrow(() -> new OperationException(ErrorEnum.OPERATION_ERROR));
-        Set<String> set = sortCourseList.parallelStream().map(SortCourse::getCouId).collect(Collectors.toSet());
+        ConditionUtil.validateTrue(sortCourseList.size() > 1).orElseThrow(() -> new OperationException(ErrorEnum.SINGLE_DATA));
+        //        验证，同一课程，同一老师才能合并
+        Set<String> set = sortCourseList.parallelStream().map(v -> v.getCouId() + v.getTeaId()).collect(Collectors.toSet());
         ConditionUtil.validateTrue(set.size() == 1).orElseThrow(() -> new OperationException(ErrorEnum.DIFFERENT_COURSE));
-        set = sortCourseList.parallelStream().map(SortCourse::getTeaId).collect(Collectors.toSet());
-        ConditionUtil.validateTrue(set.size() == 1).orElseThrow(() -> new OperationException(ErrorEnum.DIFFERENT_TEACHER));
     }
 
-
-    /**
-     * 获取教过该课程的教师列表
-     */
-    @Override
-    public List<SortCourse> getTeacherList(String teaId) {
-        return new ArrayList<>();
-    }
 
     /**
      * 模板21列，从rowIndex=6开始读
@@ -196,7 +176,6 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
             Validator.validateFalse(classNameArray.length == 0, "第" + (row.getRowNum() + 1) + "行班级名称有误");
             List<Classes> classesList = classesService.getByName(Arrays.asList(classNameArray));
             Validator.validateTrue(classesList.size() == classNameArray.length, "第" + (row.getRowNum() + 1) + "行班级名称有误");
-//            final List<Integer> classIdList = classesList.stream().map(Classes::getId).collect(toList());
             className = classesList.parallelStream().map(Classes::getClassname).collect(Collectors.joining(" "));
             sortCourse.setClassName(className);
             sortCourse.setStudentNum(classesList.stream().mapToInt(Classes::getStudentNum).sum());
@@ -213,11 +192,12 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
 
     public Workbook excelExport(String semesterId) {
         InputStream inputStream = SortServiceImpl.class.getClassLoader().getResourceAsStream("templates/sortCourse.xls");
-        Workbook workbook = null;
+        Workbook workbook;
         try {
             workbook = new HSSFWorkbook(inputStream);
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
         Sheet sheet = workbook.getSheetAt(0);
 //        setExcelHeader(workbook, semesterId);
@@ -268,7 +248,7 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
      * （课序号未导出）
      */
     private String[][] renderExportData(String semesterId) {
-        List<SortCourseVo> sortCourseList = sortcourseMapper.search(new SearchParam().setSemesterId(semesterId));
+        List<SortCourseVo> sortCourseList = sortcourseMapper.search(SortCourseSearchParam.builder().semesterId(semesterId).build());
         String[][] data = new String[sortCourseList.size()][19];
         for (int i = 0; i < sortCourseList.size(); i++) {
             SortCourseVo sortCourseVo = sortCourseList.get(i);
@@ -293,8 +273,8 @@ public class SortServiceImpl implements SortCourseService, ExcelService<SortCour
             strings[5] = StrBuilder.create().append(course.getWeekNum()).append("/").append(course.getTimeWeek()).toStringAndReset();
             strings[6] = String.valueOf(course.getTimeAll());
             strings[7] = String.valueOf(course.getCredit());
-            strings[8] = CourseTypeEnum.getContent(course.getType()).getContent();
-            strings[9] = course.getNature() == 1 ? "选修" : "必修";
+            strings[8] = CourseTypeEnum.get(course.getType()).getContent();
+            strings[9] = course.getNature();
             strings[10] = course.getExaminationWay();
             strings[11] = sortCourseVo.getTeacherName();
             strings[12] = String.valueOf(course.getTimeTheory());

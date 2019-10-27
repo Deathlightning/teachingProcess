@@ -1,6 +1,7 @@
 package xyz.kingsword.course.dao;
 
 import xyz.kingsword.course.pojo.Classes;
+import xyz.kingsword.course.pojo.Course;
 
 import java.util.List;
 
@@ -24,4 +25,6 @@ public interface ClassesMapper {
      * @param maxYear 年级最大值 eg:2019 2018 2017 2016
      */
     List<String> selectSchoolClass(int maxYear);
+
+    List<Course> getCurriculum(String className, String semesterId);
 }

@@ -1,14 +1,15 @@
 package xyz.kingsword.course.aop;
 
-import cn.hutool.core.exceptions.ValidateException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.exception.AuthException;
 import xyz.kingsword.course.exception.BaseException;
 import xyz.kingsword.course.pojo.Result;
+
+import java.sql.SQLException;
 
 /**
  * 拦截异常，向前端返回错误信息
@@ -24,10 +25,19 @@ public class ExceptionHandle {
         return new Result(e.getErrorEnum());
     }
 
+    @ExceptionHandler(value = SQLException.class)
+    @ResponseBody
+    public Result exceptionGet(SQLException e) {
+        log.error("【数据库异常】");
+        e.printStackTrace();
+        return new Result(ErrorEnum.ERROR);
+    }
+
     @ExceptionHandler(value = BaseException.class)
     @ResponseBody
     public Result exceptionGet(BaseException e) {
-        return new Result(-1, e.getMessage());
+        e.printStackTrace();
+        return new Result(e.getErrorEnum());
     }
 
 
@@ -36,6 +46,6 @@ public class ExceptionHandle {
     public Result exceptionGet(Exception e) {
         log.error("【系统异常】{}", e.getMessage());
         e.printStackTrace();
-        return new Result(-1, "系统异常");
+        return new Result(ErrorEnum.ERROR);
     }
 }

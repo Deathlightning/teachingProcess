@@ -6,14 +6,14 @@
     <result column="name" jdbcType="CHAR" property="name"/>
     <result column="teacher_in_charge" jdbcType="CHAR" property="teacherInCharge"/>
     <result column="type" jdbcType="INTEGER" property="type"/>
-    <result column="core" jdbcType="BIT" property="core"/>
+    <result column="core" jdbcType="CHAR" property="core"/>
     <result column="nature" jdbcType="INTEGER" property="nature"/>
     <result column="credit" jdbcType="INTEGER" property="credit"/>
     <result column="colleges_or_departments" jdbcType="CHAR" property="collegesOrDepartments"/>
     <result column="examination_way" jdbcType="CHAR" property="examinationWay"/>
     <result column="coach" jdbcType="CHAR" property="coach"/>
     <result column="coach_teacher" jdbcType="CHAR" property="coachTeacher"/>
-    <result column="research_room_id" jdbcType="INTEGER" property="researchRoomId"/>
+    <result column="research_room" jdbcType="CHAR" property="researchRoom"/>
     <result column="assessment_way" jdbcType="INTEGER" property="assessmentWay"/>
     <result column="text_book" jdbcType="CHAR" property="textBook"/>
     <result column="reference_book" jdbcType="CHAR" property="referenceBook"/>
@@ -53,39 +53,39 @@
   <insert id="insert" parameterType="xyz.kingsword.course.pojo.Course">
     insert into course (id, `name`, teacher_in_charge,
                         type, core, nature, credit, coach, coach_teacher,
-                        colleges_or_departments, examination_way, research_room_id,
+                        colleges_or_departments, examination_way, research_room,
                         assessment_way, text_book, reference_book,
                         homework_proportion, test_proportion, lab_proportion,
                         attendance_proportion, performance_proportion,
                         paper_proportion, other_proportion, exam_proportion,
                         time_week, week_num, time_theory,
                         time_practical, time_computer, time_lab,
-                        time_homework, time_all, theory_week)
+                        time_homework, time_all, theory_week, `status`)
     values (#{id,jdbcType=CHAR}, #{name,jdbcType=CHAR}, #{teacherInCharge,jdbcType=CHAR},
-            #{type,jdbcType=INTEGER}, #{core,jdbcType=BIT}, #{nature,jdbcType=INTEGER}, #{credit,jdbcType=INTEGER},
+            #{type,jdbcType=INTEGER}, #{core,jdbcType=CHAR}, #{nature,jdbcType=INTEGER}, #{credit,jdbcType=INTEGER},
             #{coach,jdbcType=CHAR}, #{coachTeacher,jdbcType=CHAR},
-            #{collegesOrDepartments,jdbcType=CHAR}, #{examinationWay,jdbcType=CHAR}, #{researchRoomId,jdbcType=INTEGER},
+            #{collegesOrDepartments,jdbcType=CHAR}, #{examinationWay,jdbcType=CHAR}, #{researchRoom,jdbcType=CHAR},
             #{assessmentWay,jdbcType=INTEGER}, #{textBook,jdbcType=CHAR}, #{referenceBook,jdbcType=CHAR},
             #{homeworkProportion,jdbcType=INTEGER}, #{testProportion,jdbcType=DOUBLE}, #{labProportion,jdbcType=DOUBLE},
             #{attendanceProportion,jdbcType=DOUBLE}, #{performanceProportion,jdbcType=DOUBLE},
             #{paperProportion,jdbcType=REAL}, #{otherProportion,jdbcType=DOUBLE}, #{examProportion,jdbcType=DOUBLE},
             #{timeWeek,jdbcType=INTEGER}, #{weekNum,jdbcType=INTEGER}, #{timeTheory,jdbcType=INTEGER},
             #{timePractical,jdbcType=INTEGER}, #{timeComputer,jdbcType=INTEGER}, #{timeLab,jdbcType=INTEGER},
-            #{timeHomework,jdbcType=INTEGER}, #{timeAll,jdbcType=INTEGER}, #{theoryWeek,jdbcType=INTEGER})
+            #{timeHomework,jdbcType=INTEGER}, #{timeAll,jdbcType=INTEGER}, #{theoryWeek,jdbcType=INTEGER}, 0)
   </insert>
   <update id="updateByPrimaryKey" parameterType="xyz.kingsword.course.pojo.Course">
     update course
     set `name`                  = #{name,jdbcType=CHAR},
         teacher_in_charge       = #{teacherInCharge,jdbcType=CHAR},
         type                    = #{type,jdbcType=INTEGER},
-        core                    = #{core,jdbcType=BIT},
+        core                    = #{core,jdbcType=CHAR},
         nature                  = #{nature,jdbcType=INTEGER},
         credit                  = #{credit,jdbcType=INTEGER},
         colleges_or_departments = #{collegesOrDepartments,jdbcType=CHAR},
         coach                   =#{coach,jdbcType=CHAR},
         coach_teacher           =#{coachTeacher,jdbcType=CHAR},
         examination_way         = #{examinationWay,jdbcType=CHAR},
-        research_room_id        = #{researchRoomId,jdbcType=INTEGER},
+        research_room           = #{researchRoom,jdbcType=CHAR},
         assessment_way          = #{assessmentWay,jdbcType=INTEGER},
         homework_proportion     = #{homeworkProportion,jdbcType=INTEGER},
         test_proportion         = #{testProportion,jdbcType=DOUBLE},
@@ -136,8 +136,8 @@
   </select>
   <update id="setTeacherInCharge">
     update course
-    set teacher_in_charge=#{teaId,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
+    set teacher_in_charge=#{teaId}
+    where id = #{courseId}
   </update>
   <select id="getAllCourseByIdList" resultMap="BaseResultMap">
     select * from course
@@ -203,5 +203,31 @@
       #{item}
     </foreach>
     )
+  </select>
+  <select id="select" resultMap="BaseResultMap">
+    select * from
+    course
+    <where>
+      <if test="courseId !=null and courseId !=''">
+        id=#{courseId}
+      </if>
+      <if test="courseName !=null and courseName !=''">
+        and `name` like concat ('%',#{courseName},'%')
+      </if>
+      <if test="researchRoom !=null and researchRoom!=''">
+        and research_room=#{researchRoom}
+      </if>
+      <if test="teacherInCharge !=null and teacherInCharge!=''">
+        and teacher_in_charge =#{teacherInCharge}
+      </if>
+      and `status`=0
+    </where>
+    order by id
+  </select>
+  <select id="getCourseBySemester" resultMap="BaseResultMap">
+    SELECT course.*
+    FROM course
+           JOIN sortcourse ON sortcourse.semester_id = #{semesterId}
+    WHERE sortcourse.`status` = 0
   </select>
 </mapper>

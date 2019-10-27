@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
+import xyz.kingsword.course.VO.CourseVo;
 import xyz.kingsword.course.VO.ResultVO;
 import xyz.kingsword.course.pojo.*;
 import xyz.kingsword.course.service.CourseService;
@@ -22,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/teacher")
-@Api("教师管理")
+@Api(tags = "教师管理")
 public class TeacherController {
 
     @Autowired
@@ -113,10 +114,10 @@ public class TeacherController {
             String courseId,
             String semesterId,
             Model model) {
-        Course course = courseService.findCourseById(courseId);
+        CourseVo courseVo = courseService.findCourseById(courseId);
         PageInfo<TeacherGroup> teacherGroupPageInfo = teacherService.getTeacherGroup(courseId, semesterId, pageNum, pageSize);
         model.addAttribute("data", teacherGroupPageInfo)
-                .addAttribute("course", course)
+                .addAttribute("course", courseVo)
                 .addAttribute("semesterId", semesterId)
                 .addAttribute("main", FormWorkPrefix.TEACHER + "/courseGroup");
         return "index";

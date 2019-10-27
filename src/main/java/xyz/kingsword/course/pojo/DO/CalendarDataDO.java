@@ -1,4 +1,4 @@
-package xyz.kingsword.course.dao.DO;
+package xyz.kingsword.course.pojo.DO;
 
 import lombok.Data;
 

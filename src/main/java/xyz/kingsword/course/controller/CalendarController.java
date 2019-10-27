@@ -7,9 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import xyz.kingsword.course.VO.CourseVo;
 import xyz.kingsword.course.annocations.Role;
-import xyz.kingsword.course.exception.DataException;
-import xyz.kingsword.course.pojo.*;
+import xyz.kingsword.course.pojo.Calendar;
+import xyz.kingsword.course.pojo.Semester;
+import xyz.kingsword.course.pojo.TeacherGroup;
+import xyz.kingsword.course.pojo.User;
 import xyz.kingsword.course.service.*;
 import xyz.kingsword.course.service.calendarExport.CalendarData;
 import xyz.kingsword.course.util.Constant;
@@ -30,8 +33,6 @@ import java.util.List;
 public class CalendarController {
     @Resource
     private CalendarService calendarService;
-    @Resource
-    private SortCourseService sortCourseService;
     @Resource
     private TeacherService teacherService;
     @Resource
@@ -91,10 +92,10 @@ public class CalendarController {
                                  @RequestParam(defaultValue = "10") int pageSize,
                                  Model model) {
         PageInfo<Calendar> teacherGroupPageInfo = calendarService.getVerifyStatus(courseId, semesterId, pageNum, pageSize);
-        Course course = courseService.findCourseById(courseId);
+        CourseVo courseVo = courseService.findCourseById(courseId);
         model.addAttribute("data", teacherGroupPageInfo)
                 .addAttribute("courseId", courseId)
-                .addAttribute("courseName", course.getName())
+                .addAttribute("courseName", courseVo.getName())
                 .addAttribute("semesterId", semesterId)
                 .addAttribute("main", FormWorkPrefix.OFFICE_MANAGER + "/courseGroup");
         return "index";
@@ -111,7 +112,7 @@ public class CalendarController {
                                         @RequestParam(defaultValue = "1") int pageNum,
                                         @RequestParam(defaultValue = "10") int pageSize,
                                         HttpSession session, Model model) {
-        semesterId = semesterId == null ? semesterService.getFutureSemester(1,10).getList().get(0).getId() : semesterId;
+        semesterId = semesterId == null ? semesterService.getFutureSemester(1, 10).getList().get(0).getId() : semesterId;
         User user = (User) session.getAttribute("user");
         String username = user.getUsername();
         PageInfo<TeacherGroup> teacherGroupPageInfo = teacherService.getTeacherGroupOnTeacher(username, semesterId, pageNum, pageSize);

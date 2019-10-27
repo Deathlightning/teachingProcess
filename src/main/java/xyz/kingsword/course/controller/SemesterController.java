@@ -15,11 +15,9 @@ import xyz.kingsword.course.pojo.Result;
 import xyz.kingsword.course.pojo.Semester;
 import xyz.kingsword.course.service.SemesterService;
 
-/**
- * 学期起始时间在八月和九月间变动，无法确定，需要由管理员进行学期起始时间设置
- */
-@Api("学期相关类")
+@Api(tags = "学期相关类")
 @RestController
+@RequestMapping("/semester")
 public class SemesterController {
 
     @Autowired
@@ -36,6 +34,7 @@ public class SemesterController {
 
     @RequestMapping(value = "/update", method = RequestMethod.PUT)
     @ApiOperation("仅修改开始时间结束时间")
+    @Role({0})
     public Result updateSemester(@RequestBody Semester Semester) {
         semesterService.updateById(Semester);
         return new Result();

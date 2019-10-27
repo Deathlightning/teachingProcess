@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.kingsword.course.dao.ClassesMapper;
+import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.exception.DataException;
 import xyz.kingsword.course.pojo.Classes;
+import xyz.kingsword.course.pojo.Course;
 import xyz.kingsword.course.service.ClassesService;
 import xyz.kingsword.course.util.ConditionUtil;
 
@@ -28,7 +30,7 @@ public class ClassesServiceImpl implements ClassesService {
     @PostConstruct
     public void init() {
         classesList = classesMapper.selectAll();
-        ConditionUtil.validateTrue(!classesList.isEmpty()).orElseThrow(DataException::new);
+        ConditionUtil.validateTrue(!classesList.isEmpty()).orElseThrow(() -> new DataException(ErrorEnum.ERROR));
     }
 
     @Override
@@ -62,5 +64,10 @@ public class ClassesServiceImpl implements ClassesService {
     public List<Classes> getSchoolClass() {
         final int year = LocalDate.now().getYear();
         return classesList.parallelStream().filter(v -> year - v.getAdmissionTime() < 4).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Course> getCurriculum(String className, String semesterId) {
+        return classesMapper.getCurriculum(className, semesterId);
     }
 }

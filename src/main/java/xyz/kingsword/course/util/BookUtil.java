@@ -4,12 +4,7 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
-import xyz.kingsword.course.dao.ClassesMapper;
 import xyz.kingsword.course.pojo.Book;
-import xyz.kingsword.course.pojo.Classes;
-
-import java.time.LocalDate;
-import java.util.List;
 
 /**
  * 负责将书籍接口的数据同步过来，数据仅供参考，需要老师进行修改
@@ -29,6 +24,10 @@ public class BookUtil {
      * @param isbn 长度：十位或十三位（存在少数九位的情况，但接口仅支持十位或十三位）
      */
     public static Book getBook(String isbn) {
+        if (isbn == null || isbn.isEmpty()) {
+            return null;
+        }
+        isbn = isbn.replace("-", "");
         HttpRequest httpRequest = HttpUtil.createGet(URL + isbn).header("Authorization", AUTHORIZATION);
         HttpResponse httpResponse = httpRequest.execute();
         String jsonString = httpResponse.body();
@@ -43,11 +42,21 @@ public class BookUtil {
         book.setImgUrl("pic");
         book.setAuthor(bookObject.getString("author"));
         book.setPublish(bookObject.getString("publisher"));
-        book.setPrice(bookObject.getString("price"));
         book.setNote(bookObject.getString("summary"));
         book.setPubDate(bookObject.getString("pubdate"));
         book.setEdition(bookObject.getString("edition"));
         book.setIsbn(isbn);
+
+        String priceStr = bookObject.getString("price");
+        if (priceStr != null && !priceStr.isEmpty()) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < priceStr.length(); i++) {
+                if (priceStr.charAt(i) >= 48 && priceStr.charAt(i) <= 57 || priceStr.charAt(i) == 46) {
+                    stringBuilder.append(priceStr.charAt(i));
+                }
+            }
+            book.setPrice(Float.parseFloat(stringBuilder.toString()));
+        }
         return book;
     }
 
@@ -63,23 +72,5 @@ public class BookUtil {
         JSONObject jsonObject = JSONObject.parseObject(jsonString);
         int status = jsonObject.getInteger("status");
         return status == 0 ? jsonObject.getJSONObject("result").getString("title") : "";
-    }
-
-    /**
-     * 获取在校生的班级
-     *
-     * @return eg:RB软工卓171
-     */
-
-    public static String[] getClassName() {
-        int year = LocalDate.now().getYear();
-        ClassesMapper classesMapper = SpringContextUtil.getBean(ClassesMapper.class);
-        List<Classes> classesList = classesMapper.selectAll();
-        return classesList.parallelStream().filter(v -> {
-            String className = v.getClassname();
-            className = className.substring(className.length() - 3);
-            int classYear = Integer.parseInt("20" + className);
-            return year <= classYear && classYear < year - 3;
-        }).map(Classes::getClassname).sorted(String::compareTo).toArray(String[]::new);
     }
 }

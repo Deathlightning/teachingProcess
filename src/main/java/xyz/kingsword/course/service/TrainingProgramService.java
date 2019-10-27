@@ -2,6 +2,7 @@ package xyz.kingsword.course.service;
 
 import com.github.pagehelper.PageInfo;
 import xyz.kingsword.course.pojo.TrainingProgram;
+import xyz.kingsword.course.pojo.param.TrainingProgramSearchParam;
 
 import java.io.InputStream;
 import java.util.List;
@@ -14,19 +15,11 @@ public interface TrainingProgramService {
 
     void update(TrainingProgram record);
 
-    /**
-     * @return list
-     */
-    PageInfo<TrainingProgram> select(Integer grade, String courseName, Integer pageNum, Integer pageSize);
 
-    TrainingProgram selectById(int id);
+    void delete(List<Integer> idList);
 
-    void importExcel(InputStream inputStream);
+    PageInfo<TrainingProgram> select(TrainingProgramSearchParam param);
 
-    /**
-     * 列举级别 eg：2017 2018 2019
-     */
-    List<Integer> getGrades();
 
-    List<TrainingProgram> getByCourseId(List<String> courseIdList);
+    List<TrainingProgram> importData(InputStream inputStream);
 }

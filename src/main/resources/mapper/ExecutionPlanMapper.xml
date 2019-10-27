@@ -18,20 +18,35 @@
     <result column="examination_way" jdbcType="CHAR" property="examinationWay"/>
     <result column="speciality_id" jdbcType="INTEGER" property="specialityId"/>
     <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
+    <result column="status" jdbcType="INTEGER" property="status"/>
+    <result column="grade" jdbcType="INTEGER" property="grade"/>
   </resultMap>
   <sql id="Base_Column_List">
     id, `type`, nature, course_id, course_name, credit, time_all, time_theory, time_lab,
     time_computer, time_other, time_week, start_semester, examination_way, speciality_id, 
     semester_id
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List"/>
-    from execution_plan
-    where id = #{id,jdbcType=INTEGER}
-  </select>
-  <select id="getExceptionExecutionPlan" resultMap="BaseResultMap">
-    select * from execution_plan where `status`=-1
+  <select id="select" resultMap="BaseResultMap">
+    select * from execution_plan
+    <where>
+      <if test="id !=null">
+        id=#{id}
+      </if>
+      <if test="semesterId !=null and semesterId!=''">
+        and semester_id=#{semesterId}
+      </if>
+      <if test="grade !=null">
+        and grade=#{grade}
+      </if>
+      <if test="specialityId !=null">
+        and speciality_id=#{specialityId}
+      </if>
+      <if test="courseName !=null and courseName!=''">
+        and course_name=#{courseName}
+      </if>
+      and `status`>-2
+    </where>
+    order by semester_id,grade
   </select>
   <insert id="insert" parameterType="xyz.kingsword.course.pojo.ExecutionPlan">
     insert into execution_plan (`type`, nature,
@@ -39,7 +54,8 @@
     time_all, time_theory, time_lab,
     time_computer, time_other, time_week,
     start_semester, examination_way, speciality_id,
-    semester_id)
+    semester_id,`status`,grade
+    )
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.type,jdbcType=INTEGER}, #{item.nature,jdbcType=INTEGER},
@@ -48,163 +64,9 @@
       #{item.timeComputer,jdbcType=INTEGER}, #{item.timeOther,jdbcType=INTEGER}, #{item.timeWeek,jdbcType=INTEGER},
       #{item.startSemester,jdbcType=INTEGER}, #{item.examinationWay,jdbcType=CHAR},
       #{item.specialityId,jdbcType=INTEGER},
-      #{item.semesterId,jdbcType=CHAR})
+      #{item.semesterId,jdbcType=CHAR},#{item.status},#{item.grade})
     </foreach>
   </insert>
-  <insert id="insertSelective" parameterType="xyz.kingsword.course.pojo.ExecutionPlan">
-    insert into execution_plan
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
-      <if test="type != null">
-        `type`,
-      </if>
-      <if test="nature != null">
-        nature,
-      </if>
-      <if test="courseId != null">
-        course_id,
-      </if>
-      <if test="courseName != null">
-        course_name,
-      </if>
-      <if test="credit != null">
-        credit,
-      </if>
-      <if test="timeAll != null">
-        time_all,
-      </if>
-      <if test="timeTheory != null">
-        time_theory,
-      </if>
-      <if test="timeLab != null">
-        time_lab,
-      </if>
-      <if test="timeComputer != null">
-        time_computer,
-      </if>
-      <if test="timeOther != null">
-        time_other,
-      </if>
-      <if test="timeWeek != null">
-        time_week,
-      </if>
-      <if test="startSemester != null">
-        start_semester,
-      </if>
-      <if test="examinationWay != null">
-        examination_way,
-      </if>
-      <if test="specialityId != null">
-        speciality_id,
-      </if>
-      <if test="semesterId != null">
-        semester_id,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=INTEGER},
-      </if>
-      <if test="type != null">
-        #{type,jdbcType=INTEGER},
-      </if>
-      <if test="nature != null">
-        #{nature,jdbcType=INTEGER},
-      </if>
-      <if test="courseId != null">
-        #{courseId,jdbcType=CHAR},
-      </if>
-      <if test="courseName != null">
-        #{courseName,jdbcType=CHAR},
-      </if>
-      <if test="credit != null">
-        #{credit,jdbcType=INTEGER},
-      </if>
-      <if test="timeAll != null">
-        #{timeAll,jdbcType=INTEGER},
-      </if>
-      <if test="timeTheory != null">
-        #{timeTheory,jdbcType=INTEGER},
-      </if>
-      <if test="timeLab != null">
-        #{timeLab,jdbcType=INTEGER},
-      </if>
-      <if test="timeComputer != null">
-        #{timeComputer,jdbcType=INTEGER},
-      </if>
-      <if test="timeOther != null">
-        #{timeOther,jdbcType=INTEGER},
-      </if>
-      <if test="timeWeek != null">
-        #{timeWeek,jdbcType=INTEGER},
-      </if>
-      <if test="startSemester != null">
-        #{startSemester,jdbcType=INTEGER},
-      </if>
-      <if test="examinationWay != null">
-        #{examinationWay,jdbcType=CHAR},
-      </if>
-      <if test="specialityId != null">
-        #{specialityId,jdbcType=INTEGER},
-      </if>
-      <if test="semesterId != null">
-        #{semesterId,jdbcType=CHAR},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="xyz.kingsword.course.pojo.ExecutionPlan">
-    update execution_plan
-    <set>
-      <if test="type != null">
-        `type` = #{type,jdbcType=INTEGER},
-      </if>
-      <if test="nature != null">
-        nature = #{nature,jdbcType=INTEGER},
-      </if>
-      <if test="courseId != null">
-        course_id = #{courseId,jdbcType=CHAR},
-      </if>
-      <if test="courseName != null">
-        course_name = #{courseName,jdbcType=CHAR},
-      </if>
-      <if test="credit != null">
-        credit = #{credit,jdbcType=INTEGER},
-      </if>
-      <if test="timeAll != null">
-        time_all = #{timeAll,jdbcType=INTEGER},
-      </if>
-      <if test="timeTheory != null">
-        time_theory = #{timeTheory,jdbcType=INTEGER},
-      </if>
-      <if test="timeLab != null">
-        time_lab = #{timeLab,jdbcType=INTEGER},
-      </if>
-      <if test="timeComputer != null">
-        time_computer = #{timeComputer,jdbcType=INTEGER},
-      </if>
-      <if test="timeOther != null">
-        time_other = #{timeOther,jdbcType=INTEGER},
-      </if>
-      <if test="timeWeek != null">
-        time_week = #{timeWeek,jdbcType=INTEGER},
-      </if>
-      <if test="startSemester != null">
-        start_semester = #{startSemester,jdbcType=INTEGER},
-      </if>
-      <if test="examinationWay != null">
-        examination_way = #{examinationWay,jdbcType=CHAR},
-      </if>
-      <if test="specialityId != null">
-        speciality_id = #{specialityId,jdbcType=INTEGER},
-      </if>
-      <if test="semesterId != null">
-        semester_id = #{semesterId,jdbcType=CHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
   <update id="updateByPrimaryKey" parameterType="xyz.kingsword.course.pojo.ExecutionPlan">
     update execution_plan
     set `type`          = #{type,jdbcType=INTEGER},
@@ -221,7 +83,18 @@
         start_semester  = #{startSemester,jdbcType=INTEGER},
         examination_way = #{examinationWay,jdbcType=CHAR},
         speciality_id   = #{specialityId,jdbcType=INTEGER},
-        semester_id     = #{semesterId,jdbcType=CHAR}
+        semester_id     = #{semesterId,jdbcType=CHAR},
+        grade           = #{grade,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <update id="delete" parameterType="java.lang.Integer">
+    update execution_plan
+    set `status`= -2
+    where id in (
+    <foreach collection="list" item="item" separator=",">
+      #{item}
+    </foreach>
+    )
   </update>
 </mapper>

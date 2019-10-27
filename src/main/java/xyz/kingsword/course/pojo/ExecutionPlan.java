@@ -1,56 +1,82 @@
 package xyz.kingsword.course.pojo;
 
-import lombok.Data;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.*;
 
-import java.io.Serializable;
-
-/**
- * execution_plan
- * @author 
- */
+@Builder
 @Data
-public class ExecutionPlan implements Serializable {
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@ApiModel(description = "执行计划实体")
+public class ExecutionPlan {
     private Integer id;
 
-    private Integer type;
-
-    private Integer nature;
-
+    @ApiModelProperty(required = true)
     private String courseId;
 
+    @ApiModelProperty(required = true)
     private String courseName;
 
-    private Integer credit;
+    @ApiModelProperty(required = true)
+    private float credit;
 
-    private Integer timeAll;
+    @ApiModelProperty(required = true)
+    private float timeAll;
 
-    private Integer timeTheory;
+    @ApiModelProperty(required = true)
+    private float timeTheory;
 
-    private Integer timeLab;
+    private float timeLab;
 
-    private Integer timeComputer;
+    private float timeComputer;
 
-    private Integer timeOther;
+    private float timeOther;
+    /**
+     * 周学时
+     */
+    @ApiModelProperty(required = true)
+    private float timeWeek;
 
-    private Integer timeWeek;
+    @ApiModelProperty(required = true)
+    private int startSemester;
 
     /**
-     * 开课学期
+     * 考核方式(考试、考查)
      */
-    private Integer startSemester;
-
+    @ApiModelProperty(required = true)
     private String examinationWay;
 
-    /**
-     * 专业id
-     */
-    private Integer specialityId;
 
     /**
-     * 计划执行学期id
+     * 入学时间
+     * eg:2017 2018
      */
+    @ApiModelProperty(required = true)
+    private int grade;
+
+    /**
+     * 专业方向id
+     */
+    @ApiModelProperty(required = true)
+    private int specialityId;
+
+    /**
+     * 执行计划应用学期
+     */
+    @ApiModelProperty(required = true)
     private String semesterId;
 
-    private static final long serialVersionUID = 1L;
+    @ApiModelProperty(required = true, value = "课程类型", example = "1通识教育必修课，2通识教育选修课，3专业必修课,4专业选修课,5学科必修课,6实践环节", dataType = "integer")
+    private int type;
 
+    @ApiModelProperty(required = true, value = "课程性质")
+    private String nature;
+
+    private int status;
+
+    public float getTimeAll() {
+        this.timeAll = timeTheory + timeLab + timeComputer + timeOther + timeWeek;
+        return timeAll;
+    }
 }

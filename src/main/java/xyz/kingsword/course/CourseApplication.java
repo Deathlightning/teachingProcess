@@ -5,9 +5,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.util.ResourceUtils;
-
-import java.io.File;
 
 @EnableScheduling
 @EnableTransactionManagement//启用事务
@@ -15,7 +12,7 @@ import java.io.File;
 @SpringBootApplication
 public class CourseApplication {
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
         SpringApplication.run(CourseApplication.class, args);
     }
 

@@ -1,9 +1,6 @@
 package xyz.kingsword.course.service.impl;
 
-import cn.hutool.crypto.SecureUtil;
-import com.alibaba.fastjson.JSON;
 import lombok.NonNull;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,8 +17,9 @@ import xyz.kingsword.course.pojo.Student;
 import xyz.kingsword.course.pojo.Teacher;
 import xyz.kingsword.course.pojo.User;
 import xyz.kingsword.course.service.UserService;
+import xyz.kingsword.course.util.ConditionUtil;
+import xyz.kingsword.course.util.HashSaltUtil;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -38,18 +36,17 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User login(User user) {
-        user = userMapper.login(user.getUsername(), SecureUtil.md5(user.getUsername() + user.getPassword()));
-        Optional.ofNullable(user).orElseThrow(() -> new AuthException(ErrorEnum.ERROR_LOGIN));
+        User userDb = userMapper.login(user.getUsername());
+        boolean flag = HashSaltUtil.validPassword(user.getPassword(), userDb.getPassword());
+        ConditionUtil.validateTrue(flag).orElseThrow(() -> new AuthException(ErrorEnum.ERROR_LOGIN));
         return user;
     }
 
 
     @Override
     public int resetPassword(@NonNull String password, @NonNull User user) {
-        if (user.getCurrentRole() == 3) {
-            return userMapper.resetPasswordStudent(user.getUsername(), SecureUtil.md5(user.getUsername() + SecureUtil.md5(password)));
-        }
-        return userMapper.resetPasswordTeacher(user.getUsername(), SecureUtil.md5(user.getUsername() + SecureUtil.md5(password)));
+        password = HashSaltUtil.getEncryptedPwd(password);
+        return isStudent(user) ? userMapper.resetPasswordStudent(user.getUsername(), password) : userMapper.resetPasswordTeacher(user.getUsername(), password);
     }
 
     @Override
@@ -57,20 +54,19 @@ public class UserServiceImpl implements UserService {
         if (isStudent(user)) {
             StudentVo studentVo = new StudentVo();
             Student student = studentMapper.getById(user.getUsername());
-            Optional.ofNullable(student).orElseThrow(DataException::new);
+            Optional.ofNullable(student).orElseThrow(() -> new DataException(ErrorEnum.ERROR));
             BeanUtils.copyProperties(student, studentVo);
             return studentVo;
         }
         TeacherVo teacherVo = new TeacherVo();
         Teacher teacher = teacherMapper.getById(user.getUsername());
-        Optional.ofNullable(teacher).orElseThrow(DataException::new);
+        Optional.ofNullable(teacher).orElseThrow(() -> new DataException(ErrorEnum.ERROR));
         BeanUtils.copyProperties(teacher, teacherVo);
         teacherVo.setCurrentRole(user.getCurrentRole());
         return teacherVo;
     }
 
     private boolean isStudent(User user) {
-        List<Integer> roleList = JSON.parseArray(user.getRole()).toJavaList(Integer.class);
-        return roleList.get(0) == RoleEnum.STUDENT.getCode();
+        return user.getCurrentRole() == RoleEnum.STUDENT.getCode();
     }
 }

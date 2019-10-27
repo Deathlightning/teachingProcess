@@ -4,20 +4,17 @@ import com.github.pagehelper.PageInfo;
 import org.apache.poi.ss.usermodel.Workbook;
 import xyz.kingsword.course.VO.SortCourseVo;
 import xyz.kingsword.course.pojo.SortCourse;
-import xyz.kingsword.course.pojo.param.sortCourse.SearchParam;
-import xyz.kingsword.course.pojo.param.sortCourse.UpdateParam;
+import xyz.kingsword.course.pojo.param.SortCourseSearchParam;
+import xyz.kingsword.course.pojo.param.SortCourseUpdateParam;
 
+import java.io.InputStream;
 import java.util.List;
 
 public interface SortCourseService {
 
-    void insertSortCourse(SortCourse sortCourse);
-
     void insertSortCourseList(List<SortCourse> sortCourseList);
 
-    void setTeacher(Integer id, String teaId);
-
-    void setSortCourse(UpdateParam updateParam);
+    void setSortCourse(SortCourseUpdateParam sortCourseUpdateParam);
 
     void deleteSortCourseRecord(List<Integer> id);
 
@@ -25,16 +22,13 @@ public interface SortCourseService {
 
     List<SortCourseVo> getTeacherHistory(String courseId);
 
-    PageInfo<SortCourseVo> search(SearchParam param);
-
-
-    List<SortCourse> getTeacherList(String teaId);
-
+    PageInfo<SortCourseVo> search(SortCourseSearchParam param);
 
     void mergeCourseHead(List<Integer> id);
 
     void restoreCourseHead(List<Integer> id);
 
+    List<SortCourse> excelImport(InputStream inputStream);
 
     Workbook excelExport(String semesterId);
 }

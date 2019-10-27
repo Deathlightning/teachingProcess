@@ -1,6 +1,6 @@
 package xyz.kingsword.course.pojo;
 
-import lombok.Data;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -9,8 +9,11 @@ import java.io.Serializable;
  *
  * @author wzh
  */
+@Builder
 @Data
-public class TrainingProgram implements Serializable, Comparable<TrainingProgram> {
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
+public class TrainingProgram implements Serializable {
     /**
      * id
      */
@@ -20,6 +23,10 @@ public class TrainingProgram implements Serializable, Comparable<TrainingProgram
      * 课程id
      */
     private String courseId;
+    /**
+     * 1通识教育必修课，2通识教育选修课，3专业必修课,4专业选修课,5学科必修课,6实践环节
+     */
+    private int type;
 
     /**
      * 课程名
@@ -29,7 +36,7 @@ public class TrainingProgram implements Serializable, Comparable<TrainingProgram
     /**
      * 学分
      */
-    private Float credit;
+    private float credit;
 
     /**
      * 是否核心课程
@@ -49,32 +56,31 @@ public class TrainingProgram implements Serializable, Comparable<TrainingProgram
     /**
      * 总学时
      */
-    private Float timeAll;
+    private float timeAll;
 
     /**
      * 理论学时
      */
-    private Float timeTheory=0F;
+    @Builder.Default
+    private float timeTheory = 0F;
 
     /**
      * 实验学时
      */
-    private Float timeLab = 0f;
-
-    /**
-     * 实践学时
-     */
-    private Float timePractical = 0f;
+    @Builder.Default
+    private float timeLab = 0f;
 
     /**
      * 上机学时
      */
-    private Float timeComputer = 0f;
+    @Builder.Default
+    private float timeComputer = 0f;
 
     /**
      * 其他学时
      */
-    private Float timeOther = 0f;
+    @Builder.Default
+    private float timeOther = 0f;
 
     /**
      * 起始学期
@@ -87,10 +93,12 @@ public class TrainingProgram implements Serializable, Comparable<TrainingProgram
      */
     private int grade;
 
+    private int specialityId;
+
+    private String semesterId;
+
+    private int status;
+
     private static final long serialVersionUID = 1L;
 
-    @Override
-    public int compareTo(TrainingProgram o) {
-        return o.getCourseId().compareTo(this.getCourseId());
-    }
 }

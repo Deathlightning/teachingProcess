@@ -3,7 +3,7 @@ package xyz.kingsword.course.service;
 import com.github.pagehelper.PageInfo;
 import xyz.kingsword.course.pojo.SortCourse;
 import xyz.kingsword.course.pojo.Student;
-import xyz.kingsword.course.pojo.param.sortCourse.SearchParam;
+import xyz.kingsword.course.pojo.param.SortCourseSearchParam;
 
 import java.util.List;
 
@@ -21,5 +21,5 @@ public interface StudentService {
 
     PageInfo<Student> findByName(String name, Integer pageNumber, Integer pageSize);
 
-    List<SortCourse> getCurriculum(SearchParam param);
+    List<SortCourse> getCurriculum(SortCourseSearchParam param);
 }

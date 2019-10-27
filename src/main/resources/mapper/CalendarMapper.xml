@@ -23,7 +23,7 @@
     <result column="tea_name" jdbcType="CHAR" property="teaName"/>
   </resultMap>
 
-  <resultMap id="CalendarData" type="xyz.kingsword.course.dao.DO.CalendarDataDO">
+  <resultMap id="CalendarData" type="xyz.kingsword.course.pojo.DO.CalendarDataDO">
     <result column="id" property="id" jdbcType="INTEGER"/>
     <result column="tea_name" property="teaName" jdbcType="CHAR"/>
     <result column="title" property="title" jdbcType="CHAR"/>

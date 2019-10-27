@@ -21,7 +21,7 @@ import javax.servlet.http.HttpSession;
 import java.lang.reflect.Method;
 
 /**
- * aop做权限验证
+ * 比较简单的权限验证方式，更灵活的可以考虑shiro
  */
 @Slf4j
 @Aspect

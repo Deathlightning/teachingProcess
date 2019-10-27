@@ -9,20 +9,21 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import xyz.kingsword.course.VO.SortCourseVo;
 import xyz.kingsword.course.annocations.Role;
 import xyz.kingsword.course.pojo.Result;
 import xyz.kingsword.course.pojo.SortCourse;
-import xyz.kingsword.course.pojo.param.sortCourse.SearchParam;
-import xyz.kingsword.course.pojo.param.sortCourse.UpdateParam;
-import xyz.kingsword.course.service.ExcelService;
+import xyz.kingsword.course.pojo.param.SortCourseSearchParam;
+import xyz.kingsword.course.pojo.param.SortCourseUpdateParam;
 import xyz.kingsword.course.service.SortCourseService;
 import xyz.kingsword.course.util.ConditionUtil;
 import xyz.kingsword.course.util.TimeUtil;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,18 +33,16 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
-@Api("排课操作类")
+@Api(tags = "排课操作类")
 public class SortCourseController {
     @Autowired
     private SortCourseService sortCourseService;
-    @Resource(name = "SortServiceImpl")
-    private ExcelService<SortCourse> excelService;
 
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     @ApiOperation(value = "排课列表搜索接口")
     @ApiImplicitParam(name = "searchParam", value = "排课数据查询参数，字段可任意组合，sortCourseFlag为排课标志,已分配为1，未分配-1，全部为0", required = true, dataType = "SearchParam")
-    public Result<PageInfo> search(@RequestBody SearchParam searchParam) {
-        PageInfo pageInfo = sortCourseService.search(searchParam);
+    public Result<PageInfo> search(@RequestBody SortCourseSearchParam sortCourseSearchParam) {
+        PageInfo pageInfo = sortCourseService.search(sortCourseSearchParam);
         return new Result<>(pageInfo);
     }
 
@@ -56,7 +55,7 @@ public class SortCourseController {
     }
 
     @RequestMapping(value = "/teacherHistory", method = RequestMethod.GET)
-    @ApiOperation(value = "课程教授记录")
+    @ApiOperation(value = "教师教授记录")
     @ApiImplicitParam(name = "teacherId", value = "教师id", paramType = "query", required = true, dataType = "String")
     public Result teacherHistory(String teacherId) {
         List<SortCourseVo> sortCourseVoList = sortCourseService.getTeacherHistory(teacherId);
@@ -76,7 +75,7 @@ public class SortCourseController {
     @RequestMapping(value = "/setSortCourse", method = RequestMethod.PUT)
     @ApiOperation(value = "给课程设置老师，或者给老师设置课程")
     @ApiImplicitParam(name = "param", value = "id为排课数据id必传，其他任给一个", required = true, dataType = "UpdateParam")
-    public Result setSortCourse(@RequestBody UpdateParam param) {
+    public Result setSortCourse(@RequestBody SortCourseUpdateParam param) {
         sortCourseService.setSortCourse(param);
         return new Result();
     }
@@ -87,7 +86,7 @@ public class SortCourseController {
         Optional.ofNullable(file).orElseThrow(() -> new ValidateException("文件上传错误"));
         ConditionUtil.validateTrue(!file.isEmpty()).orElseThrow(() -> new ValidateException("文件上传错误"));
         String semesterId = file.getOriginalFilename().substring(0, 5);
-        List<SortCourse> sortCourseList = excelService.excelImport(file.getInputStream());
+        List<SortCourse> sortCourseList = sortCourseService.excelImport(file.getInputStream());
         sortCourseList.forEach(v -> v.setSemesterId(semesterId));
         sortCourseService.insertSortCourseList(sortCourseList);
         return new Result();

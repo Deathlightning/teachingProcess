@@ -7,7 +7,7 @@ import xyz.kingsword.course.pojo.User;
 @Mapper
 public interface UserMapper {
 
-    User login(@Param("username") String username, @Param("password") String password);
+    User login(String username);
 
     User loginOnUsername(@Param("username") String username);
 

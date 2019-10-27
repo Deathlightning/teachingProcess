@@ -3,6 +3,7 @@ package xyz.kingsword.course.service;
 
 import com.github.pagehelper.PageInfo;
 import xyz.kingsword.course.pojo.Classes;
+import xyz.kingsword.course.pojo.Course;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface ClassesService {
     List<Classes> getByName(List<String> name);
 
     List<Classes> getSchoolClass();
+
+    List<Course> getCurriculum(String className, String semesterId);
 }
