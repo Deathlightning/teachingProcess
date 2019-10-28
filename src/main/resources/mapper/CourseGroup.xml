@@ -10,6 +10,8 @@
     <result column="tea_name" jdbcType="CHAR" property="teacherName"/>
     <result column="class_name" jdbcType="CHAR" property="className"/>
     <result column="calendar_id" jdbcType="INTEGER" property="calendarId"/>
+    <result column="course_nature" jdbcType="INTEGER" property="courseNature"/>
+    <result column="text_book" jdbcType="CHAR" property="textBookStr"/>
   </resultMap>
   <select id="select" resultMap="BaseResultMap">
     select * from course_group_view

@@ -9,14 +9,16 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.kingsword.course.dao.BookMapper;
+import xyz.kingsword.course.dao.CourseGroupMapper;
 import xyz.kingsword.course.dao.CourseMapper;
 import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.exception.DataException;
 import xyz.kingsword.course.pojo.Book;
 import xyz.kingsword.course.pojo.BookOrder;
 import xyz.kingsword.course.pojo.Course;
-import xyz.kingsword.course.pojo.DO.BookExportViewDo;
+import xyz.kingsword.course.pojo.CourseGroup;
 import xyz.kingsword.course.pojo.DO.BookOrderDo;
+import xyz.kingsword.course.pojo.param.CourseGroupSelectParam;
 import xyz.kingsword.course.service.BookService;
 import xyz.kingsword.course.util.ConditionUtil;
 import xyz.kingsword.course.util.TimeUtil;
@@ -34,6 +36,8 @@ public class BookServiceImpl implements BookService {
     private BookMapper bookMapper;
     @Resource
     private CourseMapper courseMapper;
+    @Resource
+    private CourseGroupMapper courseGroupMapper;
     /**
      * 在校的班级数量
      */
@@ -171,7 +175,7 @@ public class BookServiceImpl implements BookService {
                 .distinct()
                 .sorted((a, b) -> StrUtil.compare(a, b, true))
                 .toArray(String[]::new);
-
+//          更新订书班级
         setClassArray(classArray);
 
         Map<String, Integer> classNameToCellIndex = new HashMap<>(this.classArray.length);
@@ -183,23 +187,24 @@ public class BookServiceImpl implements BookService {
 //        主键为书籍id，便于搜索
         Map<Integer, Book> bookMap = bookMapper.selectBookList(allBookIdList)
                 .parallelStream().collect(Collectors.toMap(Book::getId, v -> v));
-        List<BookExportViewDo> bookExportViewDoList = bookMapper.getCourseInfo(semesterId);
 
-        Map<String, List<BookExportViewDo>> courseMap = bookExportViewDoList.parallelStream()
-                .collect(Collectors.groupingBy(BookExportViewDo::getCourseId));
+        List<CourseGroup> courseGroupList = courseGroupMapper.select(CourseGroupSelectParam.builder().semesterId(semesterId).build());
+
+        Map<String, List<CourseGroup>> courseMap = courseGroupList.parallelStream()
+                .collect(Collectors.groupingBy(CourseGroup::getCouId));
 
         int length = CLASS_START_INDEX + this.classArray.length;
         String[][] data = new String[courseMap.size()][];
         for (int i = 0; i < courseMap.size(); i++) {
-            BookExportViewDo bookExportViewDo = bookExportViewDoList.get(i);
-            String courseId = bookExportViewDo.getCourseId();
+            CourseGroup courseGroup = courseGroupList.get(i);
+            String courseId = courseGroup.getCouId();
             String[] strings = new String[length];
             Arrays.fill(strings, "");
             strings[0] = courseId;
-            strings[1] = bookExportViewDo.getCourseName();
-            strings[2] = bookExportViewDo.getNature();
-            strings[3] = bookExportViewDo.getClassName().replace(" ", "\n");
-            List<Integer> bookIdList = bookExportViewDo.getTextBookList();
+            strings[1] = courseGroup.getCourseName();
+            strings[2] = courseGroup.getCourseNature();
+            strings[3] = courseGroup.getClassName().replace(" ", "\n");
+            List<Integer> bookIdList = courseGroup.getTextBook();
             if (bookIdList.size() > 0) {
                 StrBuilder isbn = new StrBuilder();
                 StrBuilder name = new StrBuilder();
@@ -234,8 +239,8 @@ public class BookServiceImpl implements BookService {
                 strings[9] = pubDate.toStringAndReset();
                 strings[10] = edition.toStringAndReset();
                 strings[11] = award.toStringAndReset();
-                strings[12] = courseMap.get(bookExportViewDo.getCourseId())
-                        .parallelStream().map(BookExportViewDo::getTeacherName)
+                strings[12] = courseMap.get(courseGroup.getCouId())
+                        .parallelStream().map(CourseGroup::getTeacherName)
                         .distinct().collect(Collectors.joining("\n"));
                 strings[13] = forTeacher.toStringAndReset();
             }

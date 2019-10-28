@@ -1,5 +1,6 @@
 package xyz.kingsword.course.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/classes")
+@Api(tags = "班级接口")
 public class ClassesController {
 
     @Autowired

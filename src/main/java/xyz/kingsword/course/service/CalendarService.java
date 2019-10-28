@@ -3,28 +3,11 @@ package xyz.kingsword.course.service;
 import com.deepoove.poi.XWPFTemplate;
 import com.github.pagehelper.PageInfo;
 import xyz.kingsword.course.pojo.Calendar;
-import xyz.kingsword.course.pojo.TeacherGroup;
+import xyz.kingsword.course.pojo.param.CalendarSelectParam;
 
 import java.util.List;
 
 public interface CalendarService {
-    /**
-     * 查本课程组所有的教学日历
-     *
-     * @param courseId 课程id
-     * @return List<Calendar>
-     */
-    List<Calendar> selectOnCourse(String courseId);
-
-    /**
-     * 查单个教学日历
-     *
-     * @param sortId 排课id
-     * @param teaId  教师id
-     * @return Calendar
-     */
-    Calendar selectOne(int sortId, String teaId);
-
     /**
      * 查单个教学日历
      *
@@ -32,6 +15,8 @@ public interface CalendarService {
      * @return Calendar
      */
     Calendar selectOne(int id);
+
+    PageInfo<Calendar> search(CalendarSelectParam param);
 
 
     int insert(Calendar calendar);
@@ -46,19 +31,14 @@ public interface CalendarService {
      */
     void verify(List<Integer> ids, int roleId);
 
-    PageInfo<TeacherGroup> getCourseGroupByResearch(int researchRoomId, String semesterId, int pageNum, int pageSize);
-
 
     XWPFTemplate export(int calendarId);
 
-    PageInfo<Calendar> getVerifyStatus(String courseId, String semesterId, int pageNum, int pageSize);
-
     /**
-     * 复制教学日历，仅需本课程组
+     * 复制教学日历，仅本课程组
      *
-     * @param id       被复制教学日历id
-     * @param teaId    执行复制操作的教师id
-     * @param courseId 所属课程id
+     * @param id    被复制教学日历id
+     * @param teaId 执行复制操作的教师id
      */
-    void copy(int id, String teaId, String courseId);
+    void copy(int id, String teaId);
 }

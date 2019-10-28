@@ -9,7 +9,8 @@ public enum RoleEnum {
     ACADEMIC_MANAGER(2, "教学部"),
     STUDENT(3, "学生"),
     SPECIALTY_MANAGER(4, "专业负责人"),
-    OFFICE_MANAGER(5, "教研室主任");
+    OFFICE_MANAGER(5, "教研室主任"),
+    COURSE_MANAGER(6, "课程负责人");
 
 
     private int code;

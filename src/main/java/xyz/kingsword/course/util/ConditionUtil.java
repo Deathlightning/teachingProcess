@@ -13,6 +13,7 @@ public class ConditionUtil {
         return new ConditionUtil(flag);
     }
 
+
     public <X extends Throwable> void orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
         if (!flag)
             throw exceptionSupplier.get();

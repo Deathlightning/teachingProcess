@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import xyz.kingsword.course.pojo.DO.CalendarDataDO;
 import xyz.kingsword.course.pojo.Calendar;
 import xyz.kingsword.course.pojo.TeacherGroup;
+import xyz.kingsword.course.pojo.param.CalendarSelectParam;
 
 import java.util.List;
 
@@ -13,18 +14,11 @@ import java.util.List;
 public interface CalendarMapper {
     int insert(Calendar record);
 
-    int insertSelective(Calendar record);
-
     Calendar selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(Calendar record);
+    int update(Calendar record);
 
-    int updateByPrimaryKey(Calendar record);
-
-    int insertContent(@Param("teachingContent") String teachingContent, @Param("id") int id);
-
-//    int insertBasicParam(CalendarTimeParam param);
-
+    List<Calendar> search(CalendarSelectParam param);
 
     /**
      * 查看课程组教学日历

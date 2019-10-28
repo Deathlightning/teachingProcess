@@ -17,6 +17,7 @@ public enum ErrorEnum {
     NO_AUTH(402, "没有权限"),
     ERROR_PARAMETER(403, "参数异常"),
     ERROR_FILE(405, "文件上传异常"),
+    OPERATION_FORBIDDEN(406, "操作禁止"),
 
     /**
      * 排课
@@ -35,8 +36,9 @@ public enum ErrorEnum {
     /**
      * 编码可能导致的问题
      */
-    DATA_ERROR(501, "数据库数据异常"),
-    ERROR(500, "系统内部异常");
+
+    ERROR(500, "系统内部异常"),
+    DATA_ERROR(501, "数据库数据异常");
 
     private Integer code;
 

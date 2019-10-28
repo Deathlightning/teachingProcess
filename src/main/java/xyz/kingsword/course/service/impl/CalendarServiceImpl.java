@@ -1,8 +1,6 @@
 package xyz.kingsword.course.service.impl;
 
 import cn.hutool.core.io.resource.ClassPathResource;
-import cn.hutool.core.lang.Validator;
-import cn.hutool.core.util.ObjectUtil;
 import com.deepoove.poi.XWPFTemplate;
 import com.deepoove.poi.config.Configure;
 import com.github.pagehelper.PageHelper;
@@ -10,18 +8,23 @@ import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import xyz.kingsword.course.dao.CalendarMapper;
 import xyz.kingsword.course.dao.CourseGroupMapper;
-import xyz.kingsword.course.pojo.DO.CalendarDataDO;
 import xyz.kingsword.course.dao.SemesterMapper;
 import xyz.kingsword.course.enmu.ErrorEnum;
+import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.exception.DataException;
+import xyz.kingsword.course.exception.OperationException;
 import xyz.kingsword.course.pojo.Calendar;
 import xyz.kingsword.course.pojo.CourseGroup;
-import xyz.kingsword.course.pojo.TeacherGroup;
+import xyz.kingsword.course.pojo.DO.CalendarDataDO;
+import xyz.kingsword.course.pojo.param.CalendarSelectParam;
+import xyz.kingsword.course.pojo.param.CourseGroupSelectParam;
 import xyz.kingsword.course.service.CalendarService;
 import xyz.kingsword.course.service.calendarExport.CalendarData;
 import xyz.kingsword.course.service.calendarExport.TableRenderPolicy;
+import xyz.kingsword.course.util.ConditionUtil;
 import xyz.kingsword.course.util.Constant;
 
 import java.util.List;
@@ -38,18 +41,13 @@ public class CalendarServiceImpl implements CalendarService {
     private CourseGroupMapper courseGroupMapper;
 
     @Override
-    public List<Calendar> selectOnCourse(String courseId) {
-        return null;
-    }
-
-    @Override
-    public Calendar selectOne(int sortId, String teaId) {
-        return null;
-    }
-
-    @Override
     public Calendar selectOne(int id) {
         return calendarMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public PageInfo<Calendar> search(CalendarSelectParam param) {
+        return PageHelper.startPage(param.getPageNum(), param.getPageSize()).doSelectPageInfo(() -> calendarMapper.search(param));
     }
 
     @Override
@@ -59,32 +57,17 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     public int update(Calendar calendar) {
-        return calendarMapper.updateByPrimaryKeySelective(calendar);
+        return calendarMapper.update(calendar);
     }
 
     @Override
     public void verify(List<Integer> ids, int roleId) {
-        int status;
-        switch (roleId) {
-            //课程负责人审核
-            case 4:
-                status = 2;
-                break;
-            //教研室主任审核
-            case 5:
-                status = 1;
-                break;
-            default:
-                status = 0;
-
-        }
+        int status = 0;
+        if (roleId == RoleEnum.OFFICE_MANAGER.getCode())
+            status = 2;
+        if (roleId == RoleEnum.COURSE_MANAGER.getCode())
+            status = 1;
         calendarMapper.setStatus(ids, status);
-    }
-
-    @Override
-    public PageInfo<TeacherGroup> getCourseGroupByResearch(int researchRoomId, String semesterId, int pageNum, int pageSize) {
-        return PageHelper.startPage(pageNum, pageSize).doSelectPageInfo(() -> calendarMapper.getCourseGroupByResearch(researchRoomId, semesterId));
-
     }
 
     @Override
@@ -98,21 +81,17 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public PageInfo<Calendar> getVerifyStatus(String courseId, String semesterId, int pageNum, int pageSize) {
-        return PageHelper.startPage(pageNum, pageSize).doSelectPageInfo(() -> calendarMapper.getVerifyStatus(courseId, semesterId));
-    }
-
-    @Override
-    public void copy(int id, String teaId, String courseId) {
+    @Transactional
+    public void copy(int id, String teaId) {
         Calendar calendar = calendarMapper.selectByPrimaryKey(id);
-        List<CourseGroup> courseGroupList = courseGroupMapper.select(null, null, courseId, teaId);
-        Validator.validateFalse(courseGroupList.isEmpty(), "数据库错误");
+        CourseGroupSelectParam param = CourseGroupSelectParam.builder()
+                .teaId(teaId).courseId(calendar.getCourseId()).semesterId(calendar.getSemesterId())
+                .build();
+        List<CourseGroup> courseGroupList = courseGroupMapper.select(param);
+        ConditionUtil.validateTrue(!courseGroupList.isEmpty()).orElseThrow(() -> new DataException(ErrorEnum.DATA_ERROR));
         CourseGroup courseGroup = courseGroupList.get(0);
-        Validator.validateTrue(courseGroup.getCalendarId() == null, "您已填写教学日历");
-        boolean flag = ObjectUtil.equal(courseId, calendar.getCourseId());
-        Validator.validateTrue(flag, "不属于同一课程组");
+        ConditionUtil.validateTrue(courseGroup.getCalendarId() != null).orElseThrow(() -> new OperationException(ErrorEnum.OPERATION_FORBIDDEN));
         calendar.setTeaId(teaId);
-        calendar.setSortId(courseGroup.getSortId());
         calendarMapper.insert(calendar);
     }
 

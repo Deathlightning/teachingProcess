@@ -1,7 +1,7 @@
 package xyz.kingsword.course.dao;
 
-import org.apache.ibatis.annotations.Param;
 import xyz.kingsword.course.pojo.CourseGroup;
+import xyz.kingsword.course.pojo.param.CourseGroupSelectParam;
 
 import java.util.List;
 
@@ -12,5 +12,5 @@ public interface CourseGroupMapper {
     /**
      * 多条件查询，不需要可传空
      */
-    List<CourseGroup> select(@Param("sortId") Integer sortId, @Param("semesterId") String semesterId, @Param("courseId") String courseId, @Param("teaId") String teaId);
+    List<CourseGroup> select(CourseGroupSelectParam courseGroupSelectParam);
 }

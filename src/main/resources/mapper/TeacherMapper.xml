@@ -5,7 +5,7 @@
     <id column="id" jdbcType="CHAR" property="id"/>
     <result column="password" jdbcType="CHAR" property="password"/>
     <result column="name" jdbcType="CHAR" property="name"/>
-    <result column="reasearch_id" jdbcType="INTEGER" property="researchId"/>
+    <result column="research_room" jdbcType="INTEGER" property="researchId"/>
     <result column="phone" jdbcType="CHAR" property="phone"/>
     <result column="email" jdbcType="CHAR" property="email"/>
     <result column="department_school" jdbcType="CHAR" property="departmentSchool"/>
@@ -34,7 +34,7 @@
     where id = #{id,jdbcType=CHAR}
   </delete>
   <insert id="insert" parameterType="xyz.kingsword.course.pojo.Teacher">
-    insert into teacher (id, password, name, reasearch_id,
+    insert into teacher (id, password, name, research_room,
                          phone, email, department_school,
                          teaching_title, education, gender, role,
                          course_in_charge, specialty_in_charge)
@@ -47,7 +47,7 @@
   <update id="updateByPrimaryKey" parameterType="xyz.kingsword.course.pojo.Teacher">
     update teacher
     set `name`              = #{name,jdbcType=CHAR},
-        reasearch_id        = #{researchId,jdbcType=INTEGER},
+        research_room        = #{researchId,jdbcType=INTEGER},
         phone               = #{phone,jdbcType=CHAR},
         email               = #{email,jdbcType=CHAR},
         department_school   = #{departmentSchool,jdbcType=CHAR},
@@ -79,7 +79,7 @@
   <select id="selectAll" resultMap="BaseResultMap">
     select id,
            `name`,
-           reasearch_id,
+           research_room,
            phone,
            email,
            teaching_title,
@@ -93,13 +93,13 @@
   </select>
   <update id="updateResearch">
     update teacher
-    set reasearch_id=#{researchId,jdbcType=VARCHAR}
+    set research_room=#{researchId,jdbcType=VARCHAR}
     where id = #{teaId,jdbcType=VARCHAR}
   </update>
   <select id="findTeacherByName" resultMap="BaseResultMap">
     select id,
            name,
-           reasearch_id,
+           research_room,
            phone,
            email,
            department_school,
@@ -114,7 +114,7 @@
   <select id="getAllTeacherByRole" resultMap="BaseResultMap">
     select id,
            `name`,
-           reasearch_id,
+           research_room,
            phone,
            teaching_title,
            email,
@@ -144,7 +144,7 @@
   <select id="getAllTeacherByCourseName" resultMap="BaseResultMap">
     SELECT t.id,
            t.`name`,
-           t.reasearch_id,
+           t.research_room,
            t.phone,
            t.email,
            t.department_school,

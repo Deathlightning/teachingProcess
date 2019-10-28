@@ -2,7 +2,6 @@ package xyz.kingsword.course.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.ToString;
 
 import java.util.Date;
 
@@ -11,6 +10,9 @@ import java.util.Date;
  */
 @Data
 public class TeachingContent implements Comparable<TeachingContent> {
+    /**
+     * 自增
+     */
     private int id;
     /**
      * 授课顺序
