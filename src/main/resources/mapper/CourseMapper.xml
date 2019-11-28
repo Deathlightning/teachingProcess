@@ -180,6 +180,12 @@
       <if test="teacherInCharge !=null and teacherInCharge!=''">
         and teacher_in_charge =#{teacherInCharge}
       </if>
+      <if test="declareStatus == true">
+        and JSON_LENGTH(text_book)>0
+      </if>
+      <if test="declareStatus == false">
+        and JSON_LENGTH(text_book)=0
+      </if>
       and `status`=0
     </where>
     order by id

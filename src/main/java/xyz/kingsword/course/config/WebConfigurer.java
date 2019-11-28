@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import xyz.kingsword.course.enmu.ErrorEnum;
+import xyz.kingsword.course.exception.AuthException;
 import xyz.kingsword.course.util.SpringContextUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +22,10 @@ public class WebConfigurer implements WebMvcConfigurer {
             @Override
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
                 HttpSession session = request.getSession();
-                return session.getAttribute("user") != null || !profile.equals("prod");
+                if (session.getAttribute("user") == null && profile.equals("prod")) {
+                    throw new AuthException(ErrorEnum.UN_LOGIN);
+                }
+                return true;
             }
         }).excludePathPatterns("/login", "/logout");
     }

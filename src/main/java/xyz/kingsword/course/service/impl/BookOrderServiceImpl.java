@@ -44,6 +44,10 @@ public class BookOrderServiceImpl implements BookOrderService {
     @Resource
     private ConfigMapper configMapper;
 
+    /**
+     * @param bookOrderList
+     * @return
+     */
     @Override
     public List<Integer> insert(List<BookOrder> bookOrderList) {
 //        ConditionUtil.validateTrue(purchaseStatusCheck()).orElseThrow(() -> new OperationException(ErrorEnum.OPERATION_TIME_FORBIDDEN));
@@ -54,7 +58,7 @@ public class BookOrderServiceImpl implements BookOrderService {
             orderIdList.add(bookOrder.getId());
             bookIdList.add(bookOrder.getBookId());
         }
-
+//如果是老师订书，就给forTeacher自增
         Optional.ofNullable(UserUtil.getTeacher())
                 .ifPresent(v -> bookMapper.teacherPurchase(bookIdList.parallelStream().distinct().collect(Collectors.toList())));
         return orderIdList;

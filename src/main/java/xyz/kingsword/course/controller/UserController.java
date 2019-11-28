@@ -66,7 +66,7 @@ public class UserController {
     public Result logout(HttpSession session, HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
-            cookie.setMaxAge(0);
+            cookie.setMaxAge(1);
         }
         session.invalidate();
         return new Result();

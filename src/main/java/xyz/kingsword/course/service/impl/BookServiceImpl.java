@@ -9,17 +9,13 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import xyz.kingsword.course.dao.BookMapper;
-import xyz.kingsword.course.dao.ConfigMapper;
-import xyz.kingsword.course.dao.CourseGroupMapper;
-import xyz.kingsword.course.dao.CourseMapper;
+import xyz.kingsword.course.dao.*;
 import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.exception.AuthException;
 import xyz.kingsword.course.exception.DataException;
 import xyz.kingsword.course.exception.OperationException;
 import xyz.kingsword.course.pojo.*;
-import xyz.kingsword.course.service.BookOrderService;
 import xyz.kingsword.course.service.BookService;
 import xyz.kingsword.course.util.ConditionUtil;
 import xyz.kingsword.course.util.SpringContextUtil;
@@ -35,8 +31,6 @@ public class BookServiceImpl implements BookService {
     private BookMapper bookMapper;
     @Resource
     private CourseMapper courseMapper;
-    @Resource
-    private BookOrderService bookOrderService;
     @Resource
     private ConfigMapper configMapper;
 
@@ -154,28 +148,35 @@ public class BookServiceImpl implements BookService {
         return book;
     }
 
+    /**
+     * 新增教材，默认会给每一位老师都订书
+     *
+     * @param book     book
+     * @param courseId courseId
+     */
     @Override
     @Transactional
     @CachePut(cacheNames = "book", key = "#result.id")
     public Book insert(Book book, String courseId) {
-//        ConditionUtil.validateTrue(declareCheck()).orElseThrow(() -> new OperationException(ErrorEnum.OPERATION_TIME_FORBIDDEN));
         validateAuth(courseId);
-        bookMapper.insert(book);
-        courseMapper.addCourseBook(book.getId(), courseId);
-//默认给每一位老师订书
         CourseGroupMapper courseGroupMapper = SpringContextUtil.getBean(CourseGroupMapper.class);
+        BookOrderMapper bookOrderMapper = SpringContextUtil.getBean(BookOrderMapper.class);
         List<CourseGroup> courseGroupList = courseGroupMapper.getNextSemesterCourseGroup(courseId);
         book.setForTeacher(courseGroupList.size());
+        bookMapper.insert(book);
+        int bookId = book.getId();
+        courseMapper.addCourseBook(bookId, courseId);
+
         List<BookOrder> bookOrderList = new ArrayList<>(courseGroupList.size());
         for (CourseGroup courseGroup : courseGroupList) {
             BookOrder bookOrder = new BookOrder();
             bookOrder.setUserId(courseGroup.getTeaId());
-            bookOrder.setBookId(book.getId());
+            bookOrder.setBookId(bookId);
             bookOrder.setCourseId(courseId);
             bookOrder.setSemesterId(courseGroup.getSemesterId());
             bookOrderList.add(bookOrder);
         }
-        bookOrderService.insert(bookOrderList);
+        bookOrderMapper.insert(bookOrderList);
         return book;
     }
 

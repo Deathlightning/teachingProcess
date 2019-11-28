@@ -1,6 +1,7 @@
 package xyz.kingsword.course.pojo.param;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 @Builder
@@ -16,6 +17,9 @@ public class CourseSelectParam {
     private String researchRoom;
 
     private String teacherInCharge;
+
+    @ApiModelProperty(value = "是否报了教材，全部可为null")
+    private Boolean declareStatus;
 
     @Builder.Default
     private int pageNum = 1;

@@ -50,7 +50,6 @@ public class CourseController {
         return new Result();
     }
 
-
     @GetMapping("/courseInfo")
     @ApiOperation("获取课程信息")
     @ApiImplicitParam(name = "courseId", required = true)

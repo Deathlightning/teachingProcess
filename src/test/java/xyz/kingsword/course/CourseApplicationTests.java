@@ -26,6 +26,7 @@ import xyz.kingsword.course.pojo.*;
 import xyz.kingsword.course.pojo.param.TeacherSelectParam;
 import xyz.kingsword.course.service.calendarExport.CalendarData;
 import xyz.kingsword.course.util.PinYinTool;
+import xyz.kingsword.course.util.SpringContextUtil;
 
 import javax.annotation.Resource;
 import java.io.FileInputStream;
@@ -58,10 +59,8 @@ public class CourseApplicationTests {
 
     @Test
     public void contextLoads() throws Exception {
-        PinYinTool pinYinTool = new PinYinTool();
-        List<Teacher> teacherList = teacherMapper.select(TeacherSelectParam.builder().pageSize(0).build());
-        teacherList.forEach(v -> v.setId(pinYinTool.toPinYin(v.getName())));
-        teacherList.forEach(v -> teacherMapper.updateByPrimaryKey(v));
+        CourseGroupMapper courseGroupMapper = SpringContextUtil.getBean(CourseGroupMapper.class);
+        List<CourseGroup> courseGroupList = courseGroupMapper.getNextSemesterCourseGroup("RZ7001097");
     }
 
     private static boolean isChineseByScript(String a) {
