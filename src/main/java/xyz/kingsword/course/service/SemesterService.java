@@ -7,11 +7,9 @@ public interface SemesterService {
 
     void addSemester(Semester semester);
 
-    int updateById(Semester semester);
+    void updateById(Semester semester);
 
     PageInfo<Semester> getAllSemester(Integer pageNumber, Integer pageSize);
-
-    PageInfo<Semester> findByName(String name, Integer pageNumber, Integer pageSize);
 
 
     /**

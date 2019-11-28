@@ -1,27 +1,19 @@
 package xyz.kingsword.course.controller;
 
-import cn.hutool.core.lang.Dict;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import xyz.kingsword.course.annocations.Role;
+import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.pojo.Book;
-import xyz.kingsword.course.pojo.BookOrder;
 import xyz.kingsword.course.pojo.Result;
-import xyz.kingsword.course.pojo.User;
 import xyz.kingsword.course.service.BookService;
 import xyz.kingsword.course.util.BookUtil;
-import xyz.kingsword.course.util.TimeUtil;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -40,8 +32,9 @@ public class BookController {
 
     @RequestMapping(value = "/update", method = RequestMethod.PUT)
     @ApiOperation("更新")
-    public void update(@RequestBody Book book) {
+    public Result update(@RequestBody Book book) {
         bookService.update(book);
+        return new Result();
     }
 
     /**
@@ -80,19 +73,19 @@ public class BookController {
         return new Result<>(book);
     }
 
-    /**
-     * 更新给老师留几本教材
-     *
-     * @param num 新的数量
-     * @param id  教材id
-     */
-    @RequestMapping(value = "/updateForTeacher", method = RequestMethod.POST)
-    @ApiOperation("更新给老师留几本教材")
-    public Result updateForTeacher(int num, int id) {
-        bookService.updateForTeacher(num, id);
-        return new Result<>();
+    @RequestMapping(value = "/list", method = RequestMethod.POST)
+    @ApiOperation("根据id批量查")
+    public Result list(@RequestBody List<Integer> idList) {
+        List<Book> bookList = bookService.getByIdList(idList);
+        return new Result<>(bookList);
     }
 
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    @ApiOperation("删除教材")
+    public Result delete(@RequestBody List<Integer> idList, String courseId) {
+        bookService.delete(idList,courseId);
+        return new Result();
+    }
 
     @RequestMapping(value = "/isbn", method = RequestMethod.GET)
     @ApiOperation("教材查询接口，同步远程接口信息")
@@ -101,43 +94,34 @@ public class BookController {
         return new Result<>(book);
     }
 
-    @RequestMapping(value = "/purchase", method = RequestMethod.POST)
-    @ApiOperation("学生订书接口")
-    public Result purchase(@RequestBody List<BookOrder> bookOrderList) {
-        bookService.purchase(bookOrderList);
+
+    @RequestMapping(value = "/setDeclareStatus", method = RequestMethod.GET)
+    @ApiOperation("教师申报教材开关")
+    @Role(RoleEnum.ACADEMIC_MANAGER)
+    public Result setDeclareStatus(boolean flag) {
+        bookService.setDeclareStatus(flag);
         return new Result();
     }
 
-    @RequestMapping(value = "/getStudentOrder", method = RequestMethod.POST)
-    @ApiOperation("获取学生订书记录")
-    public Result getStudentOrder(String semesterId, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        String username = user.getUsername();
-        List<Book> bookList = bookService.getBookOrder(username, semesterId);
-        BigDecimal sum = bookList.parallelStream().map(v -> BigDecimal.valueOf(v.getPrice())).reduce(BigDecimal::add).orElse(new BigDecimal(0));
-        Dict dict = Dict.create()
-                .set("bookList", bookList)
-                .set("sum", sum.toString());
-        return new Result<>(dict);
+    @RequestMapping(value = "/setPurchaseStatus", method = RequestMethod.GET)
+    @ApiOperation("学生订书操作开关")
+    @Role(RoleEnum.ACADEMIC_MANAGER)
+    public Result setPurchaseStatus(boolean flag) {
+        bookService.setPurchaseStatus(flag);
+        return new Result();
     }
 
-
-    /**
-     * 教材订购信息导出
-     *
-     * @param semesterId 学期id
-     */
-    @RequestMapping(value = "/exportBookInfo", method = RequestMethod.GET)
-    @ApiOperation("教材订购信息导出")
-    public void exportBookInfo(HttpServletResponse response, String semesterId) throws IOException {
-        Workbook workbook = bookService.exportBookSubscription(semesterId);
-        String fileName = TimeUtil.getSemesterName(semesterId) + "教材征订计划表.xlsx";
-        fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), "ISO8859-1");
-        response.setContentType("application/msexcel;charset=UTF-8");
-        response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
-        response.addHeader("Param", "no-cache");
-        response.addHeader("Cache-Control", "no-cache");
-        workbook.write(response.getOutputStream());
+    @RequestMapping(value = "/getPurchaseStatus", method = RequestMethod.GET)
+    @ApiOperation("查看学生订书操作开关")
+    @Role(RoleEnum.ACADEMIC_MANAGER)
+    public Result getPurchaseStatus() {
+        return new Result<>(bookService.getPurchaseStatus());
     }
 
+    @RequestMapping(value = "/getDeclareStatus", method = RequestMethod.GET)
+    @ApiOperation("查看老师报教材操作开关")
+    @Role(RoleEnum.ACADEMIC_MANAGER)
+    public Result getDeclareStatus() {
+        return new Result<>(bookService.getDeclareStatus());
+    }
 }

@@ -1,15 +1,16 @@
 package xyz.kingsword.course.controller;
 
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.kingsword.course.pojo.Classes;
-import xyz.kingsword.course.pojo.Course;
 import xyz.kingsword.course.pojo.Result;
+import xyz.kingsword.course.pojo.param.ClassesSelectParam;
 import xyz.kingsword.course.service.ClassesService;
 
 import java.util.List;
@@ -25,22 +26,22 @@ public class ClassesController {
 
     @PostMapping("/insert")
     @ApiOperation("新增")
-    public String addClasses(List<Classes> classesList) {
+    public Result insert(List<Classes> classesList) {
         classesService.insert(classesList);
-        return "redirect:classesInfo";
+        return new Result();
     }
 
     @PostMapping("/update")
-    @ApiOperation("新增修改")
-    public String updateStudent(Classes Classes) {
-        classesService.updateById(Classes);
-        return "redirect:classesInfo";
+    @ApiOperation("修改")
+    public Result update(Classes Classes) {
+        classesService.update(Classes);
+        return new Result<>();
     }
 
-    @GetMapping("/getCurriculum")
-    @ApiOperation("获取课程表")
-    public Result getCurriculum(String className, String semesterId) {
-        List<Course> courseList = classesService.getCurriculum(className, semesterId);
-        return new Result<>(courseList);
+    @PostMapping("/select")
+    @ApiOperation("查")
+    public Result select(@RequestBody ClassesSelectParam param) {
+        PageInfo<Classes> pageInfo = classesService.select(param);
+        return new Result<>(pageInfo);
     }
 }

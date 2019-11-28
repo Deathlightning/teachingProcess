@@ -32,7 +32,7 @@ public class SortCourseSearchParam {
     /**
      * 排课标志，已分配为1，未分配-1，全部为0
      */
-    @ApiModelProperty(value = "排课标志，已分配为1，未分配-1，全部为0", allowableValues = "range[-1,0,1]", required = true, example = "0")
+    @ApiModelProperty(value = "排课标志，已分配为1，未分配-1，全部为0", allowableValues = "range[-1,0,1]", required = true)
     @Builder.Default
     private int sortCourseFlag = 0;
 }

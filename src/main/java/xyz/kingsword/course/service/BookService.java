@@ -1,33 +1,37 @@
 package xyz.kingsword.course.service;
 
-import org.apache.poi.ss.usermodel.Workbook;
-import xyz.kingsword.course.pojo.Book;
-import xyz.kingsword.course.pojo.BookOrder;
 
+import xyz.kingsword.course.pojo.Book;
+
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface BookService {
 
-    void insert(Book book, String courseId);
+    Book insert(Book book, String courseId);
 
-    void delete(int id);
+    void delete(List<Integer> idList,String courseId);
 
     Book getBook(int id);
 
-    void update(Book book);
-
-    void updateForTeacher(int num, int id);
+    Book update(Book book);
 
     List<Book> getTextBook(String courseId);
 
     List<Book> getReferenceBook(String courseId);
 
-    List<Book> getByIdList(List<Integer> idList);
+    List<Book> getByIdList(Collection<Integer> idList);
 
-    List<Book> getBookOrder(String studentId,String semesterId);
+    Map<Integer,Book> getMap(Collection<Integer> idList);
 
-    void purchase(List<BookOrder> bookOrderList);
+    List<Book> getByIdList(String json);
 
-    Workbook exportBookSubscription(String semesterId);
+    void setDeclareStatus(boolean flag);
 
+    boolean getDeclareStatus();
+
+    void setPurchaseStatus(boolean flag);
+
+    boolean getPurchaseStatus();
 }

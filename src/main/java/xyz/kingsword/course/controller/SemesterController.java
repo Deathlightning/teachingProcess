@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.kingsword.course.annocations.Role;
+import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.pojo.Result;
 import xyz.kingsword.course.pojo.Semester;
 import xyz.kingsword.course.service.SemesterService;
@@ -26,7 +27,7 @@ public class SemesterController {
 
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     @ApiOperation("新增学期")
-    @Role({0})
+    @Role(RoleEnum.ADMIN)
     public Result addSemester(@RequestBody Semester semester) {
         semesterService.addSemester(semester);
         return new Result<>();
@@ -34,7 +35,7 @@ public class SemesterController {
 
     @RequestMapping(value = "/update", method = RequestMethod.PUT)
     @ApiOperation("仅修改开始时间结束时间")
-    @Role({0})
+    @Role(RoleEnum.ADMIN)
     public Result updateSemester(@RequestBody Semester Semester) {
         semesterService.updateById(Semester);
         return new Result();

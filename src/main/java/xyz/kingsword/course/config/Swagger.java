@@ -2,9 +2,9 @@ package xyz.kingsword.course.config;
 
 
 import io.swagger.annotations.ApiOperation;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
@@ -16,7 +16,7 @@ import javax.servlet.http.HttpSession;
 
 @Configuration
 @EnableSwagger2
-@ConditionalOnExpression("${swagger.enable:true}")
+@Profile({"dev", "test"})
 public class Swagger {
 
     // select()函数返回一个ApiSelectorBuilder实例用来控制哪些接口暴露给Swagger来展现，本例采用指定扫描的包路径来定义，

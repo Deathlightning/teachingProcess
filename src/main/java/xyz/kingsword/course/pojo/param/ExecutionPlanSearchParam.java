@@ -13,7 +13,7 @@ public class ExecutionPlanSearchParam {
 
     private Integer grade;
 
-    private Integer specialityId;
+    private String specialityId;
 
     private String courseName;
 

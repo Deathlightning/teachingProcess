@@ -24,8 +24,9 @@ public class BookUtil {
      * @param isbn 长度：十位或十三位（存在少数九位的情况，但接口仅支持十位或十三位）
      */
     public static Book getBook(String isbn) {
+        Book book = null;
         if (isbn == null || isbn.isEmpty()) {
-            return null;
+            return book;
         }
         isbn = isbn.replace("-", "");
         HttpRequest httpRequest = HttpUtil.createGet(URL + isbn).header("Authorization", AUTHORIZATION);
@@ -34,10 +35,10 @@ public class BookUtil {
         JSONObject jsonObject = JSONObject.parseObject(jsonString);
         int status = jsonObject.getInteger("status");
         if (status != 0) {
-            return null;
+            return book;
         }
         JSONObject bookObject = jsonObject.getJSONObject("result");
-        Book book = new Book();
+        book = new Book();
         book.setName(bookObject.getString("title"));
         book.setImgUrl("pic");
         book.setAuthor(bookObject.getString("author"));

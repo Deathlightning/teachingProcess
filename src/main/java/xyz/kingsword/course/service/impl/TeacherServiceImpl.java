@@ -3,125 +3,80 @@ package xyz.kingsword.course.service.impl;
 import cn.hutool.crypto.SecureUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.poi.ss.formula.functions.T;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Service;
 import xyz.kingsword.course.VO.TeacherVo;
-import xyz.kingsword.course.dao.CourseMapper;
 import xyz.kingsword.course.dao.TeacherMapper;
 import xyz.kingsword.course.pojo.Teacher;
-import xyz.kingsword.course.pojo.TeacherGroup;
+import xyz.kingsword.course.pojo.param.TeacherSelectParam;
 import xyz.kingsword.course.service.TeacherService;
-import xyz.kingsword.course.util.Constant;
-import xyz.kingsword.course.util.TimeUtil;
+import xyz.kingsword.course.util.UserUtil;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
+@Slf4j
 @Service
 public class TeacherServiceImpl implements TeacherService {
 
-    @Autowired
+    @Resource
     private TeacherMapper teacherMapper;
-    @Autowired
-    private CourseMapper courseMapper;
 
     @Override
-    public int addTeacher(Teacher teacher) {
-        teacher.setPassword(SecureUtil.md5(Constant.DEFAULT_PASSWORD));
-        return teacherMapper.insert(teacher);
+    public void insert(List<Teacher> teacherList) {
+        teacherList.forEach(v -> v.setPassword(UserUtil.encrypt(SecureUtil.md5("123456"))));
+        int flag = teacherMapper.insert(teacherList);
+        if (flag != teacherList.size())
+            log.error("数据库插入数据异常");
     }
 
     @Override
-    public int addTeacher(List<Teacher> list) {
-        return 0;
+    public void insert(Teacher teacher) {
+        insert(Collections.singletonList(teacher));
     }
 
     @Override
-    public int deleteTeacher(String teaId) {
-        return teacherMapper.deleteByPrimaryKey(teaId);
+    public void insert(Workbook workbook) {
+        List<Teacher> teacherList = new ArrayList<>();
+        Sheet sheet = workbook.getSheetAt(0);
+        for (int i = 0; i < sheet.getLastRowNum() + 1; i++) {
+            Row row = sheet.getRow(i);
+            Teacher teacher = new Teacher();
+            teacher.setId(row.getCell(0).getStringCellValue());
+            teacher.setName(row.getCell(1).getStringCellValue());
+            teacherList.add(teacher);
+        }
+        insert(teacherList);
     }
 
     @Override
-    public int updateTeacher(Teacher teacher) {
-        return teacherMapper.updateByPrimaryKey(teacher);
+    public void delete(String id) {
+        teacherMapper.deleteByPrimaryKey(id);
     }
 
     @Override
-    public PageInfo<Teacher> findTeacherByName(String name, Integer pageNumber, Integer pageSize) {
-        return PageHelper.startPage(pageNumber, pageSize)
-                .doSelectPageInfo(() -> teacherMapper.findTeacherByName(name));
+    public void update(Teacher teacher) {
+        teacherMapper.updateByPrimaryKey(teacher);
     }
 
     @Override
-    public PageInfo<Teacher> getAllTeachers(Integer pageNumber, Integer pageSize) {
-        return PageHelper.startPage(pageNumber, pageSize)
-                .doSelectPageInfo(() -> teacherMapper.selectAll());
+    public PageInfo<Teacher> select(TeacherSelectParam param) {
+        return PageHelper.startPage(param.getPageNum(), param.getPageSize()).doSelectPageInfo(() -> teacherMapper.select(param));
     }
 
     @Override
-    public List<Teacher> getAllPersonInCharge() {
-        String roleId = "4"; //专业负责人id
-        return teacherMapper.getAllTeacherByRole(roleId);
+    public TeacherVo getById(String id) {
+        return teacherMapper.selectById(id);
     }
 
     @Override
-    public int setResearch(String teaId, String researchId) {
-        return teacherMapper.updateResearch(teaId, researchId);
-    }
-
-    /**
-     * 分页查询课程组全部信息
-     *
-     * @param courseId   课程id
-     * @param semesterId 学期id
-     * @return TeacherGroup
-     */
-    @Override
-    public PageInfo<TeacherGroup> getTeacherGroup(String courseId, String semesterId, int pageNum, int pageSize) {
-        return PageHelper.startPage(pageNum, pageSize)
-                .doSelectPageInfo(() -> teacherMapper.getTeacherGroup(courseId, semesterId, pageNum, pageSize));
-    }
-
-    /**
-     * 老师根据学期查自己的课程组
-     *
-     * @param teaId      teacherId
-     * @param semesterId 学期id
-     * @return TeacherGroup
-     */
-    @Override
-    public PageInfo<TeacherGroup> getTeacherGroupOnTeacher(String teaId, String semesterId, int pageNum, int pageSize) {
-        PageInfo<TeacherGroup> pageInfo = PageHelper.startPage(pageNum, pageSize)
-                .doSelectPageInfo(() -> teacherMapper.getTeacherGroupOnTeacher(teaId, semesterId, pageNum, pageSize));
-        List<TeacherGroup> teacherGroupList = pageInfo.getList();
-        teacherGroupList.forEach(v -> v.setSemesterName(TimeUtil.getSemesterName(v.getSemesterId())));
-        pageInfo.setList(teacherGroupList);
-        return pageInfo;
-    }
-
-    @Override
-    public int countTeacherGroup(String courseId, String semesterId) {
-        return courseMapper.selectTeacherGroup(semesterId, courseId).size();
-    }
-
-    /**
-     * 根据教师id，学期id获取课程list
-     *
-     * @param teacherId  teacherId
-     * @param semesterId semesterId
-     * @return 课程id list
-     */
-    @Override
-    public List<Integer> getCourseList(String teacherId, String semesterId) {
-        return null;
-    }
-
-    @Override
-    public Teacher getById(String id) {
-        return teacherMapper.getById(id);
+    public List<Teacher> getByName(String name) {
+        return select(TeacherSelectParam.builder().name(name).build()).getList();
     }
 }

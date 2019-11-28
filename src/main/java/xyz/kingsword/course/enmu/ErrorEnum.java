@@ -14,10 +14,11 @@ public enum ErrorEnum {
      */
     ERROR_LOGIN(400, "账号或密码不正确"),
     UN_LOGIN(401, "尚未登陆"),
-    NO_AUTH(402, "没有权限"),
+    NO_AUTH(402, "没有权限执行此操作"),
     ERROR_PARAMETER(403, "参数异常"),
     ERROR_FILE(405, "文件上传异常"),
     OPERATION_FORBIDDEN(406, "操作禁止"),
+    OPERATION_TIME_FORBIDDEN(407, "操作未开放"),
 
     /**
      * 排课
@@ -25,6 +26,7 @@ public enum ErrorEnum {
     DIFFERENT_COURSE(406, "不同课程无法合并"),
     DIFFERENT_TEACHER(407, "不同教师无法合并"),
     SINGLE_DATA(408, "单条数据无法合并"),
+    NO_DATA(409, "没有数据"),
     /**
      * 培养方案执行计划
      */
@@ -32,6 +34,17 @@ public enum ErrorEnum {
     EXECUTION_PLAN_ERROR(422, "执行计划未上传"),
     //    专业，年级，课程，执行学期不同导致
     VERIFY_ERROR(423, "系统内部错误,无法验证"),
+
+    /**
+     * 学生、教师、班级管理
+     */
+    CLASS_NOT_EXISTS(431, "班级不存在"),
+    NO_SEMESTER(432, "当前不在学期，或学期未设置"),
+    /**
+     * 教材相关
+     */
+    ORDER_REPLICATION(400, "重复订书"),
+
 
     /**
      * 编码可能导致的问题

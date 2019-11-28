@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpringContextUtil implements ApplicationContextAware {
 
-    private static ApplicationContext applicationContext;
+    private static ApplicationContext applicationContext = null;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -20,11 +20,6 @@ public class SpringContextUtil implements ApplicationContextAware {
         return applicationContext;
     }
 
-    //通过name获取 Bean.
-    public static Object getBean(String name) {
-        return getApplicationContext().getBean(name);
-    }
-
     //通过class获取Bean.
     public static <T> T getBean(Class<T> clazz) {
         return getApplicationContext().getBean(clazz);
@@ -33,6 +28,11 @@ public class SpringContextUtil implements ApplicationContextAware {
     //通过name,以及Clazz返回指定的Bean
     public static <T> T getBean(String name, Class<T> clazz) {
         return getApplicationContext().getBean(name, clazz);
+    }
+
+    /// 获取当前环境
+    public static String getActiveProfile() {
+        return getApplicationContext().getEnvironment().getActiveProfiles()[0];
     }
 
 }

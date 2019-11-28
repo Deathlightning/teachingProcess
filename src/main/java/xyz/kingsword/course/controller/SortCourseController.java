@@ -1,7 +1,6 @@
 package xyz.kingsword.course.controller;
 
 import cn.hutool.core.exceptions.ValidateException;
-import cn.hutool.core.lang.Validator;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -16,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import xyz.kingsword.course.VO.SortCourseVo;
 import xyz.kingsword.course.annocations.Role;
+import xyz.kingsword.course.enmu.RoleEnum;
+import xyz.kingsword.course.exception.BaseException;
 import xyz.kingsword.course.pojo.Result;
 import xyz.kingsword.course.pojo.SortCourse;
 import xyz.kingsword.course.pojo.param.SortCourseSearchParam;
@@ -40,8 +41,8 @@ public class SortCourseController {
 
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     @ApiOperation(value = "排课列表搜索接口")
-    @ApiImplicitParam(name = "searchParam", value = "排课数据查询参数，字段可任意组合，sortCourseFlag为排课标志,已分配为1，未分配-1，全部为0", required = true, dataType = "SearchParam")
-    public Result<PageInfo> search(@RequestBody SortCourseSearchParam sortCourseSearchParam) {
+    @ApiImplicitParam(name = "searchParam", value = "参数自由组合", required = true)
+    public Result search(@RequestBody SortCourseSearchParam sortCourseSearchParam) {
         PageInfo pageInfo = sortCourseService.search(sortCourseSearchParam);
         return new Result<>(pageInfo);
     }
@@ -63,9 +64,9 @@ public class SortCourseController {
     }
 
 
-    @Role({0, 4})
+    @Role({RoleEnum.ADMIN, RoleEnum.SPECIALTY_MANAGER})
     @ApiOperation(value = "批量删除排课数据")
-    @RequestMapping(value = "deleteSortCourseById", method = RequestMethod.PUT)
+    @RequestMapping(value = "/deleteSortCourseById", method = RequestMethod.PUT)
     public Result deleteCourseInfo(@RequestBody List<Integer> id) {
         sortCourseService.deleteSortCourseRecord(id);
         return new Result<>();
@@ -74,7 +75,7 @@ public class SortCourseController {
 
     @RequestMapping(value = "/setSortCourse", method = RequestMethod.PUT)
     @ApiOperation(value = "给课程设置老师，或者给老师设置课程")
-    @ApiImplicitParam(name = "param", value = "id为排课数据id必传，其他任给一个", required = true, dataType = "UpdateParam")
+    @ApiImplicitParam(value = "id为排课数据id必传，其他任给一个", required = true)
     public Result setSortCourse(@RequestBody SortCourseUpdateParam param) {
         sortCourseService.setSortCourse(param);
         return new Result();
@@ -83,7 +84,7 @@ public class SortCourseController {
     @RequestMapping(value = "/sortCourseImport", method = RequestMethod.POST)
     @ApiOperation(value = "排课数据导入")
     public Result sortCourseImport(MultipartFile file) throws IOException {
-        Optional.ofNullable(file).orElseThrow(() -> new ValidateException("文件上传错误"));
+        Optional.ofNullable(file).orElseThrow(() -> new BaseException("文件上传错误"));
         ConditionUtil.validateTrue(!file.isEmpty()).orElseThrow(() -> new ValidateException("文件上传错误"));
         String semesterId = file.getOriginalFilename().substring(0, 5);
         List<SortCourse> sortCourseList = sortCourseService.excelImport(file.getInputStream());
@@ -126,15 +127,5 @@ public class SortCourseController {
         workbook.write(outputStream);
         workbook.close();
         outputStream.close();
-    }
-
-    private void semesterValidate(String fileName) {
-        try {
-            String semesterId = TimeUtil.getSemesterName(fileName);
-            Validator.validateTrue(semesterId.length() != 6, "排课表上传文件名错误");
-        } catch (Exception e) {
-            log.error("排课表上传文件名错误");
-            throw new ValidateException("排课表上传文件名错误");
-        }
     }
 }

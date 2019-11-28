@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -40,11 +41,11 @@ public class Course {
     /**
      * 选修 必修
      */
-    @ApiModelProperty(required = true, allowableValues = "选修,必修")
-    private String nature;
+    @ApiModelProperty(required = true, allowableValues = "1选修,2必修")
+    private int nature;
 
     @ApiModelProperty(required = true, value = "学分")
-    private int credit;
+    private double credit;
 
     /**
      * 院考系考
@@ -65,7 +66,7 @@ public class Course {
     private String referenceBook;
 
     @ApiModelProperty(hidden = true)
-    private List<Book> bookList;
+    private List<Book> textBookList;
 
     @ApiModelProperty(hidden = true)
     private List<Book> referenceBookList;
@@ -182,7 +183,21 @@ public class Course {
     @ApiModelProperty(required = true, value = "期末考试占比")
     private double examProportion = 0;
 
+    private String bookManager;
+
     public void setTimeAll(int timeAll) {
         this.timeAll = timeTheory + timePractical + timeComputer + timeLab + timeHomework;
+    }
+
+    public void setTextBook(String textBook) {
+        this.textBook = textBook;
+    }
+
+    public List<Book> getTextBookList() {
+        return textBookList == null ? new ArrayList<>() : textBookList;
+    }
+
+    public List<Book> getReferenceBookList() {
+        return referenceBookList == null ? new ArrayList<>() : textBookList;
     }
 }

@@ -11,9 +11,7 @@ import java.util.List;
 public interface SortCourseMapper {
     int deleteSortCourseRecord(List<Integer> idList);
 
-    int insert(SortCourse record);
-
-    int insertList(List<SortCourse> sortCourseList);
+    int insert(List<SortCourse> sortCourseList);
 
     SortCourse selectByPrimaryKey(Integer id);
 

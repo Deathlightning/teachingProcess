@@ -23,6 +23,10 @@
     <result column="student_num" jdbcType="INTEGER" property="studentNum"/>
     <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
     <result column="class" jdbcType="CHAR" property="className"/>
+    <result column="text_book" jdbcType="CHAR" property="textBookString"/>
+    <result column="reference_book" jdbcType="CHAR" property="referenceBookString"/>
+    <result column="text_book_num" jdbcType="INTEGER" property="textBookNum"/>
+    <result column="reference_book_num" jdbcType="INTEGER" property="referenceBookNum"/>
   </resultMap>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select *
@@ -30,7 +34,9 @@
     where id = #{id,jdbcType=INTEGER}
   </select>
   <select id="search" resultMap="SortCourseViewMap">
-    select *
+    select sortcourse_id as id, tea_id, teacher_name, cou_id, course_name,
+    nature,text_book,reference_book,JSON_LENGTH(text_book) as text_book_num,
+    student_num, semester_id, class
     from sortcourse_view
     <where>
       <if test="teaId !=null and teaId !=''">
@@ -52,7 +58,7 @@
         and tea_id is not null
       </if>
     </where>
-    order by semester_id
+    order by semester_id,cou_id,tea_id
   </select>
   <select id="getById" resultMap="BaseResultMap">
     select * from sortcourse where id in (
@@ -62,25 +68,39 @@
     )
   </select>
   <select id="getTeacherHistory" resultMap="SortCourseViewMap">
-    SELECT *
+    SELECT sortcourse_id,
+           tea_id,
+           teacher_name,
+           cou_id,
+           course_name,
+           nature,
+           text_book,
+           reference_book,
+           student_num,
+           semester_id,
+           class
     from sortcourse_view
     where tea_id = #{teacherId}
       and semester_id &lt; #{semesterId}
   </select>
 
   <select id="getCourseHistory" resultMap="SortCourseViewMap">
-    SELECT *
+    SELECT sortcourse_id,
+           tea_id,
+           teacher_name,
+           cou_id,
+           course_name,
+           nature,
+           text_book,
+           reference_book,
+           student_num,
+           semester_id,
+           class
     from sortcourse_view
     where cou_id = #{courseId}
       and semester_id &lt; #{semesterId}
   </select>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="xyz.kingsword.course.pojo.SortCourse"
-          useGeneratedKeys="true">
-    insert into sortcourse(cou_id, tea_id, class, student_num, classroom_id, semester_id, `merged_id`)
-    values (#{couId}, #{teaId}, #{className}, #{studentNum}, #{classroomId}, #{semesterId}, #{mergedId})
-  </insert>
-
-  <insert id="insertList" keyColumn="id" keyProperty="id" parameterType="xyz.kingsword.course.pojo.SortCourse"
           useGeneratedKeys="true">
     insert into sortcourse(cou_id,tea_id,class,student_num,classroom_id,semester_id,`merged_id`)
     values
@@ -130,6 +150,11 @@
         `cou_id`=#{courseId}
       </if>
     </set>
-    where id=#{id}
+    where id=#{id} and `status`=0
+  </update>
+  <update id="updateChainses">
+    update sortcourse
+    set tea_id=#{teaId}
+    where id = #{id}
   </update>
 </mapper>

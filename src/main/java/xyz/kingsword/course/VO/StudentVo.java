@@ -1,6 +1,10 @@
 package xyz.kingsword.course.VO;
 
 import lombok.Data;
+import xyz.kingsword.course.enmu.RoleEnum;
+
+import java.util.List;
+import java.util.Map;
 
 @Data
 public class StudentVo {
@@ -9,13 +13,16 @@ public class StudentVo {
 
     private String name;
 
-    private int classId;
+    private String className;
 
-    private String gender;
+    private String semesterId;
 
-    private String role;
+    private final String role = "[" + RoleEnum.STUDENT.getCode() + "]";
 
-    private final int currentRole = 3;
+    private final int currentRole = RoleEnum.STUDENT.getCode();
+
+    private List<CourseBookOrderVo> courseList;
+
 
     public StudentVo() {
     }

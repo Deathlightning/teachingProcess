@@ -1,8 +1,6 @@
 package xyz.kingsword.course.service.impl;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.kingsword.course.dao.SemesterMapper;
@@ -10,21 +8,24 @@ import xyz.kingsword.course.pojo.Semester;
 import xyz.kingsword.course.service.SemesterService;
 import xyz.kingsword.course.util.TimeUtil;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class SemesterServiceImpl implements SemesterService {
 
-    @Autowired
+    @Resource
     private SemesterMapper semesterMapper;
 
-//    @Bean
-//    public MappingJackson2HttpMessageConverter jackson2HttpMessageConverter() {
-//        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-//        ObjectMapper mapper = new ObjectMapper();
-//        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-//        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-//        converter.setObjectMapper(mapper);
-//        return converter;
-//    }//添加转换器@Override
+    private List<Semester> semesterList;
+
+    @PostConstruct
+    public void init() {
+        semesterList = semesterMapper.selectAll();
+    }
 
 
     @Override
@@ -32,26 +33,31 @@ public class SemesterServiceImpl implements SemesterService {
     public void addSemester(Semester semester) {
         semester.setName(TimeUtil.getSemesterName(semester.getId()));
         semesterMapper.insert(semester);
+        semesterList.add(semester);
     }
 
 
     @Override
-    public int updateById(Semester semester) {
-        return semesterMapper.updateById(semester);
+    @Transactional
+    public void updateById(Semester semester) {
+        semesterMapper.updateById(semester);
+        semesterList.removeIf(v -> v.getId().equals(semester.getId()));
+        semesterList.add(semester);
     }
 
     @Override
     public PageInfo<Semester> getAllSemester(Integer pageNumber, Integer pageSize) {
-        return PageHelper.startPage(pageNumber, pageSize).doSelectPageInfo(() -> semesterMapper.selectAll());
+        int size = semesterList.size();
+        pageSize = pageSize == 0 ? size : pageSize;
+        int navigatePages = size % pageSize > 0 ? size / pageSize + 1 : size / pageSize;
+        return PageInfo.of(semesterList, navigatePages);
     }
 
     @Override
     public PageInfo<Semester> getFutureSemester(Integer pageNumber, Integer pageSize) {
-        return PageHelper.startPage(pageNumber, pageSize).doSelectPageInfo(() -> semesterMapper.getFutureSemester());
-    }
-
-    @Override
-    public PageInfo<Semester> findByName(String name, Integer pageNumber, Integer pageSize) {
-        return PageHelper.startPage(pageNumber, pageSize).doSelectPageInfo(() -> semesterMapper.findByName(name));
+        List<Semester> semesterList = this.semesterList.parallelStream().filter(v -> v.getStatus() > -1).sorted(Comparator.comparing(Semester::getId)).collect(Collectors.toList());
+        int size = semesterList.size();
+        int navigatePages = size % pageSize > 0 ? size / pageSize + 1 : size / pageSize;
+        return PageInfo.of(semesterList, navigatePages);
     }
 }

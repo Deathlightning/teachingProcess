@@ -22,11 +22,6 @@
         end_time= #{endTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=CHAR}
   </update>
-  <select id="findByName" resultMap="BaseResultMap">
-    select *
-    from semester
-    where name like concat('%', #{name,jdbcType=VARCHAR}, '%')
-  </select>
   <!--获取当前和未来学期-->
   <select id="getFutureSemester" resultMap="BaseResultMap">
     select *
@@ -34,15 +29,6 @@
     where `status` > -1
     order by id
   </select>
-
-  <select id="getNextSemester" resultMap="BaseResultMap">
-    select *
-    from semester
-    where `status` > -1
-    order by id
-    limit 1
-  </select>
-
 
   <!--根据id获取学期-->
   <select id="findById" resultMap="BaseResultMap">

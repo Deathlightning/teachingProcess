@@ -12,7 +12,7 @@ import java.util.List;
  * @author
  */
 @Data
-public class BookExportViewDo implements Serializable {
+public class BookExportCourseDo implements Serializable {
     private String courseName;
 
 

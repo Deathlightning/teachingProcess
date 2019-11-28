@@ -13,4 +13,6 @@ public interface CourseGroupMapper {
      * 多条件查询，不需要可传空
      */
     List<CourseGroup> select(CourseGroupSelectParam courseGroupSelectParam);
+
+    List<CourseGroup> getNextSemesterCourseGroup(String courseId);
 }

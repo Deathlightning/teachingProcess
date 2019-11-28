@@ -59,7 +59,7 @@ public class ExecutionPlan {
      * 专业方向id
      */
     @ApiModelProperty(required = true)
-    private int specialityId;
+    private String specialityId;
 
     /**
      * 执行计划应用学期

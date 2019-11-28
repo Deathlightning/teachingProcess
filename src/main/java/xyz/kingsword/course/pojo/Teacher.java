@@ -1,17 +1,23 @@
 package xyz.kingsword.course.pojo;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.ToString;
 
 @Data
+@ApiModel
 public class Teacher {
+    @ApiModelProperty(required = true)
     private String id;
 
+    @ApiModelProperty(hidden = true)
     private String password;
 
+    @ApiModelProperty(required = true)
     private String name;
 
-    private Integer researchId;
+    @ApiModelProperty(required = true)
+    private String researchRoom;
 
     private String phone;
 
@@ -25,16 +31,29 @@ public class Teacher {
 
     private String gender;
 
+    @ApiModelProperty(hidden = true)
     private String role;
 
     /**
      * 管理的课程id，存json
      */
+    @ApiModelProperty(hidden = true)
     private String courseInCharge;
 
     /**
      * 管理的专业id，存json
      */
+    @ApiModelProperty(hidden = true)
     private String specialtyInCharge;
+    /**
+     * 0正常-1删除
+     */
+    @ApiModelProperty(hidden = true)
+    private int status = 0;
+
+    @ApiModelProperty(hidden = true)
+    private int currentRole;
+
+    private final String className = "教师组";
 
 }

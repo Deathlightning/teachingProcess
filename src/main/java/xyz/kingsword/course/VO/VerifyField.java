@@ -9,9 +9,11 @@ import lombok.Getter;
 public class VerifyField {
     private final String name;
     private final boolean same;
+    private final String value;
 
-    public VerifyField(String name, boolean same) {
+    public VerifyField(String name, String value, boolean same) {
         this.name = name;
         this.same = same;
+        this.value = value;
     }
 }

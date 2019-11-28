@@ -3,7 +3,7 @@ package xyz.kingsword.course.service;
 
 import com.github.pagehelper.PageInfo;
 import xyz.kingsword.course.pojo.Classes;
-import xyz.kingsword.course.pojo.Course;
+import xyz.kingsword.course.pojo.param.ClassesSelectParam;
 
 import java.util.List;
 
@@ -11,13 +11,10 @@ public interface ClassesService {
 
     void insert(List<Classes> classesList);
 
-    void updateById(Classes Classes);
+    void update(Classes Classes);
 
-    PageInfo<Classes> getAllClasses(Integer pageNumber, Integer pageSize);
+    PageInfo<Classes> select(ClassesSelectParam param);
 
-    List<Classes> getByName(List<String> name);
+    List<Classes> getByName(List<String> nameList);
 
-    List<Classes> getSchoolClass();
-
-    List<Course> getCurriculum(String className, String semesterId);
 }

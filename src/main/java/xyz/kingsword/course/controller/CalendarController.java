@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import xyz.kingsword.course.annocations.Role;
+import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.pojo.Calendar;
 import xyz.kingsword.course.pojo.Result;
 import xyz.kingsword.course.pojo.User;
@@ -104,7 +105,7 @@ public class CalendarController {
     /**
      * 教学日历复制接口
      */
-    @Role({1})
+    @Role(RoleEnum.TEACHER)
     @RequestMapping(value = "/copy", method = RequestMethod.GET)
     @ApiImplicitParam(name = "id", value = "被复制的教学日历id")
     public void copy(int id, HttpSession session) {

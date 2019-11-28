@@ -17,7 +17,7 @@ public class CourseVo {
     /**
      * see:{@link xyz.kingsword.course.enmu.CourseTypeEnum}
      */
-    private String type;
+    private int type;
 
     /**
      * 是否核心课程
@@ -27,7 +27,7 @@ public class CourseVo {
     /**
      * 1选修2必修
      */
-    private String nature;
+    private int nature;
 
     private int credit;
 
@@ -42,6 +42,7 @@ public class CourseVo {
 
 
     private List<Book> bookList;
+
     private List<Book> referenceBookList;
 
     private String researchRoom;

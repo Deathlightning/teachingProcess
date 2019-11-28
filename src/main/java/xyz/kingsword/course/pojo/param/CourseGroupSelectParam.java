@@ -11,7 +11,11 @@ public class CourseGroupSelectParam {
 
     private String semesterId;
 
+    private String maxSemesterId;
+
     private String courseId;
 
     private String teaId;
+
+    private String className;
 }

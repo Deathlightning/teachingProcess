@@ -45,22 +45,17 @@
     <result column="tea_name" jdbcType="CHAR" property="teacherName"/>
     <result column="class_name" jdbcType="CHAR" property="className"/>
   </resultMap>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete
-    from course
-    where id = #{id,jdbcType=CHAR}
-  </delete>
   <insert id="insert" parameterType="xyz.kingsword.course.pojo.Course">
-    insert into course (id, `name`, teacher_in_charge,
-                        type, core, nature, credit, coach, coach_teacher,
-                        colleges_or_departments, examination_way, research_room,
-                        assessment_way, text_book, reference_book,
-                        homework_proportion, test_proportion, lab_proportion,
-                        attendance_proportion, performance_proportion,
-                        paper_proportion, other_proportion, exam_proportion,
-                        time_week, week_num, time_theory,
-                        time_practical, time_computer, time_lab,
-                        time_homework, time_all, theory_week, `status`)
+    insert ignore course (id, `name`, teacher_in_charge,
+                          type, core, nature, credit, coach, coach_teacher,
+                          colleges_or_departments, examination_way, research_room,
+                          assessment_way, text_book, reference_book,
+                          homework_proportion, test_proportion, lab_proportion,
+                          attendance_proportion, performance_proportion,
+                          paper_proportion, other_proportion, exam_proportion,
+                          time_week, week_num, time_theory,
+                          time_practical, time_computer, time_lab,
+                          time_homework, time_all, theory_week, `status`)
     values (#{id,jdbcType=CHAR}, #{name,jdbcType=CHAR}, #{teacherInCharge,jdbcType=CHAR},
             #{type,jdbcType=INTEGER}, #{core,jdbcType=CHAR}, #{nature,jdbcType=INTEGER}, #{credit,jdbcType=INTEGER},
             #{coach,jdbcType=CHAR}, #{coachTeacher,jdbcType=CHAR},
@@ -72,6 +67,12 @@
             #{timeWeek,jdbcType=INTEGER}, #{weekNum,jdbcType=INTEGER}, #{timeTheory,jdbcType=INTEGER},
             #{timePractical,jdbcType=INTEGER}, #{timeComputer,jdbcType=INTEGER}, #{timeLab,jdbcType=INTEGER},
             #{timeHomework,jdbcType=INTEGER}, #{timeAll,jdbcType=INTEGER}, #{theoryWeek,jdbcType=INTEGER}, 0)
+  </insert>
+  <insert id="importData">
+    insert course(id,`name`) values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id},#{item.name})
+    </foreach>
   </insert>
   <update id="updateByPrimaryKey" parameterType="xyz.kingsword.course.pojo.Course">
     update course
@@ -106,15 +107,6 @@
         theory_week             = #{theoryWeek,jdbcType=INTEGER}
     where id = #{id,jdbcType=CHAR}
   </update>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select *
-    from course
-    where id = #{id,jdbcType=CHAR}
-  </select>
-  <select id="selectAll" resultMap="BaseResultMap">
-    select *
-    from course
-  </select>
   <delete id="deleteCourse">
     delete course
     where id in
@@ -123,45 +115,15 @@
       #{item,jdbcType=VARCHAR}
     </foreach>
   </delete>
-  <select id="findCourse" resultMap="BaseResultMap">
-    select * from course
-    <where>
-      <if test="name != ''">
-        and `name` like concat ('%',#{name,jdbcType=VARCHAR},'%')
-      </if>
-      <if test="researchRoomId != -1">
-        and research_room_id=#{researchRoomId,jdbcType=INTEGER}
-      </if>
-    </where>
-  </select>
   <update id="setTeacherInCharge">
     update course
     set teacher_in_charge=#{teaId}
     where id = #{courseId}
   </update>
-  <select id="getAllCourseByIdList" resultMap="BaseResultMap">
-    select * from course
-    where id in
-    <foreach collection="list" item="item" separator="," open="(" close=")">
-      #{item,jdbcType=CHAR}
-    </foreach>
-  </select>
-  <select id="findCourseById" resultMap="BaseResultMap">
+  <select id="getByPrimaryKey" resultMap="BaseResultMap">
     select *
     from course
     where id = #{id};
-  </select>
-
-  <select id="getCourseOnSemester" resultMap="BaseResultMap">
-    SELECT *
-    FROM
-    course
-    JOIN sortcourse ON course.id = sortcourse.cou_id
-    AND sortcourse.`status` = 0
-    AND semester_id = #{semesterId}
-    <if test="courseName!=null and courseName != ''">
-      where `name` like concat ('%',#{courseName,jdbcType=VARCHAR},'%')
-    </if>
   </select>
 
   <update id="addCourseBook">
@@ -173,21 +135,19 @@
     set text_book=@json
     WHERE id = #{courseId};
   </update>
+  <update id="setBookManager">
+    update course
+    set book_manager=#{teacherId}
+    where id = #{courseId}
+  </update>
+  <update id="setTextBook">
+    update course
+    set text_book=#{textBookStr}
+    where id = #{courseId}
+  </update>
 
-  <select id="getCourseByTeacher" resultMap="TeacherCourseMap">
-    select *
-    from course_group_view
-    <where>
-      <if test="semesterId !=null and semesterId !=''">
-        semester_id = #{semesterId}
-      </if>
-      <if test="teacherId != null and teacherId !=''">
-        and tea_id = #{teacherId}
-      </if>
-    </where>
-  </select>
-  <select id="selectTeacherGroup" resultMap="TeacherCourseMap">
-    select *
+  <select id="selectTeacherGroupCount" resultType="java.lang.Integer">
+    select count(tea_id)
     from course_group_view
     where semester_id = #{semesterId}
       and cou_id = #{courseId,jdbcType=CHAR}
@@ -224,10 +184,10 @@
     </where>
     order by id
   </select>
-  <select id="getCourseBySemester" resultMap="BaseResultMap">
-    SELECT course.*
-    FROM course
-           JOIN sortcourse ON sortcourse.semester_id = #{semesterId}
-    WHERE sortcourse.`status` = 0
+  <select id="getBookManager" resultType="java.lang.String">
+    select course.book_manager
+    from course
+    where id = #{id}
+      and `status` = 0;
   </select>
 </mapper>

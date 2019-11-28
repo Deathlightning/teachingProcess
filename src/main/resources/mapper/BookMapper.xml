@@ -9,7 +9,6 @@
     <result column="publish" jdbcType="CHAR" property="publish"/>
     <result column="price" jdbcType="DOUBLE" property="price"/>
     <result column="note" jdbcType="VARCHAR" property="note"/>
-    <result column="tea_id" jdbcType="CHAR" property="teaId"/>
     <result column="status" jdbcType="INTEGER" property="status"/>
     <result column="pub_date" jdbcType="CHAR" property="pubDate"/>
     <result column="award" jdbcType="CHAR" property="award"/>
@@ -18,131 +17,20 @@
     <result column="img_url" jdbcType="CHAR" property="imgUrl"/>
   </resultMap>
 
-  <resultMap id="CourseBookMap" type="xyz.kingsword.course.pojo.CourseBook">
-    <result column="course_id" jdbcType="CHAR" property="courseId"/>
-    <result column="course_name" jdbcType="CHAR" property="courseName"/>
-    <result column="nature" jdbcType="CHAR" property="nature"/>
-    <result column="class_name" jdbcType="CHAR" property="className"/>
-    <result column="text_book" jdbcType="CHAR" property="textBook"/>
-  </resultMap>
-
-
-  <resultMap id="BookOrderMap" type="xyz.kingsword.course.pojo.DO.BookOrderDo">
-    <result column="student_id" jdbcType="CHAR" property="studentId"/>
-    <result column="student_name" jdbcType="CHAR" property="studentName"/>
-    <result column="class" jdbcType="CHAR" property="className"/>
-    <result column="book_id" jdbcType="INTEGER" property="bookId"/>
-    <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
-    <result column="book_name" jdbcType="CHAR" property="bookName"/>
-    <result column="price" jdbcType="FLOAT" property="price"/>
-  </resultMap>
-
-  <!--  <resultMap id="SortCourseMap" type="xyz.kingsword.course.pojo.DO.SortcourseViewDo">-->
-  <!--    <result column="sortcourse_id" jdbcType="INTEGER" property="sortCourseId"/>-->
-  <!--    <result column="tea_id" jdbcType="CHAR" property="teaId"/>-->
-  <!--    <result column="teacher_name" jdbcType="CHAR" property="teacherName"/>-->
-  <!--    <result column="cou_id" jdbcType="CHAR" property="couId"/>-->
-  <!--    <result column="course_name" jdbcType="CHAR" property="courseName"/>-->
-  <!--    <result column="nature" jdbcType="CHAR" property="nature"/>-->
-  <!--    <result column="text_book" jdbcType="CHAR" property="textBook"/>-->
-  <!--    <result column="student_num" jdbcType="INTEGER" property="studentNum"/>-->
-  <!--    <result column="semester_id" jdbcType="CHAR" property="semesterId"/>-->
-  <!--    <result column="class" jdbcType="VARCHAR" property="className"/>-->
-  <!--  </resultMap>-->
-
-  <resultMap id="BookExportViewMap" type="xyz.kingsword.course.pojo.DO.BookExportViewDo">
-    <result column="course_name" jdbcType="CHAR" property="courseName"/>
-    <result column="course_id" jdbcType="CHAR" property="courseId"/>
-    <result column="nature" jdbcType="CHAR" property="nature"/>
-    <result column="class" jdbcType="VARCHAR" property="className"/>
-    <result column="tea_id" jdbcType="CHAR" property="teaId"/>
-    <result column="teacher_name" jdbcType="CHAR" property="teacherName"/>
-    <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
-    <result column="text_book" jdbcType="CHAR" property="textBook"/>
-  </resultMap>
-
-
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="("
-                           separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue">
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue">
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue">
-                  and ${criterion.condition}
-                  <foreach close=")" collection="criterion.value" item="listItem" open="("
-                           separator=",">
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
   <sql id="Base_Column_List">
     id, isbn, name, author, publish, price, note, tea_id, `status`, pub_date, award, edition,
     for_teacher
   </sql>
   <insert id="insert" parameterType="xyz.kingsword.course.pojo.Book" useGeneratedKeys="true" keyProperty="id">
     insert into book (isbn, `name`, author,
-                      publish, price, note, tea_id,
-                      `status`, pub_date, award, edition,
+                      publish, price, note,
+                      pub_date, award, edition,
                       for_teacher, img_url)
     values (#{isbn,jdbcType=CHAR}, #{name,jdbcType=CHAR}, #{author,jdbcType=CHAR},
-            #{publish,jdbcType=CHAR}, #{price,jdbcType=CHAR}, #{note,jdbcType=VARCHAR}, #{teaId,jdbcType=CHAR},
-            #{status,jdbcType=INTEGER}, #{pubDate,jdbcType=CHAR}, #{award,jdbcType=CHAR}, #{edition,jdbcType=CHAR},
+            #{publish,jdbcType=CHAR}, #{price,jdbcType=CHAR}, #{note,jdbcType=VARCHAR},
+            #{pubDate,jdbcType=CHAR}, #{award,jdbcType=CHAR}, #{edition,jdbcType=CHAR},
             #{forTeacher,jdbcType=INTEGER},
             #{imgUrl,jdbcType=CHAR})
-  </insert>
-  <insert id="purchase">
-    insert into book_order(stu_id, book_id, semester_id)
-    values
-    <foreach collection="list" item="item" separator=",">
-      (#{item.studentId},#{item.bookId},#{item.semesterId})
-    </foreach>
   </insert>
   <update id="update">
     update book
@@ -166,15 +54,32 @@
     set for_teacher=#{num}
     where id = #{id}
   </update>
-  <delete id="delete">
-    delete
-    from book
-    where id = #{id}
+  <update id="delete">
+    update book set `status`=-1 where id in (
+    <foreach collection="list" item="item">
+      #{item}
+    </foreach>
+    )
+  </update>
+  <update id="teacherPurchase">
+    update book set for_teacher = for_teacher+1 where id in (
+    <foreach collection="list" item="item">
+      #{item}
+    </foreach>
+    )
+  </update>
+  <delete id="cancelTeacherPurchase">
+    update book
+    set for_teacher = for_teacher - 1
+    where id = (select book_order.book_id
+                from book_order
+                where id = #{id})
+      and for_teacher &gt; 0
   </delete>
 
   <select id="selectBookList" resultMap="BaseResultMap">
     select * from book where id in (
-    <foreach collection="list" item="item" index="index" separator=",">
+    <foreach collection="collection" item="item" index="index" separator=",">
       #{item}
     </foreach>
     )
@@ -184,37 +89,10 @@
     from book
     where id = #{id}
   </select>
-  <select id="purchaseRecord" resultType="java.lang.Integer">
-    SELECT count(student.id)
-    FROM student
-           JOIN book_order ON student.id = book_order.stu_id
-      AND book_order.book_id = #{bookId}
-  </select>
-  <select id="getCourseBook" resultMap="CourseBookMap">
-    select cou_id as course_id, course.name as course_name, nature, class, course.text_book
-    from course
-           join sortcourse on course.id = sortcourse.cou_id
-    where sortcourse.semester_id = #{semesterId}
-      and sortcourse.status = 0
-    order by sortcourse.cou_id
-  </select>
-  <select id="getBookOrder" resultMap="BaseResultMap">
-    select book.*
+  <select id="selectAll" resultMap="BaseResultMap">
+    select *
     from book
-           join book_order on book.id = book_order.book_id
-    where semester_id = #{semesterId}
-      and stu_id = #{studentId}
-  </select>
-  <select id="getClassBookOrder" resultMap="BookOrderMap">
-    SELECT *
-    FROM book_order_view
-    where semester_id = #{semesterId};
+    where `status` = 0;
   </select>
 
-  <select id="getCourseInfo" resultMap="BookExportViewMap">
-    select *
-    from book_export_view
-    where semester_id = #{semesterId}
-    order by course_id;
-  </select>
 </mapper>

@@ -3,6 +3,7 @@ package xyz.kingsword.course.pojo;
 import com.alibaba.fastjson.JSON;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -27,11 +28,12 @@ public class CourseGroup {
 
     private Integer calendarId;
 
-    private String courseNature;
+    private int courseNature;
 
     public void setTextBookStr(String textBookStr) {
-        textBookStr = textBookStr == null || textBookStr.isEmpty() ? "[]" : textBookStr;
-        this.textBookStr = textBookStr;
-        this.textBook = JSON.parseArray(textBookStr, Integer.class);
+        if (textBookStr != null) {
+            this.textBookStr = textBookStr;
+            this.textBook = textBookStr.length() > 2 ? JSON.parseArray(textBookStr, Integer.class) : new ArrayList<>();
+        }
     }
 }

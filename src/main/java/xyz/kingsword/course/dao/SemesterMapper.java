@@ -11,15 +11,13 @@ public interface SemesterMapper {
 
     int updateById(Semester semester);
 
-    List<Semester> findByName(String name);
-
     /**
      * 根据id查学期
+     *
      * @param id
      * @return
      */
     Semester findById(String id);
-
 
     List<Semester> selectAll();
 

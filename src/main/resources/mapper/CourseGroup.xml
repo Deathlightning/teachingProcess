@@ -16,19 +16,28 @@
   <select id="select" resultMap="BaseResultMap">
     select * from course_group_view
     <where>
-      <if test="courseId !=null">
+      <if test="courseId !=null and courseId !=''">
         cou_id=#{courseId}
       </if>
-      <if test="semesterId !=null">
+      <if test="semesterId !=null and semesterId !=''">
         and semester_id=#{semesterId}
       </if>
-      <if test="teaId !=null">
+      <if test="teaId !=null and teaId !=''">
         and tea_id=#{teaId}
       </if>
-      <if test="sortId !=null">
+      <if test="sortId !=null and sortId !=''">
         and sort_id=#{sortId}
+      </if>
+      <if test="className !=null and className !=''">
+        and class_name LIKE CONCAT('%',#{className},'%')
       </if>
     </where>
     order by semester_id
+  </select>
+  <select id="getNextSemesterCourseGroup" resultMap="BaseResultMap">
+    SELECT *
+    FROM course_group_view
+    WHERE cou_id = #{semesterId}
+      AND semester_id = (SELECT max(semester_id) FROM sortcourse_view)
   </select>
 </mapper>

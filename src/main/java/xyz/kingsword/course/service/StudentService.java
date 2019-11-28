@@ -1,25 +1,24 @@
 package xyz.kingsword.course.service;
 
 import com.github.pagehelper.PageInfo;
-import xyz.kingsword.course.pojo.SortCourse;
+import org.apache.poi.ss.usermodel.Workbook;
+import xyz.kingsword.course.VO.StudentVo;
 import xyz.kingsword.course.pojo.Student;
-import xyz.kingsword.course.pojo.param.SortCourseSearchParam;
+import xyz.kingsword.course.pojo.param.StudentSelectParam;
 
 import java.util.List;
 
 public interface StudentService {
 
-    int addStudent(Student student);
+    void insert(Student student);
 
-    int deleteById(String id);
+    void insert(List<Student> studentList);
 
-    int updateById(Student student);
+    void insert(Workbook workbook);
 
-    Student getById(String id);
+    void delete(String id);
 
-    PageInfo<Student> getAllStudent(Integer pageNumber, Integer pageSize);
+    void update(Student student);
 
-    PageInfo<Student> findByName(String name, Integer pageNumber, Integer pageSize);
-
-    List<SortCourse> getCurriculum(SortCourseSearchParam param);
+    PageInfo<StudentVo> select(StudentSelectParam param);
 }

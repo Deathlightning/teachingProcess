@@ -62,18 +62,9 @@ public class CourseController {
     @RequestMapping(value = "/select", method = RequestMethod.POST)
     @ApiOperation("多条件查询，自由组合")
     public Result select(@RequestBody CourseSelectParam param) {
-        PageInfo<Course> coursePageInfo = courseService.select(param);
-        return new Result<>(coursePageInfo);
+        PageInfo<CourseVo> pageInfo = courseService.select(param);
+        return new Result<>(pageInfo);
     }
 
 
-//    /**
-//     * 课程管理员获取管理的课程列表
-//     */
-//    @RequestMapping(value = "/managerCourseList", method = RequestMethod.GET)
-//    public Result managerCourseList(HttpSession session) {
-//        User user = (User) session.getAttribute("user");
-//        List<Course> courseList = courseService.getCourseByInCharge(user.getUsername());
-//        return new Result<>(courseList);
-//    }
 }

@@ -10,4 +10,8 @@ public class OperationException extends BaseException {
     public OperationException(ErrorEnum errorEnum) {
         this.errorEnum = errorEnum;
     }
+
+    public OperationException() {
+        super(ErrorEnum.OPERATION_FORBIDDEN);
+    }
 }

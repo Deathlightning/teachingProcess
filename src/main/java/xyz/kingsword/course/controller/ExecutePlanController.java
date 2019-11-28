@@ -36,7 +36,7 @@ public class ExecutePlanController {
      */
     @RequestMapping(value = "/import", method = RequestMethod.POST)
     @ApiOperation("插入")
-    public Result importData(MultipartFile file, int grade, String semesterId, int specialityId) throws IOException {
+    public Result importData(MultipartFile file, int grade, String semesterId, String specialityId) throws IOException {
         List<ExecutionPlan> executionPlanList = executionPlanService.importData(file.getInputStream());
         executionPlanList.parallelStream().forEach(v -> {
             v.setGrade(grade);
@@ -56,7 +56,7 @@ public class ExecutePlanController {
 
 
     @RequestMapping(value = "/select", method = RequestMethod.POST)
-    @ApiOperation("多条件查询,参数有自组合")
+    @ApiOperation("多条件查询,参数自由组合")
     public Result select(@RequestBody ExecutionPlanSearchParam param) {
         PageInfo<ExecutionPlan> pageInfo = executionPlanService.select(param);
         return new Result<>(pageInfo);
@@ -78,7 +78,7 @@ public class ExecutePlanController {
 
     @RequestMapping(value = "/verify", method = RequestMethod.GET)
     @ApiOperation(value = "认证，三个参数必填")
-    public Result verify(int grade, String semesterId, int specialityId) {
+    public Result verify(int grade, String semesterId, String specialityId) {
         ExecutionPlanSearchParam executionPlanSearchParam = ExecutionPlanSearchParam.builder().grade(grade).semesterId(semesterId).specialityId(specialityId).build();
         TrainingProgramSearchParam trainingProgramSearchParam = TrainingProgramSearchParam.builder().grade(grade).semesterId(semesterId).specialityId(specialityId).build();
         List<ExecutionPlan> executionPlanList = executionPlanService.select(executionPlanSearchParam).getList();

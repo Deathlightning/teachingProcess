@@ -16,6 +16,7 @@ public class BaseException extends RuntimeException {
 
     public BaseException() {
         super();
+        this.errorEnum = ErrorEnum.ERROR;
     }
 
     public ErrorEnum getErrorEnum() {

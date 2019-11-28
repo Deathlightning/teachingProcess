@@ -4,7 +4,7 @@
   <resultMap id="BaseResultMap" type="xyz.kingsword.course.pojo.Classes">
     <result column="classname" jdbcType="CHAR" property="classname"/>
     <result column="student_num" jdbcType="INTEGER" property="studentNum"/>
-    <result column="admission_time" jdbcType="INTEGER" property="admissionTime"/>
+    <result column="grade" jdbcType="INTEGER" property="grade"/>
   </resultMap>
   <resultMap id="CourseMap" type="xyz.kingsword.course.pojo.Course">
     <result column="cou_id" jdbcType="CHAR" property="id"/>
@@ -16,21 +16,28 @@
     values (#{classname,jdbcType=CHAR}, #{studentNum,jdbcType=INTEGER})
   </insert>
   <insert id="insertList">
-    insert into classes(classname, student_num, admission_time) values
+    insert into classes(classname, student_num, grade) values
     <foreach collection="list" separator="," item="item">
-      (#{item.classname},#{item.studentNum},#{item.admissionTime})
+      (#{item.classname},#{item.studentNum},#{item.grade})
     </foreach>
   </insert>
   <update id="updateByPrimaryKey" parameterType="xyz.kingsword.course.pojo.Classes">
     update classes
-    set admission_time=#{addmissionTime},
-        student_num   = #{studentNum,jdbcType=INTEGER}
+    set grade=#{grade},
+        student_num = #{studentNum,jdbcType=INTEGER}
     where classname = #{classname,jdbcType=CHAR}
   </update>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="select" resultMap="BaseResultMap">
     select *
     from classes
-    where classname = #{classname}
+    <where>
+      <if test="className !=null and className !=''">
+        classname=#{className}
+      </if>
+      <if test="grade !=null">
+        grade=#{grade}
+      </if>
+    </where>
   </select>
   <select id="selectAll" resultMap="BaseResultMap">
     select *
@@ -46,15 +53,15 @@
     </foreach>
     )
   </select>
-  <select id="selectSchoolClass" resultType="java.lang.String">
-    select classname
-    from classes
-    where admission_time &lt;= #{admissionTime,jdbcType=INTEGER}
-  </select>
   <select id="getCurriculum" resultMap="CourseMap">
-    SELECT cou_id, course_name
+    SELECT course_name, text_book
     from course_group_view
     where class_name LIKE CONCAT('%', #{className}, '%')
       and semester_id = #{semesterId}
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    select *
+    from classes
+    where classname = #{name}
   </select>
 </mapper>

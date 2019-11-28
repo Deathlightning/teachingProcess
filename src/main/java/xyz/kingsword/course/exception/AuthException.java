@@ -6,14 +6,12 @@ import xyz.kingsword.course.enmu.ErrorEnum;
 @Getter
 public class AuthException extends BaseException {
 
-    private ErrorEnum errorEnum;
-
     public AuthException(ErrorEnum errorEnum) {
-        this.errorEnum = errorEnum;
+
+        super(errorEnum);
     }
 
-
     public AuthException() {
-
+        super(ErrorEnum.NO_AUTH);
     }
 }

@@ -16,4 +16,8 @@ public class DataException extends BaseException {
     public DataException(String message) {
         super(message);
     }
+
+    public DataException() {
+        super(ErrorEnum.DATA_ERROR);
+    }
 }

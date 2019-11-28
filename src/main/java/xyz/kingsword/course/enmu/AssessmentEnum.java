@@ -23,7 +23,7 @@ public enum AssessmentEnum {
     }
 
     public static AssessmentEnum getContent(int code) {
-        AssessmentEnum val = null;
+        AssessmentEnum val = OTHER;
         for (AssessmentEnum assessmentEnum : AssessmentEnum.values()) {
             if (assessmentEnum.getCode() == code) {
                 val = assessmentEnum;

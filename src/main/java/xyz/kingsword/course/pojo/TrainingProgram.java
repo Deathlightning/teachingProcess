@@ -93,7 +93,7 @@ public class TrainingProgram implements Serializable {
      */
     private int grade;
 
-    private int specialityId;
+    private String specialityId;
 
     private String semesterId;
 

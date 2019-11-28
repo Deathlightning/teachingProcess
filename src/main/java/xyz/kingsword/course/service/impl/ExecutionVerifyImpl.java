@@ -38,12 +38,14 @@ public class ExecutionVerifyImpl implements ExecutionVerify {
 
         ConditionUtil.validateTrue(trainingProgramList.size() == executionPlanList.size()).orElseThrow(() -> new BaseException(ErrorEnum.ERROR));
         int len = executionPlanList.size();
-        List<Map<String, List<VerifyField>>> differenceList = new ArrayList<>(len);
+        List<Map<String, List<VerifyField>>> trainingProgramDifferenceList = new ArrayList<>(len);
+        List<Map<String, List<VerifyField>>> executionPlanDifferenceList = new ArrayList<>(len);
         for (int i = 0; i < len; i++) {
-            Map<String, List<VerifyField>> map = verifySingleCourse(executionPlanList.get(i), trainingProgramList.get(i));
-            differenceList.add(map);
+            Map<String, Map<String, List<VerifyField>>> map = verifySingleCourse(executionPlanList.get(i), trainingProgramList.get(i));
+            trainingProgramDifferenceList.add(map.get("trainingProgram"));
+            executionPlanDifferenceList.add(map.get("executionPlan"));
         }
-        return VerifyResult.builder().executionResult(differenceList).trainingProgramResult(differenceList).build();
+        return VerifyResult.builder().executionResult(executionPlanDifferenceList).trainingProgramResult(trainingProgramDifferenceList).build();
     }
 
     /**
@@ -66,33 +68,57 @@ public class ExecutionVerifyImpl implements ExecutionVerify {
     }
 
     /**
-     * 这样命名可以简化编码，不要滥用
-     *
      * @param e 执行计划
      * @param t 培养方案
      * @return 同课程各属性验证情况
      */
-    private Map<String, List<VerifyField>> verifySingleCourse(ExecutionPlan e, TrainingProgram t) {
+    private Map<String, Map<String, List<VerifyField>>> verifySingleCourse(ExecutionPlan e, TrainingProgram t) {
         log.debug("执行计划,{}", e);
         log.debug("培养方案,{}", t);
-//        保证两者同专业，同年级，同课程，执行学期相同
-//        boolean sameSpeciality = t.getSpecialityId() == e.getSpecialityId();
-//        boolean sameGrade = t.getGrade() == e.getGrade();
-//        boolean sameSemester = StrUtil.equals(t.getSemesterId(), e.getSemesterId());
+//        对是否能进行比较进行验证
         boolean sameCourse = StrUtil.equals(t.getCourseId(), e.getCourseId());
         ConditionUtil.validateTrue(sameCourse).orElseThrow(() -> new DataException(ErrorEnum.VERIFY_ERROR));
 
-        List<VerifyField> verifyFieldList = new ArrayList<>(12);
-        verifyFieldList.add(new VerifyField("courseName", Objects.equals(t.getCourseName(), e.getCourseName())));
-        verifyFieldList.add(new VerifyField("credit", Objects.equals(t.getCredit(), e.getCredit())));
-        verifyFieldList.add(new VerifyField("examinationWay", Objects.equals(t.getExaminationWay(), e.getExaminationWay())));
-        verifyFieldList.add(new VerifyField("timeAll", Objects.equals(t.getTimeAll(), e.getTimeAll())));
-        verifyFieldList.add(new VerifyField("timeTheory", Objects.equals(t.getTimeTheory(), e.getTimeTheory())));
-        verifyFieldList.add(new VerifyField("timeLab", Objects.equals(t.getTimeLab(), e.getTimeLab())));
-        verifyFieldList.add(new VerifyField("timeComputer", Objects.equals(t.getTimeComputer(), e.getTimeComputer())));
-        verifyFieldList.add(new VerifyField("timeOther", Objects.equals(t.getTimeOther(), e.getTimeOther())));
-        verifyFieldList.add(new VerifyField("startSemester", Objects.equals(t.getStartSemester(), e.getStartSemester())));
 
-        return MapUtil.builder(t.getCourseId(), verifyFieldList).build();
+//      开始比较
+        boolean courseNameFlag = Objects.equals(t.getCourseName(), e.getCourseName());
+        boolean creditFlag = Objects.equals(t.getCredit(), e.getCredit());
+        boolean examinationWayFlag = Objects.equals(t.getExaminationWay(), e.getExaminationWay());
+        boolean timeAllFlag = Objects.equals(t.getTimeAll(), e.getTimeAll());
+        boolean timeTheoryFlag = Objects.equals(t.getTimeTheory(), e.getTimeTheory());
+        boolean timeLabFlag = Objects.equals(t.getTimeLab(), e.getTimeLab());
+        boolean timeComputerFlag = Objects.equals(t.getTimeComputer(), e.getTimeComputer());
+        boolean timeOtherFlag = Objects.equals(t.getTimeOther(), e.getTimeOther());
+        boolean startSemesterFlag = Objects.equals(t.getStartSemester(), e.getStartSemester());
+
+
+//      构建结果
+        List<VerifyField> tVerifyFieldList = new ArrayList<>(12);
+        tVerifyFieldList.add(new VerifyField("courseName", t.getCourseName(), courseNameFlag));
+        tVerifyFieldList.add(new VerifyField("credit", String.valueOf(t.getCredit()), creditFlag));
+        tVerifyFieldList.add(new VerifyField("examinationWay", t.getExaminationWay(), examinationWayFlag));
+        tVerifyFieldList.add(new VerifyField("timeAll", String.valueOf(t.getTimeAll()), timeAllFlag));
+        tVerifyFieldList.add(new VerifyField("timeTheory", String.valueOf(t.getTimeAll()), timeTheoryFlag));
+        tVerifyFieldList.add(new VerifyField("timeLab", String.valueOf(t.getTimeLab()), timeLabFlag));
+        tVerifyFieldList.add(new VerifyField("timeComputer", String.valueOf(t.getTimeComputer()), timeComputerFlag));
+        tVerifyFieldList.add(new VerifyField("timeOther", String.valueOf(t.getTimeOther()), timeOtherFlag));
+        tVerifyFieldList.add(new VerifyField("startSemester", String.valueOf(t.getStartSemester()), startSemesterFlag));
+
+        List<VerifyField> eVerifyFieldList = new ArrayList<>(12);
+        eVerifyFieldList.add(new VerifyField("courseName", e.getCourseName(), courseNameFlag));
+        eVerifyFieldList.add(new VerifyField("credit", String.valueOf(e.getCredit()), creditFlag));
+        eVerifyFieldList.add(new VerifyField("examinationWay", e.getExaminationWay(), examinationWayFlag));
+        eVerifyFieldList.add(new VerifyField("timeAll", String.valueOf(e.getTimeAll()), timeAllFlag));
+        eVerifyFieldList.add(new VerifyField("timeTheory", String.valueOf(e.getTimeAll()), timeTheoryFlag));
+        eVerifyFieldList.add(new VerifyField("timeLab", String.valueOf(e.getTimeLab()), timeLabFlag));
+        eVerifyFieldList.add(new VerifyField("timeComputer", String.valueOf(e.getTimeComputer()), timeComputerFlag));
+        eVerifyFieldList.add(new VerifyField("timeOther", String.valueOf(e.getTimeOther()), timeOtherFlag));
+        eVerifyFieldList.add(new VerifyField("startSemester", String.valueOf(e.getStartSemester()), startSemesterFlag));
+
+        Map<String, Map<String, List<VerifyField>>> map = new HashMap<>();
+        map.put("trainingProgram", MapUtil.builder(t.getCourseId(), tVerifyFieldList).build());
+        map.put("executionPlan", MapUtil.builder(e.getCourseId(), eVerifyFieldList).build());
+
+        return map;
     }
 }

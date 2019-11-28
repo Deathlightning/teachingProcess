@@ -1,51 +1,29 @@
 package xyz.kingsword.course.service;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.poi.ss.usermodel.Workbook;
+import xyz.kingsword.course.VO.TeacherVo;
 import xyz.kingsword.course.pojo.Teacher;
-import xyz.kingsword.course.pojo.TeacherGroup;
+import xyz.kingsword.course.pojo.param.TeacherSelectParam;
 
 import java.util.List;
 
 public interface TeacherService {
 
-    int addTeacher(Teacher teacher);
+    void insert(List<Teacher> teacherList);
 
-    int addTeacher(List<Teacher> list);
+    void insert(Teacher teacher);
 
-    int deleteTeacher(String teaId);
+    void insert(Workbook workbook);
 
-    int updateTeacher(Teacher teacher);
+    void delete(String id);
 
-    PageInfo<Teacher> findTeacherByName(String name, Integer pageNumber, Integer pageSize);
+    void update(Teacher teacher);
 
-    PageInfo<Teacher> getAllTeachers(Integer pageNumber, Integer pageSize);
+    PageInfo<Teacher> select(TeacherSelectParam param);
 
-    List<Teacher> getAllPersonInCharge();
+    TeacherVo getById(String id);
 
-    int setResearch(String teaId, String researchId);
+    List<Teacher> getByName(String name);
 
-    /**
-     * 根据课程选取课程组
-     * 不同学期课程组不同
-     *
-     * @param courseId   课程id
-     * @param semesterId 学期id
-     * @return TeacherGroup
-     */
-    PageInfo<TeacherGroup> getTeacherGroup(String courseId, String semesterId, int pageNum, int pageSize);
-
-
-    PageInfo<TeacherGroup> getTeacherGroupOnTeacher(String teaId, String semesterId, int pageNum, int pageSize);
-
-    int countTeacherGroup(String courseId, String semesterId);
-
-    List<Integer> getCourseList(String teacherId, String semesterId);
-
-    /**
-     * 通过id查询一个老师的信息
-     *
-     * @param id
-     * @return teacher
-     */
-    Teacher getById(String id);
 }

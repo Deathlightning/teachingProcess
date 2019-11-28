@@ -37,8 +37,6 @@ public class Book implements Serializable {
 
     private String note;
 
-    @ApiModelProperty(required = true)
-    private String teaId;
 
     /**
      * -2删除-1审核不通过0正常
@@ -64,7 +62,28 @@ public class Book implements Serializable {
      * 为老师留几本书
      */
     @Builder.Default
+    @ApiModelProperty(notes = "为老师留几本书")
     private Integer forTeacher = 0;
 
     private static final long serialVersionUID = 1L;
+
+    public String getAuthor() {
+        return author == null ? "" : author;
+    }
+
+    public String getPublish() {
+        return publish == null ? "" : publish;
+    }
+
+    public String getPubDate() {
+        return pubDate == null ? "" : pubDate;
+    }
+
+    public String getAward() {
+        return award == null ? "" : award;
+    }
+
+    public String getEdition() {
+        return edition == null ? "" : edition;
+    }
 }

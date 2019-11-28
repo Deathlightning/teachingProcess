@@ -81,23 +81,46 @@ public class ExecutionPlanServiceImpl implements ExecutionPlanService {
     }
 
     private ExecutionPlan renderExecutePlan(Row row) {
-        final String semesterId = TimeUtil.getFutureSemester().get(0).getId();
+        final String semesterId = TimeUtil.getNowSemester().getId();
         return ExecutionPlan.builder()
                 .nature(row.getCell(2).getStringCellValue().substring(0, 2))
                 .courseId(row.getCell(3).getStringCellValue())
                 .courseName(row.getCell(4).getStringCellValue())
                 .credit((float) row.getCell(5).getNumericCellValue())
-                .timeTheory((float) row.getCell(6).getNumericCellValue())
-                .timeLab((float) row.getCell(7).getNumericCellValue())
-                .timeComputer((float) row.getCell(8).getNumericCellValue())
-                .timeOther((float) row.getCell(9).getNumericCellValue())
-                .timeWeek((float) row.getCell(10).getNumericCellValue())
-                .startSemester((int) row.getCell(11).getNumericCellValue())
-                .examinationWay(row.getCell(12).getStringCellValue())
+                .timeTheory((float) row.getCell(7).getNumericCellValue())
+                .timeLab((float) row.getCell(8).getNumericCellValue())
+                .timeComputer((float) row.getCell(9).getNumericCellValue())
+                .timeOther((float) row.getCell(10).getNumericCellValue())
+                .timeWeek((float) row.getCell(11).getNumericCellValue())
+                .startSemester(startSemesterConvert(row.getCell(12).getStringCellValue()))
+                .examinationWay(row.getCell(13).getStringCellValue())
                 .semesterId(semesterId)
                 .status(0)
                 .build();
 
+    }
+
+    private int startSemesterConvert(String item) {
+        switch (item.charAt(0)) {
+            case '一':
+                return 1;
+            case '二':
+                return 2;
+            case '三':
+                return 3;
+            case '四':
+                return 4;
+            case '五':
+                return 5;
+            case '六':
+                return 6;
+            case '七':
+                return 7;
+            case '八':
+                return 8;
+            default:
+                return 0;
+        }
     }
 
 }

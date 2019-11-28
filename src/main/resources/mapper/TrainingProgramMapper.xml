@@ -18,6 +18,7 @@
     <result column="grade" jdbcType="INTEGER" property="grade"/>
     <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
     <result column="status" jdbcType="INTEGER" property="status"/>
+    <result column="speciality_id" jdbcType="CHAR" property="specialityId"/>
   </resultMap>
   <delete id="delete">
     delete
@@ -52,7 +53,7 @@
       <if test="semesterId !=null">
         and semester_id=#{semesterId}
       </if>
-      <if test="specialityId !=null">
+      <if test="specialityId !=null and specialityId !=''">
         and speciality_id=#{specialityId}
       </if>
       <if test="grade != null">

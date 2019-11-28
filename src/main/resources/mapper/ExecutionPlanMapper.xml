@@ -16,7 +16,7 @@
     <result column="time_week" jdbcType="INTEGER" property="timeWeek"/>
     <result column="start_semester" jdbcType="INTEGER" property="startSemester"/>
     <result column="examination_way" jdbcType="CHAR" property="examinationWay"/>
-    <result column="speciality_id" jdbcType="INTEGER" property="specialityId"/>
+    <result column="speciality_id" jdbcType="CHAR" property="specialityId"/>
     <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
     <result column="status" jdbcType="INTEGER" property="status"/>
     <result column="grade" jdbcType="INTEGER" property="grade"/>
@@ -38,7 +38,7 @@
       <if test="grade !=null">
         and grade=#{grade}
       </if>
-      <if test="specialityId !=null">
+      <if test="specialityId !=null and specialityId !=''">
         and speciality_id=#{specialityId}
       </if>
       <if test="courseName !=null and courseName!=''">

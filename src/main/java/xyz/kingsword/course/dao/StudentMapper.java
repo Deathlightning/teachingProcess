@@ -1,21 +1,27 @@
 package xyz.kingsword.course.dao;
 
+import xyz.kingsword.course.VO.StudentVo;
+import xyz.kingsword.course.pojo.DO.CurriculumDo;
 import xyz.kingsword.course.pojo.Student;
+import xyz.kingsword.course.pojo.param.StudentSelectParam;
 
 import java.util.List;
 
 
 public interface StudentMapper {
-    int insert(Student record);
+    int insert(List<Student> record);
 
-    int deleteById(String id);
+    int update(Student record);
 
-    List<Student> findByName(String name);
+    int delete(String id);
 
-    List<Student> selectAll();
+    List<StudentVo> select(StudentSelectParam param);
 
-    int updateStudent(Student student);
+    Student selectById(String id);
 
-    Student getById(String id);
+    /**
+     * 获取学生课程表
+     */
+    List<CurriculumDo> curriculum(String studentId, String semesterId);
 
 }

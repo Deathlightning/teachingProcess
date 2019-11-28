@@ -1,22 +1,51 @@
 package xyz.kingsword.course.util;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class ConditionUtil {
-    private final boolean flag;
+    private static ConditionUtil rightCondition = new ConditionUtil(true);
+    private static ConditionUtil wrongCondition = new ConditionUtil(false);
+    private final Boolean flag;
 
-    private ConditionUtil(boolean flag) {
+    private ConditionUtil(Boolean flag) {
         this.flag = flag;
     }
 
-    public static ConditionUtil validateTrue(boolean flag) {
+    public static ConditionUtil validateTrue(Boolean flag) {
         return new ConditionUtil(flag);
     }
 
-
-    public <X extends Throwable> void orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
-        if (!flag)
-            throw exceptionSupplier.get();
+    public static ConditionUtil notNull(Object... objs) {
+        for (Object o : objs) {
+            if (o == null) {
+                return wrongCondition;
+            }
+        }
+        return rightCondition;
     }
 
+    public static ConditionUtil notEmpty(Collection... objs) {
+        for (Collection o : objs) {
+            if (o == null || o.isEmpty()) {
+                return wrongCondition;
+            }
+        }
+        return rightCondition;
+    }
+
+    public static ConditionUtil notEmpty(Map... map) {
+        for (Map o : map) {
+            if (o == null || o.isEmpty()) {
+                return wrongCondition;
+            }
+        }
+        return rightCondition;
+    }
+
+    public <X extends Throwable> void orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
+        if (flag == null || !flag)
+            throw exceptionSupplier.get();
+    }
 }

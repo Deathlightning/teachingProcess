@@ -8,6 +8,8 @@ import lombok.Data;
 @Data
 public class SortCourseUpdateParam {
     private Integer id;
+
     private String teacherId;
+
     private String courseId;
 }

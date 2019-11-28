@@ -1,7 +1,10 @@
 package xyz.kingsword.course.VO;
 
 import lombok.Data;
+import xyz.kingsword.course.pojo.Book;
 import xyz.kingsword.course.util.TimeUtil;
+
+import java.util.List;
 
 @Data
 public class SortCourseVo {
@@ -34,6 +37,16 @@ public class SortCourseVo {
     private String semesterName;
 
     private String className;
+
+    private int textBookNum = 0;
+
+    private int referenceBookNum = 0;
+
+    private String textBookString;
+    private String referenceBookString;
+
+    private List<Book> textBookList;
+    private List<Book> referenceBookList;
 
 
     private static final long serialVersionUID = 1L;
