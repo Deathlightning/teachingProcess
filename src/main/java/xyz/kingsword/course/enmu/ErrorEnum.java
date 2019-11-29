@@ -19,14 +19,15 @@ public enum ErrorEnum {
     ERROR_FILE(405, "文件上传异常"),
     OPERATION_FORBIDDEN(406, "操作禁止"),
     OPERATION_TIME_FORBIDDEN(407, "操作未开放"),
+    DATA_REPLICATION(408, "数据重复"),
 
     /**
      * 排课
      */
-    DIFFERENT_COURSE(406, "不同课程无法合并"),
-    DIFFERENT_TEACHER(407, "不同教师无法合并"),
-    SINGLE_DATA(408, "单条数据无法合并"),
-    NO_DATA(409, "没有数据"),
+    DIFFERENT_COURSE(411, "不同课程无法合并"),
+    DIFFERENT_TEACHER(412, "不同教师无法合并"),
+    SINGLE_DATA(413, "单条数据无法合并"),
+    NO_DATA(414, "没有数据"),
     /**
      * 培养方案执行计划
      */
@@ -43,7 +44,8 @@ public enum ErrorEnum {
     /**
      * 教材相关
      */
-    ORDER_REPLICATION(400, "重复订书"),
+    ORDER_REPLICATION(440, "重复订书"),
+    ORDERED(441, "已被订购"),
 
 
     /**

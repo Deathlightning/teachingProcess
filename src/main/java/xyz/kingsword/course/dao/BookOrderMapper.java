@@ -11,9 +11,11 @@ public interface BookOrderMapper {
 
     int delete(int id);
 
+    int selectByBookId(int id);
+
     List<BookOrderVo> select(String userId, String semesterId, String className);
 
-    List<BookOrderVo> selectByTeacher(String teacherId, String semesterId);
+    List<BookOrderVo> courseGroupOrderInfo(String courseId, String semesterId);
 
     List<BookExportCourseDo> export(String semesterId);
 

@@ -60,9 +60,9 @@ public class ExceptionHandle {
     }
 
 
-    @ExceptionHandler(value = Throwable.class)
+    @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    public Result exceptionGet(Throwable e) {
+    public Result exceptionGet(Exception e) {
         log.error("【系统异常】{}", e.getMessage());
         e.printStackTrace();
         return new Result(ErrorEnum.ERROR);

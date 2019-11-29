@@ -9,11 +9,13 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import xyz.kingsword.course.VO.BookOrderVo;
+import xyz.kingsword.course.VO.CourseGroupOrderVo;
 import xyz.kingsword.course.VO.StudentVo;
 import xyz.kingsword.course.dao.*;
 import xyz.kingsword.course.enmu.CourseNature;
 import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.exception.BaseException;
+import xyz.kingsword.course.exception.DataException;
 import xyz.kingsword.course.pojo.Book;
 import xyz.kingsword.course.pojo.BookOrder;
 import xyz.kingsword.course.pojo.CourseGroup;
@@ -21,6 +23,7 @@ import xyz.kingsword.course.pojo.User;
 import xyz.kingsword.course.pojo.param.CourseGroupSelectParam;
 import xyz.kingsword.course.pojo.param.StudentSelectParam;
 import xyz.kingsword.course.service.BookOrderService;
+import xyz.kingsword.course.service.BookService;
 import xyz.kingsword.course.util.ConditionUtil;
 import xyz.kingsword.course.util.SpringContextUtil;
 import xyz.kingsword.course.util.TimeUtil;
@@ -42,6 +45,8 @@ public class BookOrderServiceImpl implements BookOrderService {
     @Resource
     private BookMapper bookMapper;
     @Resource
+    private BookService bookService;
+    @Resource
     private ConfigMapper configMapper;
 
     /**
@@ -58,10 +63,17 @@ public class BookOrderServiceImpl implements BookOrderService {
             orderIdList.add(bookOrder.getId());
             bookIdList.add(bookOrder.getBookId());
         }
-//如果是老师订书，就给forTeacher自增
-        Optional.ofNullable(UserUtil.getTeacher())
-                .ifPresent(v -> bookMapper.teacherPurchase(bookIdList.parallelStream().distinct().collect(Collectors.toList())));
         return orderIdList;
+    }
+
+    /**
+     * 使forTeacher字段自增
+     *
+     * @param bookIdList
+     */
+    @Override
+    public void forTeacherIncrease(Collection<Integer> bookIdList) {
+        bookMapper.forTeacherIncrease(bookIdList);
     }
 
     /**
@@ -72,8 +84,7 @@ public class BookOrderServiceImpl implements BookOrderService {
     @Override
     public void cancelPurchase(int orderId) {
 //        ConditionUtil.validateTrue(!purchaseStatusCheck()).orElseThrow(() -> new OperationException(ErrorEnum.OPERATION_TIME_FORBIDDEN));
-        int num = bookOrderMapper.delete(orderId);
-        log.debug("取消订购,{}", num);
+        bookOrderMapper.delete(orderId);
         Optional.ofNullable(UserUtil.getTeacher()).ifPresent(v -> bookMapper.cancelTeacherPurchase(orderId));
     }
 
@@ -84,7 +95,46 @@ public class BookOrderServiceImpl implements BookOrderService {
 
     @Override
     public List<BookOrderVo> selectByTeacher(String teacherId, String semesterId) {
-        return bookOrderMapper.selectByTeacher(teacherId, semesterId);
+        return bookOrderMapper.select(teacherId, semesterId, "教师组");
+    }
+
+    /**
+     * 查询课程组订书情况
+     *
+     * @param courseId courseId
+     */
+    @Override
+    public List<CourseGroupOrderVo> courseGroupOrder(String courseId, String semesterId) {
+        List<CourseGroup> courseGroupList = courseGroupMapper.selectDistinct(CourseGroupSelectParam.builder().semesterId(semesterId).courseId(courseId).build());
+        if (courseGroupList.isEmpty())
+            return new ArrayList<>();
+        List<Integer> bookIdList = courseGroupList.get(0).getTextBook();
+        Map<Integer, Book> bookMap = bookService.getMap(bookIdList);
+        ConditionUtil.validateTrue(bookMap.size() == bookIdList.size()).orElseThrow(DataException::new);
+
+        List<BookOrderVo> bookOrderVoList = bookOrderMapper.courseGroupOrderInfo(courseId, semesterId);
+        if (bookOrderVoList.isEmpty())
+            return new ArrayList<>();
+        Map<Integer, List<BookOrderVo>> bookToOrderMap = bookOrderVoList.parallelStream().collect(Collectors.groupingBy(BookOrderVo::getBookId));
+        List<CourseGroupOrderVo> courseGroupOrderVoList = new ArrayList<>(bookIdList.size());
+        for (Integer bookId : bookIdList) {
+            Book book = Optional.ofNullable(bookMap.get(bookId)).orElseThrow(DataException::new);
+            CourseGroupOrderVo courseGroupOrderVo = new CourseGroupOrderVo();
+            courseGroupOrderVo.setBookId(bookId);
+            courseGroupOrderVo.setBookName(book.getName());
+            Optional.ofNullable(bookToOrderMap.get(bookId)).ifPresent(v -> {
+                Set<String> orderedTeacher = v.parallelStream()
+                        .map(BookOrderVo::getUserId)
+                        .collect(Collectors.toSet());
+                for (CourseGroup courseGroup : courseGroupList) {
+                    String teaName = courseGroup.getTeacherName();
+                    boolean flag = orderedTeacher.contains(courseGroup.getTeaId());
+                    courseGroupOrderVo.addOrderInfo(teaName, flag);
+                }
+            });
+            courseGroupOrderVoList.add(courseGroupOrderVo);
+        }
+        return courseGroupOrderVoList;
     }
 
     /**

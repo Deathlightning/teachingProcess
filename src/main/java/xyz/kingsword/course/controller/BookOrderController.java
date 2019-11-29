@@ -4,12 +4,12 @@ import cn.hutool.core.lang.Dict;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.kingsword.course.VO.BookOrderVo;
+import xyz.kingsword.course.VO.CourseGroupOrderVo;
 import xyz.kingsword.course.annocations.Role;
 import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.pojo.BookOrder;
@@ -19,6 +19,7 @@ import xyz.kingsword.course.service.BookOrderService;
 import xyz.kingsword.course.util.TimeUtil;
 import xyz.kingsword.course.util.UserUtil;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -29,24 +30,37 @@ import java.util.List;
 @RequestMapping("/bookOrder")
 @RestController
 public class BookOrderController {
-    @Autowired
+    @Resource
     private BookOrderService bookOrderService;
 
 
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     @ApiOperation("新增订书记录")
+    @Role
     public Result insert(@RequestBody List<BookOrder> bookOrderList) {
         User user = UserUtil.getUser();
         bookOrderList.parallelStream().forEach(v -> v.setUserId(user.getUsername()));
         List<Integer> idList = bookOrderService.insert(bookOrderList);
+        if (user.getCurrentRole() != RoleEnum.STUDENT.getCode()) {
+            bookOrderService.forTeacherIncrease(idList);
+        }
         return new Result<>(idList);
     }
 
     @RequestMapping(value = "/cancelPurchase", method = RequestMethod.GET)
     @ApiOperation("取消订教材")
+    @Role
     public Result cancelPurchase(int id) {
         bookOrderService.cancelPurchase(id);
         return new Result();
+    }
+
+    @RequestMapping(value = "/courseGroupOrder", method = RequestMethod.GET)
+    @ApiOperation("课程组教材订阅情况")
+    @Role
+    public Result courseGroupOrder(String courseId, String semesterId) {
+        List<CourseGroupOrderVo> courseGroupOrderVoList = bookOrderService.courseGroupOrder(courseId, semesterId);
+        return new Result<>(courseGroupOrderVoList);
     }
 
     @RequestMapping(value = "/getStudentOrder", method = RequestMethod.GET)
@@ -68,6 +82,7 @@ public class BookOrderController {
      */
     @RequestMapping(value = "/exportClassBookInfo", method = RequestMethod.GET)
     @ApiOperation("班级教材订购信息导出")
+    @Role
     public void exportClassBookInfo(HttpServletResponse response, String className, String semesterId) throws IOException {
         Workbook workbook = bookOrderService.exportClassRecord(className, semesterId);
         String fileName = className + "-" + TimeUtil.getSemesterName(semesterId) + "教材征订计划表.xlsx";
@@ -87,6 +102,7 @@ public class BookOrderController {
      */
     @RequestMapping(value = "/exportBookInfo", method = RequestMethod.GET)
     @ApiOperation("教材订购信息导出")
+    @Role
     public void exportBookInfo(HttpServletResponse response, String semesterId) throws IOException {
         Workbook workbook = bookOrderService.exportAllStudentRecord(semesterId);
         String fileName = TimeUtil.getSemesterName(semesterId) + "教材征订计划表.xlsx";

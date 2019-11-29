@@ -17,7 +17,7 @@ public interface BookMapper {
 
     List<Book> selectBookList(Collection<Integer> idList);
 
-    int teacherPurchase(Collection<Integer> idList);
+    int forTeacherIncrease(Collection<Integer> idList);
 
     int cancelTeacherPurchase(int orderId);
 

@@ -14,5 +14,10 @@ public interface CourseGroupMapper {
      */
     List<CourseGroup> select(CourseGroupSelectParam courseGroupSelectParam);
 
+    /**
+     * 根据teaId去重
+     */
+    List<CourseGroup> selectDistinct(CourseGroupSelectParam courseGroupSelectParam);
+
     List<CourseGroup> getNextSemesterCourseGroup(String courseId);
 }

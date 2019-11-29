@@ -35,16 +35,23 @@
     id, stu_id, course_id, book_id, semester_id, `status`
   </sql>
   <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-    insert book_order(user_id, course_id, book_id, semester_id)
+    insert ignore book_order(user_id, course_id, book_id, semester_id)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.userId},#{item.courseId},#{item.bookId},#{item.semesterId})
     </foreach>
   </insert>
   <update id="delete">
-    update book_order
+    update ignore book_order
     set `status`= -1
     where id = #{id}
+  </update>
+
+  <update id="selectByBookId">
+    select count(0)
+    from book_order_view
+    where book_id = #{id}
+      and class != '教师组'
   </update>
   <select id="select" resultMap="BookOrderVoMap">
     select user_id,`name` as user_name, order_id, book_id,book_name,semester_id,price,class
@@ -74,11 +81,12 @@
     where semester_id = #{semesterId}
     order by class
   </select>
-  <select id="selectByTeacher" resultMap="BookOrderVoMap">
-    select name as book_name, book_order.id as order_id
-    from book_order
-           join book on book.id = book_order.book_id
-    where book_order.user_id = #{teacherId}
-      and book_order.semester_id = #{semesterId}
+  <select id="courseGroupOrderInfo" resultMap="BookOrderVoMap">
+    select user_id, `name` as user_name, book_id, book_name
+    from book_order_view
+    where semester_id = #{semesterId}
+      and course_id = #{courseId}
+      and class = '教师组'
+    order by user_id
   </select>
 </mapper>

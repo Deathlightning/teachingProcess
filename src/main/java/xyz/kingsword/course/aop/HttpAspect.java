@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import xyz.kingsword.course.annocations.Role;
+import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.exception.AuthException;
 import xyz.kingsword.course.pojo.User;
@@ -48,7 +49,7 @@ public class HttpAspect {
                 HttpServletRequest request = attributes.getRequest();
                 HttpSession session = request.getSession();
                 User user = (User) session.getAttribute("user");
-                Optional.ofNullable(user).orElseThrow(AuthException::new);
+                Optional.ofNullable(user).orElseThrow(() -> new AuthException(ErrorEnum.UN_LOGIN));
                 int roleId = user.getCurrentRole();
                 boolean flag = ArrayUtil.contains(role.value(), RoleEnum.valueOf(roleId));
                 ConditionUtil.validateTrue(flag).orElseThrow(AuthException::new);

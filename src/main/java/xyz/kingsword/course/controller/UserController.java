@@ -100,13 +100,11 @@ public class UserController {
     }
 
     private void setSession(User user, HttpSession session) {
+        session.setAttribute("user", user);
+//        session.setAttribute("bookOrderList", bookOrderService.select(user.getUsername(), null, null));
         if (user.getCurrentRole() == RoleEnum.STUDENT.getCode()) {
-            session.setAttribute("user", user);
-            session.setAttribute("bookOrderList", bookOrderService.select(user.getUsername(), null, null));
             session.setAttribute("student", studentService.select(StudentSelectParam.builder().id(user.getUsername()).build()).getList().get(0));
         } else {
-            session.setAttribute("user", user);
-            session.setAttribute("bookOrderList", bookOrderService.select(user.getUsername(), null, null));
             session.setAttribute("teacher", teacherService.getById(user.getUsername()));
         }
     }

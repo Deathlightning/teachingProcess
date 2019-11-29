@@ -3,6 +3,7 @@ package xyz.kingsword.course.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.CachePut;
@@ -33,6 +34,8 @@ public class BookServiceImpl implements BookService {
     private CourseMapper courseMapper;
     @Resource
     private ConfigMapper configMapper;
+    @Resource
+    private BookOrderMapper bookOrderMapper;
 
     @Resource(name = "book")
     private Cache bookCache;
@@ -44,6 +47,17 @@ public class BookServiceImpl implements BookService {
             Course course = optional.get();
             String bookListJson = course.getTextBook();
             return getByIdList(bookListJson);
+        }
+        return new ArrayList<>();
+    }
+
+    private List<Integer> getTextBookId(String courseId) {
+        Optional<Course> optional = courseMapper.getByPrimaryKey(courseId);
+        if (optional.isPresent()) {
+            String bookListJson = optional.get().getTextBook();
+            if (bookListJson != null && bookListJson.length() > 2) {
+                return JSONArray.parseArray(bookListJson, Integer.class);
+            }
         }
         return new ArrayList<>();
     }
@@ -85,8 +99,9 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Map<Integer, Book> getMap(Collection<Integer> idList) {
-        Map<Integer, Book> map = new HashMap<>(idList.size());
-        Iterator<Integer> iterator = idList.iterator();
+        Collection<Integer> collection = new ArrayList<>(idList);
+        Map<Integer, Book> map = new HashMap<>(collection.size());
+        Iterator<Integer> iterator = collection.iterator();
         while (iterator.hasNext()) {
             int id = iterator.next();
             Optional.ofNullable(bookCache.get(id, Book.class)).ifPresent(v -> {
@@ -94,8 +109,8 @@ public class BookServiceImpl implements BookService {
                 iterator.remove();
             });
         }
-        if (!idList.isEmpty()) {
-            List<Book> bookListDb = bookMapper.selectBookList(idList);
+        if (!collection.isEmpty()) {
+            List<Book> bookListDb = bookMapper.selectBookList(collection);
             bookListDb.forEach(v -> map.put(v.getId(), v));
         }
         return map;
@@ -109,7 +124,6 @@ public class BookServiceImpl implements BookService {
     @Override
     @Cacheable(cacheNames = "book", key = "#id")
     public Book getBook(int id) {
-        System.out.println(bookCache.get(id, Book.class));
         return bookMapper.selectBookByPrimaryKey(id);
     }
 
@@ -159,8 +173,12 @@ public class BookServiceImpl implements BookService {
     @CachePut(cacheNames = "book", key = "#result.id")
     public Book insert(Book book, String courseId) {
         validateAuth(courseId);
+//        数据重复验证
+        List<Book> bookList = getTextBook(courseId);
+        bookList.parallelStream().map(Book::getIsbn).forEach(v -> {
+            ConditionUtil.validateTrue(!StrUtil.equals(v, book.getIsbn())).orElseThrow(() -> new DataException(ErrorEnum.DATA_REPLICATION));
+        });
         CourseGroupMapper courseGroupMapper = SpringContextUtil.getBean(CourseGroupMapper.class);
-        BookOrderMapper bookOrderMapper = SpringContextUtil.getBean(BookOrderMapper.class);
         List<CourseGroup> courseGroupList = courseGroupMapper.getNextSemesterCourseGroup(courseId);
         book.setForTeacher(courseGroupList.size());
         bookMapper.insert(book);
@@ -181,20 +199,16 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void delete(List<Integer> idList, String courseId) {
-        if (idList != null && !idList.isEmpty()) {
-//            ConditionUtil.validateTrue(declareCheck()).orElseThrow(() -> new OperationException(ErrorEnum.OPERATION_TIME_FORBIDDEN));
-            int flag = bookMapper.delete(idList);
-            log.debug("删除书籍，{}", flag);
-            idList.forEach(v -> bookCache.evict(v));
-
-            Course course = courseMapper.getByPrimaryKey(courseId).orElseThrow(DataException::new);
-            String textBookStr = course.getTextBook();
-            if (textBookStr != null && !textBookStr.isEmpty()) {
-                List<Integer> textBookIdList = JSONArray.parseArray(textBookStr, Integer.class);
-                textBookIdList.removeAll(idList);
-                courseMapper.setTextBook(JSON.toJSONString(textBookIdList), courseId);
-            }
+    public void delete(@NonNull List<Integer> idList, @NonNull String courseId) {
+        if (!idList.isEmpty()) {
+            idList.forEach(v -> {
+                int flag = bookOrderMapper.selectByBookId(v);
+                ConditionUtil.validateTrue(flag == 0).orElseThrow(() -> new OperationException(ErrorEnum.ORDERED));
+                bookCache.evict(v);
+            });
+            List<Integer> textBookIdList = getTextBookId(courseId);
+            textBookIdList.removeAll(idList);
+            courseMapper.setTextBook(JSON.toJSONString(textBookIdList), courseId);
         }
     }
 

@@ -51,7 +51,7 @@
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>8.0.17</version>
-<!--      <version>5.1.48</version>-->
+<!--            <version>5.1.48</version>-->
       <scope>runtime</scope>
     </dependency>
 
@@ -156,6 +156,26 @@
     </dependency>
     <!-- https://mvnrepository.com/artifact/com.belerweb/pinyin4j -->
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>dev</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <project.active>dev</project.active>
+      </properties>
+    </profile>
+    <profile>
+      <id>prod</id>
+      <properties>
+        <project.active>prod</project.active>
+      </properties>
+    </profile>
+  </profiles>
+
+
   <build>
     <plugins>
       <plugin>

@@ -61,7 +61,7 @@
     </foreach>
     )
   </update>
-  <update id="teacherPurchase">
+  <update id="forTeacherIncrease">
     update book set for_teacher = for_teacher+1 where id in (
     <foreach collection="list" item="item">
       #{item}
