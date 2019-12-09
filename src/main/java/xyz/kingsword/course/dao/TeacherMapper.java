@@ -19,5 +19,7 @@ public interface TeacherMapper {
 
     TeacherVo selectById(String id);
 
+    Teacher selectTeacherById(String id);
+
     List<Teacher> getByResearchRoom(List<String> researchRoom);
 }

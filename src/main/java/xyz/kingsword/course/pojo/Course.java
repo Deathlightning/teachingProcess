@@ -66,6 +66,9 @@ public class Course {
     private String referenceBook;
 
     @ApiModelProperty(hidden = true)
+    private String bookManager;
+
+    @ApiModelProperty(hidden = true)
     private List<Book> textBookList;
 
     @ApiModelProperty(hidden = true)
@@ -182,8 +185,6 @@ public class Course {
 
     @ApiModelProperty(required = true, value = "期末考试占比")
     private double examProportion = 0;
-
-    private String bookManager;
 
     public void setTimeAll(int timeAll) {
         this.timeAll = timeTheory + timePractical + timeComputer + timeLab + timeHomework;

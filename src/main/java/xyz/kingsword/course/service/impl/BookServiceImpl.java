@@ -203,6 +203,7 @@ public class BookServiceImpl implements BookService {
         if (!idList.isEmpty()) {
             idList.forEach(v -> {
                 int flag = bookOrderMapper.selectByBookId(v);
+                System.out.println(flag);
                 ConditionUtil.validateTrue(flag == 0).orElseThrow(() -> new OperationException(ErrorEnum.ORDERED));
                 bookCache.evict(v);
             });

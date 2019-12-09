@@ -116,4 +116,9 @@
     from teacher
     where id = #{id}
   </select>
+  <select id="selectTeacherById" resultMap="BaseResultMap">
+    select *
+    from teacher
+    where id = #{id}
+  </select>
 </mapper>

@@ -23,6 +23,7 @@
     <result column="student_num" jdbcType="INTEGER" property="studentNum"/>
     <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
     <result column="class" jdbcType="CHAR" property="className"/>
+    <result column="book_manager" jdbcType="CHAR" property="bookManager"/>
     <result column="text_book" jdbcType="CHAR" property="textBookString"/>
     <result column="reference_book" jdbcType="CHAR" property="referenceBookString"/>
     <result column="text_book_num" jdbcType="INTEGER" property="textBookNum"/>
@@ -36,7 +37,7 @@
   <select id="search" resultMap="SortCourseViewMap">
     select sortcourse_id as id, tea_id, teacher_name, cou_id, course_name,
     nature,text_book,reference_book,JSON_LENGTH(text_book) as text_book_num,
-    student_num, semester_id, class
+    student_num, semester_id, class,book_manager
     from sortcourse_view
     <where>
       <if test="teaId !=null and teaId !=''">

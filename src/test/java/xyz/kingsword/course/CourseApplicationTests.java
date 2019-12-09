@@ -20,23 +20,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.test.context.junit4.SpringRunner;
-import xyz.kingsword.course.dao.*;
+import xyz.kingsword.course.dao.ConfigMapper;
+import xyz.kingsword.course.dao.CourseMapper;
+import xyz.kingsword.course.dao.SortCourseMapper;
+import xyz.kingsword.course.dao.TeacherMapper;
+import xyz.kingsword.course.enmu.CourseNature;
 import xyz.kingsword.course.enmu.CourseTypeEnum;
-import xyz.kingsword.course.pojo.*;
+import xyz.kingsword.course.enmu.RoleEnum;
+import xyz.kingsword.course.pojo.Course;
+import xyz.kingsword.course.pojo.SortCourse;
+import xyz.kingsword.course.pojo.Teacher;
+import xyz.kingsword.course.pojo.TeachingContent;
 import xyz.kingsword.course.pojo.param.TeacherSelectParam;
 import xyz.kingsword.course.service.calendarExport.CalendarData;
 import xyz.kingsword.course.util.PinYinTool;
-import xyz.kingsword.course.util.SpringContextUtil;
 
-import javax.annotation.Resource;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -53,14 +56,10 @@ public class CourseApplicationTests {
     private SortCourseMapper sortCourseMapper;
     @Autowired
     private CourseMapper courseMapper;
-    @Resource
-    private UserMapper userMapper;
 
 
     @Test
     public void contextLoads() throws Exception {
-        CourseGroupMapper courseGroupMapper = SpringContextUtil.getBean(CourseGroupMapper.class);
-        List<CourseGroup> courseGroupList = courseGroupMapper.getNextSemesterCourseGroup("RZ7001097");
     }
 
     private static boolean isChineseByScript(String a) {
@@ -84,14 +83,14 @@ public class CourseApplicationTests {
             int num = (int) row.getCell(5).getNumericCellValue();
             String className = ReUtil.delAll("\\([^)]*\\)", row.getCell(4).getStringCellValue());
             String teaName = row.getCell(12).getStringCellValue();
-            String teaId = teaNameSet.parallelStream().filter(v -> teaName.contains(v)).map(collect::get).collect(Collectors.joining());
-            if (teaId == null || teaId.isEmpty()) {
+            String teaId = teaNameSet.parallelStream().filter(teaName::contains).map(collect::get).collect(Collectors.joining());
+            if (teaId.isEmpty()) {
                 Teacher teacher = new Teacher();
                 teacher.setName(teaName);
                 String pinyin = tool.toPinYin(teaName, "", PinYinTool.Type.LOWERCASE);
                 teacher.setId(pinyin);
                 teaId = pinyin;
-                teacher.setRole("[1]");
+                teacher.setRole("[" + RoleEnum.TEACHER.getCode() + "]");
                 teacherList.add(teacher);
             }
             SortCourse course = new SortCourse();
@@ -102,7 +101,7 @@ public class CourseApplicationTests {
             course.setStudentNum(num);
             sortCourseList.add(course);
         }
-//        teacherMapper.insert(teacherList);
+        teacherMapper.insert(teacherList);
         sortCourseMapper.insert(sortCourseList);
 //        System.out.println(sortCourseList.size());
     }
@@ -115,29 +114,34 @@ public class CourseApplicationTests {
             Row row = sheet.getRow(i);
             String id = row.getCell(1).getStringCellValue();
             String name = row.getCell(3).getStringCellValue();
+            String week = row.getCell(6).getStringCellValue();
+            week = Optional.ofNullable(week).orElse("0/0");
+            String[] data = week.split("/");
+            int timeWeek = 0;
+            if (data.length == 2) {
+                timeWeek = Integer.parseInt(data[0]);
+            }
             double credit = row.getCell(8).getNumericCellValue();
             String type = row.getCell(9).getStringCellValue();
             String nature = row.getCell(10).getStringCellValue();
             String way = row.getCell(11).getStringCellValue();
-            int num = (int) row.getCell(7).getNumericCellValue();
+            int theoryTime = (int) row.getCell(13).getNumericCellValue();
+            int labTime = (int) row.getCell(16).getNumericCellValue();
             int studyingTime = (int) row.getCell(7).getNumericCellValue();
             Course course = new Course();
             course.setId(id);
             course.setName(name);
             course.setCredit(credit);
             course.setType(CourseTypeEnum.get(type).getCode());
-            course.setNature(nature.equals("必修") ? 2 : 1);
+            course.setNature(nature.equals("必修") ? CourseNature.NOT_REQUIRED.getCode() : CourseNature.REQUIRED.getCode());
             course.setExaminationWay(way);
             course.setTimeAll(studyingTime);
+            course.setTimeTheory(theoryTime);
+            course.setTimeLab(labTime);
+            course.setTimeWeek(timeWeek);
             courseList.add(course);
         }
         courseList.forEach((a) -> courseMapper.insert(a));
-        System.out.println(courseList.size());
-    }
-
-    @Test
-    public void exportWord() throws IOException {
-
     }
 
 

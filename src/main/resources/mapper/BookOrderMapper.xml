@@ -35,24 +35,24 @@
     id, stu_id, course_id, book_id, semester_id, `status`
   </sql>
   <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-    insert ignore book_order(user_id, course_id, book_id, semester_id)
+    replace book_order(user_id, course_id, book_id, semester_id,`status`)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.userId},#{item.courseId},#{item.bookId},#{item.semesterId})
+      (#{item.userId},#{item.courseId},#{item.bookId},#{item.semesterId},0)
     </foreach>
   </insert>
   <update id="delete">
-    update ignore book_order
+    update book_order
     set `status`= -1
     where id = #{id}
   </update>
 
-  <update id="selectByBookId">
+  <select id="selectByBookId" resultType="java.lang.Integer">
     select count(0)
     from book_order_view
     where book_id = #{id}
       and class != '教师组'
-  </update>
+  </select>
   <select id="select" resultMap="BookOrderVoMap">
     select user_id,`name` as user_name, order_id, book_id,book_name,semester_id,price,class
     from book_order_view

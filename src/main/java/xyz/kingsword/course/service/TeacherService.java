@@ -24,6 +24,8 @@ public interface TeacherService {
 
     TeacherVo getById(String id);
 
+    Teacher getTeacherById(String id);
+
     List<Teacher> getByName(String name);
 
 }

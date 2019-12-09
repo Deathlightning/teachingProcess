@@ -56,6 +56,10 @@ public class CourseVo {
      */
     private String coachTeacher;
 
+    private List<String> courseGroup;
+
+    private String bookManager;
+
 //****************************************
 //    学时组成
 //****************************************

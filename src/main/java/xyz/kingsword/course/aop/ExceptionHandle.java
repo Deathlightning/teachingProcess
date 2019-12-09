@@ -23,48 +23,48 @@ public class ExceptionHandle {
 
     @ExceptionHandler(value = AuthException.class)
     @ResponseBody
-    public Result exceptionGet(AuthException e) {
+    public Result<ErrorEnum> exceptionGet(AuthException e) {
         log.error("【权限异常】{}", e.getErrorEnum());
         e.printStackTrace();
-        return new Result(e.getErrorEnum());
+        return new Result<>(e.getErrorEnum());
     }
 
     @ExceptionHandler(value = SQLException.class)
     @ResponseBody
-    public Result exceptionGet(SQLException e) {
+    public Result<ErrorEnum> exceptionGet(SQLException e) {
         log.error("【数据库异常】");
         e.printStackTrace();
-        return new Result(ErrorEnum.ERROR);
+        return new Result<>(ErrorEnum.ERROR);
     }
 
     @ExceptionHandler(value = DataException.class)
     @ResponseBody
-    public Result exceptionGet(DataException e) {
+    public Result<ErrorEnum> exceptionGet(DataException e) {
         e.printStackTrace();
-        return new Result(e.getErrorEnum());
+        return new Result<>(e.getErrorEnum());
     }
 
     @ExceptionHandler(value = BaseException.class)
     @ResponseBody
-    public Result exceptionGet(BaseException e) {
+    public Result<ErrorEnum> exceptionGet(BaseException e) {
         e.printStackTrace();
-        return new Result(e.getErrorEnum());
+        return new Result<>(e.getErrorEnum());
     }
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class, InvalidFormatException.class})
     @ResponseBody
-    public Result exceptionGet(RuntimeException e) {
+    public Result<ErrorEnum> exceptionGet(RuntimeException e) {
         log.error("参数异常");
         e.printStackTrace();
-        return new Result(ErrorEnum.ERROR_PARAMETER);
+        return new Result<>(ErrorEnum.ERROR_PARAMETER);
     }
 
 
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    public Result exceptionGet(Exception e) {
+    public Result<ErrorEnum> exceptionGet(Exception e) {
         log.error("【系统异常】{}", e.getMessage());
         e.printStackTrace();
-        return new Result(ErrorEnum.ERROR);
+        return new Result<>(ErrorEnum.ERROR);
     }
 }

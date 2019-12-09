@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.cache.Cache;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import xyz.kingsword.course.VO.TeacherVo;
 import xyz.kingsword.course.dao.TeacherMapper;
@@ -27,6 +29,9 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Resource
     private TeacherMapper teacherMapper;
+
+    @Resource(name = "teacher")
+    private Cache cache;
 
     @Override
     public void insert(List<Teacher> teacherList) {
@@ -73,6 +78,12 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public TeacherVo getById(String id) {
         return teacherMapper.selectById(id);
+    }
+
+    @Override
+    @Cacheable(cacheNames = "teacher", key = "#id")
+    public Teacher getTeacherById(String id) {
+        return teacherMapper.selectTeacherById(id);
     }
 
     @Override

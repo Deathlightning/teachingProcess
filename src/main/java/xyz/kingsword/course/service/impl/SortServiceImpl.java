@@ -14,16 +14,14 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.kingsword.course.VO.SortCourseVo;
+import xyz.kingsword.course.dao.CourseGroupMapper;
 import xyz.kingsword.course.dao.CourseMapper;
 import xyz.kingsword.course.dao.SortCourseMapper;
 import xyz.kingsword.course.enmu.CourseTypeEnum;
 import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.exception.DataException;
 import xyz.kingsword.course.exception.OperationException;
-import xyz.kingsword.course.pojo.Classes;
-import xyz.kingsword.course.pojo.Course;
-import xyz.kingsword.course.pojo.SortCourse;
-import xyz.kingsword.course.pojo.Teacher;
+import xyz.kingsword.course.pojo.*;
 import xyz.kingsword.course.pojo.param.SortCourseSearchParam;
 import xyz.kingsword.course.pojo.param.SortCourseUpdateParam;
 import xyz.kingsword.course.service.BookService;
@@ -31,6 +29,7 @@ import xyz.kingsword.course.service.ClassesService;
 import xyz.kingsword.course.service.SortCourseService;
 import xyz.kingsword.course.service.TeacherService;
 import xyz.kingsword.course.util.ConditionUtil;
+import xyz.kingsword.course.util.SpringContextUtil;
 import xyz.kingsword.course.util.TimeUtil;
 
 import javax.annotation.Resource;
@@ -157,8 +156,14 @@ public class SortServiceImpl implements SortCourseService {
      */
     private void renderSortCourseVo(List<SortCourseVo> sortCourseVoList) {
         for (SortCourseVo sortCourseVo : sortCourseVoList) {
-            sortCourseVo.setTextBookList(bookService.getByIdList(sortCourseVo.getTextBookString()));
-            sortCourseVo.setReferenceBookList(bookService.getByIdList(sortCourseVo.getReferenceBookString()));
+            CourseGroupMapper courseGroupMapper = SpringContextUtil.getBean(CourseGroupMapper.class);
+            List<String> courseGroup = courseGroupMapper.getNextSemesterCourseGroup(sortCourseVo.getCourseId()).parallelStream().map(CourseGroup::getTeacherName).collect(Collectors.toList());
+            sortCourseVo.setBookList(bookService.getByIdList(sortCourseVo.getTextBookString()));
+            sortCourseVo.setCourseGroup(courseGroup);
+            if (sortCourseVo.getBookManager() != null) {
+                Teacher bookManager = Optional.ofNullable(teacherService.getTeacherById(sortCourseVo.getBookManager())).orElseThrow(DataException::new);
+                sortCourseVo.setBookManager(bookManager.getName());
+            }
         }
     }
 

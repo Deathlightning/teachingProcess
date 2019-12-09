@@ -56,7 +56,7 @@ public class BookUtil {
                     stringBuilder.append(priceStr.charAt(i));
                 }
             }
-            book.setPrice(Float.parseFloat(stringBuilder.toString()));
+            book.setPrice(Double.parseDouble(stringBuilder.toString()));
         }
         return book;
     }

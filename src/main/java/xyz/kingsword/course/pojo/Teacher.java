@@ -4,9 +4,11 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @ApiModel
-public class Teacher {
+public class Teacher implements Serializable {
     @ApiModelProperty(required = true)
     private String id;
 

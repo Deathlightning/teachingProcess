@@ -58,10 +58,8 @@ public class BookOrderServiceImpl implements BookOrderService {
 //        ConditionUtil.validateTrue(purchaseStatusCheck()).orElseThrow(() -> new OperationException(ErrorEnum.OPERATION_TIME_FORBIDDEN));
         bookOrderMapper.insert(bookOrderList);
         List<Integer> orderIdList = new ArrayList<>(bookOrderList.size());
-        List<Integer> bookIdList = new ArrayList<>(bookOrderList.size());
         for (BookOrder bookOrder : bookOrderList) {
             orderIdList.add(bookOrder.getId());
-            bookIdList.add(bookOrder.getBookId());
         }
         return orderIdList;
     }
@@ -83,7 +81,6 @@ public class BookOrderServiceImpl implements BookOrderService {
      */
     @Override
     public void cancelPurchase(int orderId) {
-//        ConditionUtil.validateTrue(!purchaseStatusCheck()).orElseThrow(() -> new OperationException(ErrorEnum.OPERATION_TIME_FORBIDDEN));
         bookOrderMapper.delete(orderId);
         Optional.ofNullable(UserUtil.getTeacher()).ifPresent(v -> bookMapper.cancelTeacherPurchase(orderId));
     }
@@ -153,7 +150,7 @@ public class BookOrderServiceImpl implements BookOrderService {
     private final int CLASS_START_INDEX = 15;
 
     @Override
-    public Workbook exportAllStudentRecord(String semesterId) {
+    public Workbook exportAllStudentRecord(String semesterId, boolean declared) {
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream("templates/orderDetail.xlsx");
         Workbook workbook;
         try {

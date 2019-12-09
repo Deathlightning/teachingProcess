@@ -25,16 +25,16 @@ public class BookController {
 
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     @ApiOperation("新增")
-    public Result insert(@RequestBody Book book, String courseId) {
+    public Result<Object> insert(@RequestBody Book book, String courseId) {
         bookService.insert(book, courseId);
-        return new Result();
+        return new Result<>();
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.PUT)
     @ApiOperation("更新")
-    public Result update(@RequestBody Book book) {
+    public Result<Object> update(@RequestBody Book book) {
         bookService.update(book);
-        return new Result();
+        return new Result<>();
     }
 
     /**
@@ -44,7 +44,7 @@ public class BookController {
      */
     @RequestMapping(value = "/getTextBook", method = RequestMethod.GET)
     @ApiOperation("按课程查询教材")
-    public Result getTextBook(String courseId) {
+    public Result<Object> getTextBook(String courseId) {
         List<Book> bookList = bookService.getTextBook(courseId);
         return new Result<>(bookList);
     }
@@ -56,7 +56,7 @@ public class BookController {
      */
     @RequestMapping(value = "/getReferenceBook", method = RequestMethod.GET)
     @ApiOperation("按课程查询参考书")
-    public Result selectReferenceBookByCourse(String courseId) {
+    public Result<Object> selectReferenceBookByCourse(String courseId) {
         List<Book> bookList = bookService.getReferenceBook(courseId);
         return new Result<>(bookList);
     }
@@ -68,28 +68,28 @@ public class BookController {
      */
     @RequestMapping(value = "/bookInfo", method = RequestMethod.GET)
     @ApiOperation("查看单个教材的详情")
-    public Result bookInfo(int id) {
+    public Result<Object> bookInfo(int id) {
         Book book = bookService.getBook(id);
         return new Result<>(book);
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ApiOperation("根据id批量查")
-    public Result list(@RequestBody List<Integer> idList) {
+    public Result<Object> list(@RequestBody List<Integer> idList) {
         List<Book> bookList = bookService.getByIdList(idList);
         return new Result<>(bookList);
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     @ApiOperation("删除教材")
-    public Result delete(@RequestBody List<Integer> idList, String courseId) {
-        bookService.delete(idList,courseId);
-        return new Result();
+    public Result<Object> delete(@RequestBody List<Integer> idList, String courseId) {
+        bookService.delete(idList, courseId);
+        return new Result<>();
     }
 
     @RequestMapping(value = "/isbn", method = RequestMethod.GET)
     @ApiOperation("教材查询接口，同步远程接口信息")
-    public Result queryBook(String ISBN) {
+    public Result<Object> queryBook(String ISBN) {
         Book book = BookUtil.getBook(ISBN);
         return new Result<>(book);
     }
@@ -98,30 +98,30 @@ public class BookController {
     @RequestMapping(value = "/setDeclareStatus", method = RequestMethod.GET)
     @ApiOperation("教师申报教材开关")
     @Role(RoleEnum.ACADEMIC_MANAGER)
-    public Result setDeclareStatus(boolean flag) {
+    public Result<Object> setDeclareStatus(boolean flag) {
         bookService.setDeclareStatus(flag);
-        return new Result();
+        return new Result<>();
     }
 
     @RequestMapping(value = "/setPurchaseStatus", method = RequestMethod.GET)
     @ApiOperation("学生订书操作开关")
     @Role(RoleEnum.ACADEMIC_MANAGER)
-    public Result setPurchaseStatus(boolean flag) {
+    public Result<Object> setPurchaseStatus(boolean flag) {
         bookService.setPurchaseStatus(flag);
-        return new Result();
+        return new Result<>();
     }
 
     @RequestMapping(value = "/getPurchaseStatus", method = RequestMethod.GET)
     @ApiOperation("查看学生订书操作开关")
     @Role(RoleEnum.ACADEMIC_MANAGER)
-    public Result getPurchaseStatus() {
+    public Result<Object> getPurchaseStatus() {
         return new Result<>(bookService.getPurchaseStatus());
     }
 
     @RequestMapping(value = "/getDeclareStatus", method = RequestMethod.GET)
     @ApiOperation("查看老师报教材操作开关")
     @Role(RoleEnum.ACADEMIC_MANAGER)
-    public Result getDeclareStatus() {
+    public Result<Object> getDeclareStatus() {
         return new Result<>(bookService.getDeclareStatus());
     }
 }

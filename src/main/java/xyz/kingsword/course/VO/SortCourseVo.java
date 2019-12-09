@@ -45,8 +45,12 @@ public class SortCourseVo {
     private String textBookString;
     private String referenceBookString;
 
-    private List<Book> textBookList;
+    private List<Book> bookList;
     private List<Book> referenceBookList;
+
+    private List<String> courseGroup;
+
+    private String bookManager;
 
 
     private static final long serialVersionUID = 1L;

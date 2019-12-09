@@ -39,6 +39,7 @@
     FROM course_group_view
     WHERE cou_id = #{semesterId}
       AND semester_id = (SELECT max(semester_id) FROM sortcourse_view)
+    group by tea_id
   </select>
   <select id="selectDistinct" resultMap="BaseResultMap">
     select * from course_group_view

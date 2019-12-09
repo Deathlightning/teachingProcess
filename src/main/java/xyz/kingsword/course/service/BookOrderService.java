@@ -21,8 +21,7 @@ public interface BookOrderService {
 
     List<CourseGroupOrderVo> courseGroupOrder(String courseId, String semesterId);
 
-
-    Workbook exportAllStudentRecord(String semesterId);
+    Workbook exportAllStudentRecord(String semesterId, boolean declared);
 
     Workbook exportSingleRecord(String studentId);
 

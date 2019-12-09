@@ -39,7 +39,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User login(User user) {
         User userDb = userMapper.login(user.getUsername());
-        System.out.println(userDb);
         ConditionUtil.notNull(userDb).orElseThrow(() -> new AuthException(ErrorEnum.ERROR_LOGIN));
         boolean flag = UserUtil.validPassword(user.getPassword(), userDb.getPassword());
         ConditionUtil.validateTrue(flag).orElseThrow(() -> new AuthException(ErrorEnum.ERROR_LOGIN));
