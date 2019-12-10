@@ -19,6 +19,18 @@
       <if test="courseId !=null and courseId !=''">
         cou_id=#{courseId}
       </if>
+      <if test="nature !=null and nature >0">
+        and course_nature=#{nature}
+      </if>
+      <if test="type !=null and type >-1">
+        and type=#{type}
+      </if>
+      <if test="declareStatus == true">
+        and JSON_LENGTH(text_book) >0
+      </if>
+      <if test="declareStatus == false">
+        and JSON_LENGTH(text_book) =0
+      </if>
       <if test="semesterId !=null and semesterId !=''">
         and semester_id=#{semesterId}
       </if>

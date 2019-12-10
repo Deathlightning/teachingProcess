@@ -8,12 +8,14 @@ import lombok.Getter;
 @Getter
 public enum CourseTypeEnum {
     OTHER(0, "其他"),
-    GENERAL_EDUCATION_REQUIRED(1, "通识教育必修"),
-    GENERAL_EDUCATION(2, "通识教育选修"),
-    PROFESSIONAL_LESSON_REQUIRED(3, "专业必修"),
-    PROFESSIONAL_LESSON(4, "专业选修"),
-    SUBJECT_REQUIRED(5, "学科必修"),
-    PRACTICE(6, "实践环节");
+    GENERAL_EDUCATION_REQUIRED(1, "通识教育必修课"),
+    GENERAL_EDUCATION(2, "通识教育选修课"),
+    PROFESSIONAL_LESSON_REQUIRED(3, "专业必修课"),
+    PROFESSIONAL_LESSON(4, "专业选修课"),
+    SUBJECT_REQUIRED(5, "学科必修课"),
+    PRACTICE(6, "实践环节"),
+    PROFESSIONAL_LESSON_BASIC(7, "专业基础课"),
+    GENERAL_LESSON(8, "通识课");
 
     private int code;
     private String content;
@@ -24,7 +26,7 @@ public enum CourseTypeEnum {
     }
 
     public static CourseTypeEnum get(int code) {
-        CourseTypeEnum val = null;
+        CourseTypeEnum val = OTHER;
         for (CourseTypeEnum courseTypeEnum : CourseTypeEnum.values()) {
             if (courseTypeEnum.getCode() == code) {
                 val = courseTypeEnum;

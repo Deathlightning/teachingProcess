@@ -22,5 +22,7 @@ public class BookOrderVo {
 
     private String semesterId;
 
+    private String courseId;
+
     private String className;
 }

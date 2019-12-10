@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import xyz.kingsword.course.VO.BookOrderVo;
 import xyz.kingsword.course.VO.CourseGroupOrderVo;
 import xyz.kingsword.course.pojo.BookOrder;
+import xyz.kingsword.course.pojo.param.DeclareBookExportParam;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,7 +22,7 @@ public interface BookOrderService {
 
     List<CourseGroupOrderVo> courseGroupOrder(String courseId, String semesterId);
 
-    Workbook exportAllStudentRecord(String semesterId, boolean declared);
+    Workbook exportAllStudentRecord(DeclareBookExportParam param);
 
     Workbook exportSingleRecord(String studentId);
 

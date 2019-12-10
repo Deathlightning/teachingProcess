@@ -180,6 +180,12 @@
       <if test="courseName !=null and courseName !=''">
         and `name` like concat ('%',#{courseName},'%')
       </if>
+      <if test="nature !=null and nature > 0">
+        and nature =#{nature}
+      </if>
+      <if test="type !=null and type > -1">
+        and type =#{type}
+      </if>
       <if test="researchRoom !=null and researchRoom!=''">
         and research_room=#{researchRoom}
       </if>

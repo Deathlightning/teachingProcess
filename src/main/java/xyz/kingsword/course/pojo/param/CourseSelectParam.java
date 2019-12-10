@@ -14,6 +14,12 @@ public class CourseSelectParam {
 
     private String courseName;
 
+    @ApiModelProperty(value = "课程性质 1选修2必修", allowableValues = "range[1,2]")
+    private Integer nature;
+
+    @ApiModelProperty(value = "课程类别", allowableValues = "range[1,8]")
+    private Integer type;
+
     private String researchRoom;
 
     private String teacherInCharge;

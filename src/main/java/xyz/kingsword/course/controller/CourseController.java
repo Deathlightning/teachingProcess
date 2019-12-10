@@ -5,6 +5,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import xyz.kingsword.course.VO.CourseVo;
@@ -26,9 +27,9 @@ public class CourseController {
 
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     @ApiOperation("新增课程")
-    public Result insert(@RequestBody Course course) {
+    public Result<Object> insert(@RequestBody Course course) {
         courseService.insert(course);
-        return new Result();
+        return new Result<>();
     }
 
     @RequestMapping(value = "/setTeacherInCharge", method = RequestMethod.PUT)
@@ -37,7 +38,7 @@ public class CourseController {
             @ApiImplicitParam(name = "courseId", required = true)}
     )
     @ApiOperation("设置课程负责人")
-    public Result setTeacherInCharge(String teacherId, String courseId) {
+    public Result<Object> setTeacherInCharge(@NonNull String teacherId, @NonNull String courseId) {
         courseService.setTeacherInCharge(courseId, teacherId);
         return new Result<>();
     }
@@ -45,22 +46,22 @@ public class CourseController {
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ApiOperation("更新课程，参数设置见新增课程")
-    public Result update(@RequestBody Course course) {
+    public Result<Object> update(@RequestBody Course course) {
         courseService.updateById(course);
-        return new Result();
+        return new Result<>();
     }
 
     @GetMapping("/courseInfo")
     @ApiOperation("获取课程信息")
     @ApiImplicitParam(name = "courseId", required = true)
-    public Result courseInfo(String courseId) {
+    public Result<Object> courseInfo(String courseId) {
         CourseVo courseVo = courseService.findCourseById(courseId);
         return new Result<>(courseVo);
     }
 
     @RequestMapping(value = "/select", method = RequestMethod.POST)
     @ApiOperation("多条件查询，自由组合")
-    public Result select(@RequestBody CourseSelectParam param) {
+    public Result<Object> select(@RequestBody CourseSelectParam param) {
         PageInfo<CourseVo> pageInfo = courseService.select(param);
         return new Result<>(pageInfo);
     }

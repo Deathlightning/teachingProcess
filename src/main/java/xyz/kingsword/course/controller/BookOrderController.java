@@ -2,10 +2,7 @@ package xyz.kingsword.course.controller;
 
 import cn.hutool.core.lang.Dict;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import lombok.NonNull;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +15,7 @@ import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.pojo.BookOrder;
 import xyz.kingsword.course.pojo.Result;
 import xyz.kingsword.course.pojo.User;
+import xyz.kingsword.course.pojo.param.DeclareBookExportParam;
 import xyz.kingsword.course.service.BookOrderService;
 import xyz.kingsword.course.util.TimeUtil;
 import xyz.kingsword.course.util.UserUtil;
@@ -101,18 +99,14 @@ public class BookOrderController {
     /**
      * 全部教材订购信息导出
      *
-     * @param semesterId 学期id
+     * @param param 导出筛选条件
      */
     @RequestMapping(value = "/exportBookInfo", method = RequestMethod.GET)
     @ApiOperation("教材订购信息导出")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "semesterId", required = true, value = "学期id"),
-            @ApiImplicitParam(name = "declared", required = true, value = "是否仅显示已报教材的课程,不为null", dataType = "Boolean")
-    })
     @Role
-    public void exportBookInfo(HttpServletResponse response, @NonNull String semesterId, boolean declared) throws IOException {
-        Workbook workbook = bookOrderService.exportAllStudentRecord(semesterId, declared);
-        String fileName = TimeUtil.getSemesterName(semesterId) + "教材征订计划表.xlsx";
+    public void exportBookInfo(HttpServletResponse response, DeclareBookExportParam param) throws IOException {
+        Workbook workbook = bookOrderService.exportAllStudentRecord(param);
+        String fileName = TimeUtil.getSemesterName(param.getSemesterId()) + "教材征订计划表.xlsx";
         fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), "ISO8859-1");
         response.setContentType("application/msexcel;charset=UTF-8");
         response.setHeader("Content-Disposition", "attachment;filename=" + fileName);

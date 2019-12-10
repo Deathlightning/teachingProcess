@@ -7,20 +7,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import xyz.kingsword.course.VO.BookOrderVo;
 import xyz.kingsword.course.VO.CourseGroupOrderVo;
 import xyz.kingsword.course.VO.StudentVo;
 import xyz.kingsword.course.dao.*;
 import xyz.kingsword.course.enmu.CourseNature;
+import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.enmu.RoleEnum;
-import xyz.kingsword.course.exception.BaseException;
 import xyz.kingsword.course.exception.DataException;
+import xyz.kingsword.course.exception.OperationException;
 import xyz.kingsword.course.pojo.Book;
 import xyz.kingsword.course.pojo.BookOrder;
 import xyz.kingsword.course.pojo.CourseGroup;
 import xyz.kingsword.course.pojo.User;
 import xyz.kingsword.course.pojo.param.CourseGroupSelectParam;
+import xyz.kingsword.course.pojo.param.DeclareBookExportParam;
 import xyz.kingsword.course.pojo.param.StudentSelectParam;
 import xyz.kingsword.course.service.BookOrderService;
 import xyz.kingsword.course.service.BookService;
@@ -150,7 +153,7 @@ public class BookOrderServiceImpl implements BookOrderService {
     private final int CLASS_START_INDEX = 15;
 
     @Override
-    public Workbook exportAllStudentRecord(String semesterId, boolean declared) {
+    public Workbook exportAllStudentRecord(DeclareBookExportParam param) {
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream("templates/orderDetail.xlsx");
         Workbook workbook;
         try {
@@ -162,8 +165,8 @@ public class BookOrderServiceImpl implements BookOrderService {
         }
         Sheet sheet = workbook.getSheetAt(0);
         CellStyle cellStyle = getBaseCellStyle(workbook);
-        sheet.getRow(0).getCell(0).setCellValue(TimeUtil.getSemesterName(semesterId) + "教材订购详情");
-        List<String> classNameList = bookOrderMapper.purchaseClass(semesterId);
+        sheet.getRow(0).getCell(0).setCellValue(TimeUtil.getSemesterName(param.getSemesterId()) + "教材订购详情");
+        List<String> classNameList = bookOrderMapper.purchaseClass(param.getSemesterId());
         Row rowHead = sheet.getRow(1);
         for (int i = 0; i < classNameList.size(); i++) {
             int index = CLASS_START_INDEX + i;
@@ -173,7 +176,7 @@ public class BookOrderServiceImpl implements BookOrderService {
             classIndex.put(classNameList.get(i), index);
         }
 
-        String[][] data = renderData(semesterId);
+        String[][] data = renderData(param);
         for (int i = 0; i < data.length; i++) {
             Row row = sheet.createRow(i + 2);
             for (int j = 0; j < data[i].length; j++) {
@@ -190,17 +193,27 @@ public class BookOrderServiceImpl implements BookOrderService {
      *
      * @return String[][]
      */
-    private String[][] renderData(String semesterId) {
-        List<CourseGroup> courseGroupList = courseGroupMapper.select(CourseGroupSelectParam.builder().semesterId(semesterId).build());
-        List<BookOrderVo> bookOrderVoList = bookOrderMapper.select(null, semesterId, null);
+    private String[][] renderData(DeclareBookExportParam declareBookExportParam) {
+        String semesterId = declareBookExportParam.getSemesterId();
+        CourseGroupSelectParam courseGroupSelectParam = new CourseGroupSelectParam();
+        BeanUtils.copyProperties(declareBookExportParam, courseGroupSelectParam);
+        List<CourseGroup> courseGroupList = courseGroupMapper.select(courseGroupSelectParam);
+        Set<String> courseIdSet = courseGroupList.parallelStream().map(CourseGroup::getCouId).collect(Collectors.toSet());
+
+        List<BookOrderVo> bookOrderVoList = bookOrderMapper.select(null, semesterId, null)
+                .parallelStream()
+                .filter(v -> courseIdSet.contains(v.getCourseId()))
+                .collect(Collectors.toList());
         Map<Integer, Map<String, Long>> bookIdToClass = bookOrderVoList
                 .parallelStream()
                 .filter(v -> v.getClassName() != null)
                 .collect(Collectors.groupingBy(BookOrderVo::getBookId, Collectors.groupingBy(BookOrderVo::getClassName, Collectors.counting())));
-
         Map<String, List<CourseGroup>> courseMap = courseGroupList.parallelStream().collect(Collectors.groupingBy(CourseGroup::getCouId));
         List<Integer> idList = courseGroupList.parallelStream().flatMap(v -> v.getTextBook().stream()).collect(Collectors.toList());
-        ConditionUtil.notEmpty(idList).orElseThrow(() -> new BaseException("没有教材数据"));
+        if (idList.isEmpty()) {
+            return new String[0][0];
+        }
+        ConditionUtil.notEmpty(idList).orElseThrow(() -> new OperationException(ErrorEnum.NO_DATA));
 //        主键为书籍id，便于搜索
         Map<Integer, Book> bookMap = bookMapper.selectBookList(idList)
                 .parallelStream().collect(Collectors.toMap(Book::getId, v -> v));
@@ -216,6 +229,7 @@ public class BookOrderServiceImpl implements BookOrderService {
             StrBuilder classStrBuilder = StrBuilder.create();
             StrBuilder teacherStrBuilder = StrBuilder.create();
             for (CourseGroup courseGroup : courseGroupListItem) {
+                System.out.println();
                 String className = courseGroup.getClassName().replace(" ", "\n");
                 classStrBuilder.append(className).append("\n");
                 teacherStrBuilder.append(courseGroup.getTeacherName()).append("\n");
