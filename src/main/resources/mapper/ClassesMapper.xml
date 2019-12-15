@@ -16,8 +16,8 @@
     values (#{classname,jdbcType=CHAR}, #{studentNum,jdbcType=INTEGER})
   </insert>
   <insert id="insertList">
-    insert into classes(classname, student_num, grade) values
-    <foreach collection="list" separator="," item="item">
+    insert ignore into classes(classname, student_num, grade) values
+    <foreach collection="collection" separator="," item="item">
       (#{item.classname},#{item.studentNum},#{item.grade})
     </foreach>
   </insert>

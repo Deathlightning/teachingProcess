@@ -37,6 +37,13 @@ public class BookController {
         return new Result<>();
     }
 
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    @ApiOperation("删除教材")
+    public Result<Object> delete(@RequestBody List<Integer> idList, String courseId) {
+        bookService.delete(idList, courseId);
+        return new Result<>();
+    }
+
     /**
      * 按课程查看教材列表
      *
@@ -80,12 +87,7 @@ public class BookController {
         return new Result<>(bookList);
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    @ApiOperation("删除教材")
-    public Result<Object> delete(@RequestBody List<Integer> idList, String courseId) {
-        bookService.delete(idList, courseId);
-        return new Result<>();
-    }
+
 
     @RequestMapping(value = "/isbn", method = RequestMethod.GET)
     @ApiOperation("教材查询接口，同步远程接口信息")

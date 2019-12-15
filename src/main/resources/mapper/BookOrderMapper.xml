@@ -35,14 +35,14 @@
     id, stu_id, course_id, book_id, semester_id, `status`
   </sql>
   <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-    replace book_order(user_id, course_id, book_id, semester_id,`status`)
+    insert ignore book_order(user_id, course_id, book_id, semester_id,`status`)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.userId},#{item.courseId},#{item.bookId},#{item.semesterId},0)
     </foreach>
   </insert>
   <update id="delete">
-    update book_order
+    update ignore book_order
     set `status`= -1
     where id = #{id}
   </update>

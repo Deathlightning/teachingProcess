@@ -9,6 +9,8 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import xyz.kingsword.course.VO.CourseVo;
+import xyz.kingsword.course.annocations.Role;
+import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.pojo.Course;
 import xyz.kingsword.course.pojo.Result;
 import xyz.kingsword.course.pojo.param.CourseSelectParam;
@@ -54,7 +56,7 @@ public class CourseController {
     @GetMapping("/courseInfo")
     @ApiOperation("获取课程信息")
     @ApiImplicitParam(name = "courseId", required = true)
-    public Result<Object> courseInfo(String courseId) {
+    public Result<CourseVo> courseInfo(String courseId) {
         CourseVo courseVo = courseService.findCourseById(courseId);
         return new Result<>(courseVo);
     }
@@ -65,6 +67,11 @@ public class CourseController {
         PageInfo<CourseVo> pageInfo = courseService.select(param);
         return new Result<>(pageInfo);
     }
-
-
+    @RequestMapping(value = "/resetBookManager", method = RequestMethod.GET)
+    @ApiOperation("清空教材管理权限")
+    @Role(RoleEnum.TEACHER)
+    public Result<Object> resetBookManager(String courseId) {
+        courseService.resetBookManager(courseId);
+        return new Result<>();
+    }
 }

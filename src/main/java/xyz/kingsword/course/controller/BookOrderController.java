@@ -48,12 +48,20 @@ public class BookOrderController {
         return new Result<>(idList);
     }
 
+    @RequestMapping(value = "/insertByGrade", method = RequestMethod.POST)
+    @ApiOperation("根据年级，订购必修教材")
+    @Role
+    public Result<Object> insertByGrade(@RequestBody List<Integer> gradeList) {
+        bookOrderService.insertByGrade(gradeList, "19202");
+        return new Result<>();
+    }
+
     @RequestMapping(value = "/cancelPurchase", method = RequestMethod.GET)
     @ApiOperation("取消订教材")
     @Role
-    public Result cancelPurchase(int id) {
+    public Result<Object> cancelPurchase(int id) {
         bookOrderService.cancelPurchase(id);
-        return new Result();
+        return new Result<>();
     }
 
     @RequestMapping(value = "/courseGroupOrder", method = RequestMethod.GET)

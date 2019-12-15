@@ -4,15 +4,13 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import xyz.kingsword.course.pojo.Classes;
 import xyz.kingsword.course.pojo.Result;
 import xyz.kingsword.course.pojo.param.ClassesSelectParam;
 import xyz.kingsword.course.service.ClassesService;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -43,5 +41,11 @@ public class ClassesController {
     public Result select(@RequestBody ClassesSelectParam param) {
         PageInfo<Classes> pageInfo = classesService.select(param);
         return new Result<>(pageInfo);
+    }
+
+    @GetMapping("/selectGrades")
+    @ApiOperation("获取在校年级")
+    public Result<List<Integer>> selectGrades() {
+        return new Result<>(Arrays.asList(2016, 2017, 2018, 2019));
     }
 }

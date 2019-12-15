@@ -2,13 +2,14 @@ package xyz.kingsword.course.dao;
 
 import org.apache.ibatis.annotations.Param;
 import xyz.kingsword.course.pojo.Course;
+import xyz.kingsword.course.pojo.Teacher;
 import xyz.kingsword.course.pojo.param.CourseSelectParam;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface CourseMapper {
-    String getBookManager(String courseId);
+    Teacher getBookManager(String courseId);
 
     void setBookManager(String courseId, String teacherId);
 
@@ -35,6 +36,8 @@ public interface CourseMapper {
     List<Course> getCourseByInCharge(String teaId);
 
     List<Course> select(CourseSelectParam param);
+
+    void resetBookManager(String courseId);
 
 
 }

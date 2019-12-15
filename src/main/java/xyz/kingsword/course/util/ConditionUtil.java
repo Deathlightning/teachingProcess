@@ -1,7 +1,6 @@
 package xyz.kingsword.course.util;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.function.Supplier;
 
 public class ConditionUtil {
@@ -28,15 +27,6 @@ public class ConditionUtil {
 
     public static ConditionUtil notEmpty(Collection... objs) {
         for (Collection o : objs) {
-            if (o == null || o.isEmpty()) {
-                return wrongCondition;
-            }
-        }
-        return rightCondition;
-    }
-
-    public static ConditionUtil notEmpty(Map... map) {
-        for (Map o : map) {
             if (o == null || o.isEmpty()) {
                 return wrongCondition;
             }

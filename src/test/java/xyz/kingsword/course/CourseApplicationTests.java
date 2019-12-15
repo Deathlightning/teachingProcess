@@ -20,23 +20,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.test.context.junit4.SpringRunner;
-import xyz.kingsword.course.dao.ConfigMapper;
-import xyz.kingsword.course.dao.CourseMapper;
-import xyz.kingsword.course.dao.SortCourseMapper;
-import xyz.kingsword.course.dao.TeacherMapper;
+import xyz.kingsword.course.VO.StudentVo;
+import xyz.kingsword.course.dao.*;
 import xyz.kingsword.course.enmu.CourseNature;
 import xyz.kingsword.course.enmu.CourseTypeEnum;
 import xyz.kingsword.course.enmu.RoleEnum;
-import xyz.kingsword.course.pojo.Course;
-import xyz.kingsword.course.pojo.SortCourse;
-import xyz.kingsword.course.pojo.Teacher;
-import xyz.kingsword.course.pojo.TeachingContent;
+import xyz.kingsword.course.pojo.*;
+import xyz.kingsword.course.pojo.param.StudentSelectParam;
 import xyz.kingsword.course.pojo.param.TeacherSelectParam;
 import xyz.kingsword.course.service.calendarExport.CalendarData;
 import xyz.kingsword.course.util.PinYinTool;
+import xyz.kingsword.course.util.SpringContextUtil;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -60,6 +58,43 @@ public class CourseApplicationTests {
 
     @Test
     public void contextLoads() throws Exception {
+        StudentMapper studentMapper = SpringContextUtil.getBean(StudentMapper.class);
+        List<StudentVo> studentVoList = studentMapper.select(StudentSelectParam.builder().className("RB软工17级卓越班").build());
+        System.out.println(studentVoList.size());
+    }
+
+    private void importStudent() throws IOException {
+        String filePath = "C:\\Users\\wang\\Desktop\\学生基本信息 (1).xls";
+        InputStream inputStream = new FileInputStream(filePath);
+        Workbook workbook = new HSSFWorkbook(inputStream);
+        Sheet sheet = workbook.getSheetAt(0);
+        List<Student> studentList = new ArrayList<>(sheet.getLastRowNum() + 1);
+        Set<Classes> classesSet = new HashSet<>();
+        for (int i = 1; i < sheet.getLastRowNum() + 1; i++) {
+            Row row = sheet.getRow(i);
+            String username = row.getCell(0).getStringCellValue();
+            String name = row.getCell(1).getStringCellValue();
+            String className = row.getCell(2).getStringCellValue();
+            int grade = ReUtil.getFirstNumber(className);
+            grade = grade < 100 ? grade : grade / 10;
+            grade += 2000;
+            Student student = new Student();
+            student.setId(username);
+            student.setName(name);
+            student.setClassName(className);
+            student.setGrade(grade);
+            studentList.add(student);
+
+            Classes classes = new Classes();
+            classes.setClassname(className);
+            classes.setGrade(grade);
+            classesSet.add(classes);
+        }
+        StudentMapper studentMapper = SpringContextUtil.getBean(StudentMapper.class);
+//        studentMapper.insert(studentList);
+
+        ClassesMapper classesMapper = SpringContextUtil.getBean(ClassesMapper.class);
+        classesMapper.insertList(classesSet);
     }
 
     private static boolean isChineseByScript(String a) {

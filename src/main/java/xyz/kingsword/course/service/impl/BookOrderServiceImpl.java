@@ -18,10 +18,7 @@ import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.exception.DataException;
 import xyz.kingsword.course.exception.OperationException;
-import xyz.kingsword.course.pojo.Book;
-import xyz.kingsword.course.pojo.BookOrder;
-import xyz.kingsword.course.pojo.CourseGroup;
-import xyz.kingsword.course.pojo.User;
+import xyz.kingsword.course.pojo.*;
 import xyz.kingsword.course.pojo.param.CourseGroupSelectParam;
 import xyz.kingsword.course.pojo.param.DeclareBookExportParam;
 import xyz.kingsword.course.pojo.param.StudentSelectParam;
@@ -86,6 +83,38 @@ public class BookOrderServiceImpl implements BookOrderService {
     public void cancelPurchase(int orderId) {
         bookOrderMapper.delete(orderId);
         Optional.ofNullable(UserUtil.getTeacher()).ifPresent(v -> bookMapper.cancelTeacherPurchase(orderId));
+    }
+
+    @Override
+    public void insertByGrade(Collection<Integer> gradeList, String semesterId) {
+        List<BookOrder> bookOrderList = new ArrayList<>(1000);
+        ClassesMapper classesMapper = SpringContextUtil.getBean(ClassesMapper.class);
+        StudentMapper studentMapper = SpringContextUtil.getBean(StudentMapper.class);
+        Map<Integer, List<Classes>> classesMap = classesMapper.selectAll().parallelStream().collect(Collectors.groupingBy(Classes::getGrade));
+        for (Integer grade : gradeList) {
+            List<Classes> classesList = classesMap.get(grade);
+            ConditionUtil.notEmpty(classesList).orElseThrow(() -> new DataException(ErrorEnum.NO_DATA));
+            for (Classes classes : classesList) {
+                List<CourseGroup> courseGroupList = courseGroupMapper.geyByClasses(classes.getClassname());
+                List<StudentVo> studentVoList = studentMapper.select(StudentSelectParam.builder().className(classes.getClassname()).build());
+                for (CourseGroup courseGroup : courseGroupList) {
+                    String courseId = courseGroup.getCouId();
+                    List<Integer> idList = courseGroup.getTextBook();
+                    for (StudentVo studentVo : studentVoList) {
+                        for (Integer bookId : idList) {
+                            BookOrder bookOrder = new BookOrder();
+                            bookOrder.setUserId(studentVo.getId());
+                            bookOrder.setBookId(bookId);
+                            bookOrder.setSemesterId("19202");
+                            bookOrder.setCourseId(courseId);
+                            bookOrderList.add(bookOrder);
+                        }
+//                }
+                    }
+                }
+            }
+        }
+        bookOrderMapper.insert(bookOrderList);
     }
 
     @Override
@@ -321,18 +350,20 @@ public class BookOrderServiceImpl implements BookOrderService {
     }
 
     private String[][] renderData(String className, String semesterId) {
-        List<BookOrderVo> bookOrderVoList = this.select(null, semesterId, className);
         StudentMapper studentMapper = SpringContextUtil.getBean(StudentMapper.class);
         List<StudentVo> studentList = studentMapper.select(StudentSelectParam.builder().className(className).pageSize(0).build())
                 .parallelStream()
                 .sorted((a, b) -> StrUtil.compare(a.getId(), b.getId(), false))
                 .collect(Collectors.toList());
+        List<BookOrderVo> bookOrderVoList = this.select(null, semesterId, className);
         List<String> bookNameList = bookOrderVoList.parallelStream().map(BookOrderVo::getName).distinct().collect(Collectors.toList());
-        String[][] data = new String[studentList.size() + 1][bookNameList.size() + 1];
+        int columnCount = bookNameList.size() + 2;
+        int rowCount = studentList.size() + 2;
+        String[][] data = new String[rowCount][columnCount];
 //        数据初始化
         for (int i = 0; i < data.length; i++) {
-            data[i] = new String[bookNameList.size() + 1];
-            Arrays.fill(data[i], "0");
+            data[i] = new String[columnCount];
+            Arrays.fill(data[i], "");
         }
         data[0][0] = "";
 //         第一行书名
@@ -341,6 +372,7 @@ public class BookOrderServiceImpl implements BookOrderService {
             bookNameToIndex.put(bookNameList.get(i), i + 1);
             data[0][i + 1] = bookNameList.get(i);
         }
+        data[0][bookNameList.size() + 1] = "确认签字";
 //      第一列学生名字
         for (int i = 1; i < studentList.size() + 1; i++) {
             data[i][0] = studentList.get(i - 1).getName();
@@ -357,6 +389,12 @@ public class BookOrderServiceImpl implements BookOrderService {
                 }
             }
         }
+        data[rowCount - 1] = new String[columnCount];
+        data[rowCount - 1][0] = "合计";
+
+        Map<String, Long> map = bookOrderVoList.parallelStream().collect(Collectors.groupingBy(BookOrderVo::getName, Collectors.counting()));
+        map.forEach((k, v) -> data[rowCount - 1][bookNameToIndex.get(k)] = v.toString());
+//        map.forEach((k, v) -> System.out.println(k + " " + v));
         return data;
     }
 }

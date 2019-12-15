@@ -46,6 +46,11 @@
     <result column="tea_name" jdbcType="CHAR" property="teacherName"/>
     <result column="class_name" jdbcType="CHAR" property="className"/>
   </resultMap>
+
+  <resultMap id="TeacherMap" type="xyz.kingsword.course.pojo.Teacher">
+    <result column="tea_id" jdbcType="CHAR" property="id"/>
+    <result column="tea_name" jdbcType="CHAR" property="name"/>
+  </resultMap>
   <insert id="insert" parameterType="xyz.kingsword.course.pojo.Course">
     insert ignore course (id, `name`, teacher_in_charge,
                           type, core, nature, credit, coach, coach_teacher,
@@ -146,6 +151,11 @@
     set text_book=#{textBookStr}
     where id = #{courseId}
   </update>
+  <update id="resetBookManager">
+    update course
+    set book_manager=null
+    where id = #{id}
+  </update>
 
   <select id="selectTeacherGroupCount" resultType="java.lang.Integer">
     select count(tea_id)
@@ -202,10 +212,11 @@
     </where>
     order by id
   </select>
-  <select id="getBookManager" resultType="java.lang.String">
-    select course.book_manager
+  <select id="getBookManager" resultMap="TeacherMap">
+    select teacher.name as tea_name, course.book_manager as tea_id
     from course
-    where id = #{id}
-      and `status` = 0;
+           join teacher on course.book_manager = teacher.id
+    where course.id = #{id}
+      and course.`status` = 0;
   </select>
 </mapper>

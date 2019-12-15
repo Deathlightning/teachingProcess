@@ -5,10 +5,8 @@ import xyz.kingsword.course.enmu.ErrorEnum;
 
 @Getter
 public class OperationException extends BaseException {
-    private ErrorEnum errorEnum;
-
     public OperationException(ErrorEnum errorEnum) {
-        this.errorEnum = errorEnum;
+        super(errorEnum);
     }
 
     public OperationException() {

@@ -16,6 +16,8 @@ public interface BookOrderService {
 
     void cancelPurchase(int id);
 
+    void insertByGrade(Collection<Integer> gradeList, String semesterId);
+
     List<BookOrderVo> select(String studentId, String semesterId, String className);
 
     List<BookOrderVo> selectByTeacher(String teacherId, String semesterId);

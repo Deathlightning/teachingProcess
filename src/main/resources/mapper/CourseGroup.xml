@@ -75,4 +75,11 @@
     group by tea_id
     order by semester_id
   </select>
+  <select id="geyByClasses" resultMap="BaseResultMap">
+    select cou_id, text_book, class_name
+    from course_group_view
+    where course_nature = 2
+      and class_name LIKE CONCAT('%', #{className}, '%')
+    group by cou_id
+  </select>
 </mapper>

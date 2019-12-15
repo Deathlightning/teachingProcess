@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import xyz.kingsword.course.dao.*;
 import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.enmu.RoleEnum;
-import xyz.kingsword.course.exception.AuthException;
+import xyz.kingsword.course.exception.BaseException;
 import xyz.kingsword.course.exception.DataException;
 import xyz.kingsword.course.exception.OperationException;
 import xyz.kingsword.course.pojo.*;
@@ -200,10 +200,10 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void delete(@NonNull List<Integer> idList, @NonNull String courseId) {
+        validateAuth(courseId);
         if (!idList.isEmpty()) {
             idList.forEach(v -> {
                 int flag = bookOrderMapper.selectByBookId(v);
-                System.out.println(flag);
                 ConditionUtil.validateTrue(flag == 0).orElseThrow(() -> new OperationException(ErrorEnum.ORDERED));
                 bookCache.evict(v);
             });
@@ -238,12 +238,12 @@ public class BookServiceImpl implements BookService {
         if (roleId != null && roleId == RoleEnum.ACADEMIC_MANAGER.getCode()) {
             return;
         }
-        User teacher = UserUtil.getUser();
-        String teacherId = courseMapper.getBookManager(courseId);
-        if (teacherId == null) {
+        Teacher teacher = courseMapper.getBookManager(courseId);
+        if (teacher == null) {
             courseMapper.setBookManager(courseId, user.getUsername());
             return;
         }
-        ConditionUtil.validateTrue(StrUtil.equals(teacherId, teacher.getUsername())).orElseThrow(AuthException::new);
+        String message = "您没有权限，请咨询" + teacher.getName() + "老师";
+        ConditionUtil.validateTrue(StrUtil.equals(teacher.getId(), user.getUsername())).orElseThrow(()->new BaseException(message));
     }
 }

@@ -13,7 +13,7 @@ public class ClassesSelectParam {
     @ApiModelProperty("模糊查询")
     private String className;
 
-    private String grade;
+    private int grade;
 
     @Builder.Default
     private int pageNum = 1;

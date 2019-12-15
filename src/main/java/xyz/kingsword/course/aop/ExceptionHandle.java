@@ -46,9 +46,9 @@ public class ExceptionHandle {
 
     @ExceptionHandler(value = BaseException.class)
     @ResponseBody
-    public Result<ErrorEnum> exceptionGet(BaseException e) {
+    public Result<String> exceptionGet(BaseException e) {
         e.printStackTrace();
-        return new Result<>(e.getErrorEnum());
+        return new Result<>(406,e.getMessage());
     }
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class, InvalidFormatException.class})

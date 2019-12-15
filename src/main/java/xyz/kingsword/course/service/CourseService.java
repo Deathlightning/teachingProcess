@@ -21,5 +21,7 @@ public interface CourseService {
 
     PageInfo<CourseVo> select(CourseSelectParam param);
 
+    void resetBookManager(String courseId);
+
 //    List<Course> selectCourseOnTeacher(String teaId, String semester, int pageNum, int pageSize);
 }

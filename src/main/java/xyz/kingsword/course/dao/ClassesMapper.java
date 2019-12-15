@@ -4,13 +4,14 @@ import xyz.kingsword.course.pojo.Classes;
 import xyz.kingsword.course.pojo.Course;
 import xyz.kingsword.course.pojo.param.ClassesSelectParam;
 
+import java.util.Collection;
 import java.util.List;
 
 
 public interface ClassesMapper {
     int insert(Classes record);
 
-    int insertList(List<Classes> classesList);
+    int insertList(Collection<Classes> collection);
 
     Classes selectByPrimaryKey(String name);
 

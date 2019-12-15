@@ -56,6 +56,11 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public void resetBookManager(String courseId) {
+        courseMapper.resetBookManager(courseId);
+    }
+
+    @Override
     public CourseVo findCourseById(String id) {
         Optional<Course> optional = courseMapper.getByPrimaryKey(id);
         CourseVo courseVo = null;
@@ -93,6 +98,7 @@ public class CourseServiceImpl implements CourseService {
                 courseVo.setCourseGroup(courseGroupList);
                 if (courseVo.getBookManager() != null) {
                     Teacher bookManager = Optional.ofNullable(teacherService.getTeacherById(courseVo.getBookManager())).orElseThrow(DataException::new);
+                    courseVo.setBookManagerId(course.getBookManager());
                     courseVo.setBookManager(bookManager.getName());
                 }
                 courseVoList.add(courseVo);

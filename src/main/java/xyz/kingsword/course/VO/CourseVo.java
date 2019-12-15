@@ -60,6 +60,8 @@ public class CourseVo {
 
     private String bookManager;
 
+    private String bookManagerId;
+
 //****************************************
 //    学时组成
 //****************************************

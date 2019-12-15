@@ -20,4 +20,6 @@ public interface CourseGroupMapper {
     List<CourseGroup> selectDistinct(CourseGroupSelectParam courseGroupSelectParam);
 
     List<CourseGroup> getNextSemesterCourseGroup(String courseId);
+
+    List<CourseGroup> geyByClasses(String className);
 }
