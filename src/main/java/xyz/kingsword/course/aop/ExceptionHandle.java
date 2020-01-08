@@ -10,6 +10,7 @@ import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.exception.AuthException;
 import xyz.kingsword.course.exception.BaseException;
 import xyz.kingsword.course.exception.DataException;
+import xyz.kingsword.course.exception.OperationException;
 import xyz.kingsword.course.pojo.Result;
 
 import java.sql.SQLException;
@@ -48,15 +49,21 @@ public class ExceptionHandle {
     @ResponseBody
     public Result<String> exceptionGet(BaseException e) {
         e.printStackTrace();
-        return new Result<>(406,e.getMessage());
+        return new Result<>(406, e.getMessage());
     }
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class, InvalidFormatException.class})
     @ResponseBody
     public Result<ErrorEnum> exceptionGet(RuntimeException e) {
         log.error("参数异常");
-        e.printStackTrace();
         return new Result<>(ErrorEnum.ERROR_PARAMETER);
+    }
+
+    @ExceptionHandler(OperationException.class)
+    @ResponseBody
+    public Result<ErrorEnum> exceptionGet(OperationException e) {
+        log.error("操作异常");
+        return new Result<>(e.getErrorEnum());
     }
 
 

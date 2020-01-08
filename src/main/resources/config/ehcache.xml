@@ -21,9 +21,9 @@
 
   <cache
           name="config"
-          maxEntriesLocalHeap="10"
+          maxElementsInMemory="10"
           eternal="true"
-          overflowToDisk="false"
+          overflowToDisk="true"
           diskPersistent="true">
   </cache>
 

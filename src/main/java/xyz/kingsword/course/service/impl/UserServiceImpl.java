@@ -10,6 +10,7 @@ import xyz.kingsword.course.enmu.ErrorEnum;
 import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.exception.AuthException;
 import xyz.kingsword.course.pojo.*;
+import xyz.kingsword.course.pojo.param.BookOrderSelectParam;
 import xyz.kingsword.course.pojo.param.CourseGroupSelectParam;
 import xyz.kingsword.course.service.BookOrderService;
 import xyz.kingsword.course.service.BookService;
@@ -90,7 +91,8 @@ public class UserServiceImpl implements UserService {
             String semesterId = courseGroupList.get(0).getSemesterId();
             Set<Integer> bookIdSet = courseGroupList.parallelStream().flatMap(v -> v.getTextBook().stream()).collect(Collectors.toSet());
             Map<Integer, Book> bookMap = bookService.getMap(bookIdSet);
-            Map<Integer, BookOrderVo> bookIdToOrder = bookOrderService.select(username, semesterId, null).parallelStream().collect(Collectors.toMap(BookOrderVo::getBookId, v -> v));
+            BookOrderSelectParam param = BookOrderSelectParam.builder().userId(username).semesterId(semesterId).build();
+            Map<Integer, BookOrderVo> bookIdToOrder = bookOrderService.select(param).parallelStream().collect(Collectors.toMap(BookOrderVo::getBookId, v -> v));
             for (CourseGroup courseGroup : courseGroupList) {
                 List<BookOrderFlag> bookOrderFlagList = new ArrayList<>();
                 List<Integer> bookIdList = courseGroup.getTextBook();

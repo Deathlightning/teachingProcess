@@ -17,6 +17,8 @@ import xyz.kingsword.course.exception.BaseException;
 import xyz.kingsword.course.exception.DataException;
 import xyz.kingsword.course.exception.OperationException;
 import xyz.kingsword.course.pojo.*;
+import xyz.kingsword.course.pojo.param.BookOrderSelectParam;
+import xyz.kingsword.course.service.BookOrderService;
 import xyz.kingsword.course.service.BookService;
 import xyz.kingsword.course.util.ConditionUtil;
 import xyz.kingsword.course.util.SpringContextUtil;
@@ -35,7 +37,7 @@ public class BookServiceImpl implements BookService {
     @Resource
     private ConfigMapper configMapper;
     @Resource
-    private BookOrderMapper bookOrderMapper;
+    private BookOrderService bookOrderService;
 
     @Resource(name = "book")
     private Cache bookCache;
@@ -194,7 +196,7 @@ public class BookServiceImpl implements BookService {
             bookOrder.setSemesterId(courseGroup.getSemesterId());
             bookOrderList.add(bookOrder);
         }
-        bookOrderMapper.insert(bookOrderList);
+        bookOrderService.insert(bookOrderList);
         return book;
     }
 
@@ -203,7 +205,7 @@ public class BookServiceImpl implements BookService {
         validateAuth(courseId);
         if (!idList.isEmpty()) {
             idList.forEach(v -> {
-                int flag = bookOrderMapper.selectByBookId(v);
+                int flag = bookOrderService.select(BookOrderSelectParam.builder().bookId(v).build()).size();
                 ConditionUtil.validateTrue(flag == 0).orElseThrow(() -> new OperationException(ErrorEnum.ORDERED));
                 bookCache.evict(v);
             });
@@ -244,6 +246,6 @@ public class BookServiceImpl implements BookService {
             return;
         }
         String message = "您没有权限，请咨询" + teacher.getName() + "老师";
-        ConditionUtil.validateTrue(StrUtil.equals(teacher.getId(), user.getUsername())).orElseThrow(()->new BaseException(message));
+        ConditionUtil.validateTrue(StrUtil.equals(teacher.getId(), user.getUsername())).orElseThrow(() -> new BaseException(message));
     }
 }

@@ -1,13 +1,15 @@
 package xyz.kingsword.course.service.impl;
 
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
+import org.springframework.boot.system.ApplicationHome;
+import org.springframework.cache.Cache;
 import org.springframework.stereotype.Service;
 import xyz.kingsword.course.VO.BookOrderVo;
 import xyz.kingsword.course.VO.CourseGroupOrderVo;
@@ -19,19 +21,16 @@ import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.exception.DataException;
 import xyz.kingsword.course.exception.OperationException;
 import xyz.kingsword.course.pojo.*;
+import xyz.kingsword.course.pojo.param.BookOrderSelectParam;
 import xyz.kingsword.course.pojo.param.CourseGroupSelectParam;
 import xyz.kingsword.course.pojo.param.DeclareBookExportParam;
 import xyz.kingsword.course.pojo.param.StudentSelectParam;
 import xyz.kingsword.course.service.BookOrderService;
 import xyz.kingsword.course.service.BookService;
-import xyz.kingsword.course.util.ConditionUtil;
-import xyz.kingsword.course.util.SpringContextUtil;
-import xyz.kingsword.course.util.TimeUtil;
-import xyz.kingsword.course.util.UserUtil;
+import xyz.kingsword.course.util.*;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,8 +45,8 @@ public class BookOrderServiceImpl implements BookOrderService {
     private BookMapper bookMapper;
     @Resource
     private BookService bookService;
-    @Resource
-    private ConfigMapper configMapper;
+    @Resource(name = "config")
+    private Cache cache;
 
     /**
      * @param bookOrderList
@@ -55,7 +54,7 @@ public class BookOrderServiceImpl implements BookOrderService {
      */
     @Override
     public List<Integer> insert(List<BookOrder> bookOrderList) {
-//        ConditionUtil.validateTrue(purchaseStatusCheck()).orElseThrow(() -> new OperationException(ErrorEnum.OPERATION_TIME_FORBIDDEN));
+        ConditionUtil.validateTrue(purchaseStatusCheck()).orElseThrow(() -> new OperationException(ErrorEnum.OPERATION_TIME_FORBIDDEN));
         bookOrderMapper.insert(bookOrderList);
         List<Integer> orderIdList = new ArrayList<>(bookOrderList.size());
         for (BookOrder bookOrder : bookOrderList) {
@@ -81,8 +80,11 @@ public class BookOrderServiceImpl implements BookOrderService {
      */
     @Override
     public void cancelPurchase(int orderId) {
-        bookOrderMapper.delete(orderId);
-        Optional.ofNullable(UserUtil.getTeacher()).ifPresent(v -> bookMapper.cancelTeacherPurchase(orderId));
+        ConditionUtil.validateTrue(purchaseStatusCheck()).orElseThrow(() -> new OperationException(ErrorEnum.OPERATION_TIME_FORBIDDEN));
+        int flag = bookOrderMapper.delete(orderId);
+        if (flag == 1 && !UserUtil.isStudent()) {
+            bookMapper.cancelTeacherPurchase(orderId);
+        }
     }
 
     @Override
@@ -114,17 +116,12 @@ public class BookOrderServiceImpl implements BookOrderService {
                 }
             }
         }
-        bookOrderMapper.insert(bookOrderList);
+        this.insert(bookOrderList);
     }
 
     @Override
-    public List<BookOrderVo> select(String studentId, String semesterId, String className) {
-        return bookOrderMapper.select(studentId, semesterId, className);
-    }
-
-    @Override
-    public List<BookOrderVo> selectByTeacher(String teacherId, String semesterId) {
-        return bookOrderMapper.select(teacherId, semesterId, "教师组");
+    public List<BookOrderVo> select(BookOrderSelectParam param) {
+        return bookOrderMapper.select(param);
     }
 
     /**
@@ -173,7 +170,7 @@ public class BookOrderServiceImpl implements BookOrderService {
         User user = UserUtil.getUser();
         Integer roleId = user.getCurrentRole();
         if (roleId != null && roleId == RoleEnum.STUDENT.getCode()) {
-            return configMapper.selectPurchaseStatus();
+            return Optional.ofNullable(cache.get("purchaseStatus", Boolean.class)).orElse(true);
         }
         return true;
     }
@@ -218,7 +215,7 @@ public class BookOrderServiceImpl implements BookOrderService {
     }
 
     /**
-     * 构建导出excel所需数据
+     * 构建导出年级订书信息excel所需数据
      *
      * @return String[][]
      */
@@ -229,7 +226,7 @@ public class BookOrderServiceImpl implements BookOrderService {
         List<CourseGroup> courseGroupList = courseGroupMapper.select(courseGroupSelectParam);
         Set<String> courseIdSet = courseGroupList.parallelStream().map(CourseGroup::getCouId).collect(Collectors.toSet());
 
-        List<BookOrderVo> bookOrderVoList = bookOrderMapper.select(null, semesterId, null)
+        List<BookOrderVo> bookOrderVoList = bookOrderMapper.select(BookOrderSelectParam.builder().semesterId(semesterId).build())
                 .parallelStream()
                 .filter(v -> courseIdSet.contains(v.getCourseId()))
                 .collect(Collectors.toList());
@@ -237,6 +234,10 @@ public class BookOrderServiceImpl implements BookOrderService {
                 .parallelStream()
                 .filter(v -> v.getClassName() != null)
                 .collect(Collectors.groupingBy(BookOrderVo::getBookId, Collectors.groupingBy(BookOrderVo::getClassName, Collectors.counting())));
+        for (Integer integer : bookIdToClass.keySet()) {
+            System.out.println("bookId: " + integer);
+            bookIdToClass.get(integer).forEach((k, v) -> System.out.println(k + " " + v));
+        }
         Map<String, List<CourseGroup>> courseMap = courseGroupList.parallelStream().collect(Collectors.groupingBy(CourseGroup::getCouId));
         List<Integer> idList = courseGroupList.parallelStream().flatMap(v -> v.getTextBook().stream()).collect(Collectors.toList());
         if (idList.isEmpty()) {
@@ -334,7 +335,7 @@ public class BookOrderServiceImpl implements BookOrderService {
 
     @Override
     public Workbook exportClassRecord(String className, String semesterId) {
-        Workbook workbook = new HSSFWorkbook();
+        Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet();
         CellStyle cellStyle = getBaseCellStyle(workbook);
         String[][] data = renderData(className, semesterId);
@@ -349,13 +350,92 @@ public class BookOrderServiceImpl implements BookOrderService {
         return workbook;
     }
 
+    @Override
+    public byte[] exportPluralClassBookInfo(List<String> classNameList, String semesterId) {
+        ApplicationHome h = new ApplicationHome(getClass());
+        File jarFile = h.getDir();
+        File dir = new File(jarFile.getPath() + File.separator + "temp");
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        try {
+            for (String className : classNameList) {
+                Workbook workbook = exportClassRecord(className, semesterId);
+                OutputStream outputStream = new FileOutputStream(dir.getPath() + File.separator + className + ".xlsx");
+                workbook.write(outputStream);
+                workbook.close();
+                outputStream.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        File targetFile = new File(dir.getParent() + File.separator + "temp.zip");
+        ZipUtil.zip(dir, targetFile);
+        byte[] bytes = FileUtil.readBytes(targetFile);
+        targetFile.delete();
+        return bytes;
+    }
+
+    @Override
+    public Workbook exportBookOrderStatistics(String semesterId) {
+        List<BookOrderVo> bookOrderVoList = bookOrderMapper.select(BookOrderSelectParam.builder().semesterId(semesterId).build());
+        Map<Integer, List<BookOrderVo>> collect = bookOrderVoList.stream().filter(v -> !v.getClassName().equals("教师组")).collect(Collectors.groupingBy(BookOrderVo::getBookId));
+        String[][] data = new String[collect.size()+1][7];
+        Iterator<Map.Entry<Integer, List<BookOrderVo>>> entries = collect.entrySet().iterator();
+        int i = 1;
+        String[] head = new String[7];
+        head[0] = "序号";
+        head[1] = "课程号";
+        head[2] = "书名";
+        head[3] = "作者";
+        head[4] = "出版社";
+        head[5] = "ISBN号";
+        head[6] = "订购数量";
+        data[0] = head;
+        while (entries.hasNext()) {
+            Map.Entry<Integer, List<BookOrderVo>> entry = entries.next();
+            String[] strings = new String[7];
+            Book book = bookService.getBook(entry.getKey());
+            strings[0] = i + "";
+            strings[1] = entry.getValue().get(0).getCourseId();
+            strings[2] = book.getName();
+            strings[3] = book.getAuthor();
+            strings[4] = book.getPublish();
+            strings[5] = book.getIsbn();
+            strings[6] = entry.getValue().size() + "";
+            data[i++] = strings;
+        }
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet();
+        CellStyle cellStyle = getBaseCellStyle(workbook);
+        for (i = 0; i < data.length; i++) {
+            Row row = sheet.createRow(i);
+            for (int j = 0; j < data[i].length; j++) {
+                Cell cell = row.createCell(j);
+                cell.setCellValue(data[i][j]);
+                cell.setCellStyle(cellStyle);
+            }
+        }
+        return workbook;
+    }
+
+    /**
+     * 构建导出班级课程表数据
+     *
+     * @param className
+     * @param semesterId
+     * @return
+     */
     private String[][] renderData(String className, String semesterId) {
         StudentMapper studentMapper = SpringContextUtil.getBean(StudentMapper.class);
         List<StudentVo> studentList = studentMapper.select(StudentSelectParam.builder().className(className).pageSize(0).build())
                 .parallelStream()
                 .sorted((a, b) -> StrUtil.compare(a.getId(), b.getId(), false))
                 .collect(Collectors.toList());
-        List<BookOrderVo> bookOrderVoList = this.select(null, semesterId, className);
+        List<BookOrderVo> bookOrderVoList = this.select(BookOrderSelectParam.builder().semesterId(semesterId).className(className).build());
+        if (studentList.isEmpty()) {
+            return new String[0][0];
+        }
         List<String> bookNameList = bookOrderVoList.parallelStream().map(BookOrderVo::getName).distinct().collect(Collectors.toList());
         int columnCount = bookNameList.size() + 2;
         int rowCount = studentList.size() + 2;

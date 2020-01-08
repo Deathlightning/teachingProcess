@@ -58,12 +58,16 @@ public class UserUtil {
 
     public static StudentVo getStudent() {
         HttpSession session = getSession();
-        return (StudentVo) session.getAttribute("student");
+        StudentVo studentVo = (StudentVo) session.getAttribute("student");
+        Optional.ofNullable(studentVo).orElseThrow(AuthException::new);
+        return studentVo;
     }
 
     public static TeacherVo getTeacher() {
         HttpSession session = getSession();
-        return (TeacherVo) session.getAttribute("teacher");
+        TeacherVo teacherVo = (TeacherVo) session.getAttribute("teacher");
+        Optional.ofNullable(teacherVo).orElseThrow(AuthException::new);
+        return teacherVo;
     }
 
     public static boolean isStudent() {

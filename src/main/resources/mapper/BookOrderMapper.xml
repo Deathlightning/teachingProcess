@@ -19,6 +19,7 @@
     <result column="class" jdbcType="CHAR" property="className"/>
     <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
     <result column="price" jdbcType="FLOAT" property="price"/>
+    <result column="course_id" jdbcType="CHAR" property="courseId"/>
   </resultMap>
 
   <resultMap id="BookExportViewMap" type="xyz.kingsword.course.pojo.DO.BookExportCourseDo">
@@ -31,6 +32,11 @@
     <result column="semester_id" jdbcType="CHAR" property="semesterId"/>
     <result column="text_book" jdbcType="CHAR" property="textBook"/>
   </resultMap>
+
+<!--  <resultMap id="BookOrderStatisticsMap" type="xyz.kingsword.course.VO.BookOrderStatistics">-->
+  <!--    <result column="book_id" property="bookId"/>-->
+  <!--    <result column=""-->
+  <!--  </resultMap>-->
   <sql id="Base_Column_List">
     id, stu_id, course_id, book_id, semester_id, `status`
   </sql>
@@ -54,7 +60,7 @@
       and class != '教师组'
   </select>
   <select id="select" resultMap="BookOrderVoMap">
-    select user_id,`name` as user_name, order_id, book_id,book_name,semester_id,price,class
+    select user_id,`name` as user_name, course_id,order_id, book_id,book_name,semester_id,price,class
     from book_order_view
     <where>
       <if test="userId !=null and userId !=''">
@@ -65,6 +71,9 @@
       </if>
       <if test="className !=null and className !=''">
         and class=#{className}
+      </if>
+      <if test="bookId >0">
+        and book_id=#{bookId}
       </if>
     </where>
   </select>

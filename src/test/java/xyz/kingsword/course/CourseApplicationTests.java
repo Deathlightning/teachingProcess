@@ -20,13 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.test.context.junit4.SpringRunner;
-import xyz.kingsword.course.VO.StudentVo;
 import xyz.kingsword.course.dao.*;
 import xyz.kingsword.course.enmu.CourseNature;
 import xyz.kingsword.course.enmu.CourseTypeEnum;
 import xyz.kingsword.course.enmu.RoleEnum;
 import xyz.kingsword.course.pojo.*;
-import xyz.kingsword.course.pojo.param.StudentSelectParam;
 import xyz.kingsword.course.pojo.param.TeacherSelectParam;
 import xyz.kingsword.course.service.calendarExport.CalendarData;
 import xyz.kingsword.course.util.PinYinTool;
@@ -58,9 +56,6 @@ public class CourseApplicationTests {
 
     @Test
     public void contextLoads() throws Exception {
-        StudentMapper studentMapper = SpringContextUtil.getBean(StudentMapper.class);
-        List<StudentVo> studentVoList = studentMapper.select(StudentSelectParam.builder().className("RB软工17级卓越班").build());
-        System.out.println(studentVoList.size());
     }
 
     private void importStudent() throws IOException {

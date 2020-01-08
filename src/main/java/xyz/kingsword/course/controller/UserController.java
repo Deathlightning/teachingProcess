@@ -16,7 +16,6 @@ import xyz.kingsword.course.exception.BaseException;
 import xyz.kingsword.course.pojo.Result;
 import xyz.kingsword.course.pojo.User;
 import xyz.kingsword.course.pojo.param.StudentSelectParam;
-import xyz.kingsword.course.service.BookOrderService;
 import xyz.kingsword.course.service.StudentService;
 import xyz.kingsword.course.service.TeacherService;
 import xyz.kingsword.course.service.UserService;
@@ -40,21 +39,18 @@ public class UserController {
     private StudentService studentService;
     @Resource
     private TeacherService teacherService;
-    @Resource
-    private BookOrderService bookOrderService;
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ApiOperation(value = "登录", notes = "通过账户密码进行登录")
-    public Result login(@RequestBody User user, HttpSession session) {
+    public Result<Object> login(@RequestBody User user, HttpSession session) {
         user = userService.login(user);
         setSession(user, session);
-        log.info(RoleEnum.valueOf(user.getCurrentRole()).getContent() + " 登录成功");
         return new Result<>();
     }
 
     @RequestMapping(value = "/userInfo", method = RequestMethod.GET)
     @ApiOperation(value = "获取用户信息")
-    public Result userInfo(HttpSession session) {
+    public Result<Object> userInfo(HttpSession session) {
         User user = (User) session.getAttribute("user");
         Object o = userService.getUserInfo(user);
         return new Result<>(o);
@@ -63,30 +59,32 @@ public class UserController {
 
     @ApiOperation(value = "退出")
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
-    public Result logout(HttpSession session, HttpServletRequest request) {
+    public Result<Object> logout(HttpSession session, HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            cookie.setMaxAge(1);
+        if (cookies.length > 0) {
+            for (Cookie cookie : cookies) {
+                cookie.setMaxAge(1);
+            }
         }
         session.invalidate();
-        return new Result();
+        return new Result<>();
     }
 
 
     @ApiOperation(value = "重置密码")
     @ApiImplicitParam(name = "newPassword", value = "新密码，md5加密过", required = true)
     @RequestMapping(value = "/resetPassword", method = RequestMethod.POST)
-    public Result resetPassword(String newPassword, HttpSession session) {
+    public Result<Object> resetPassword(String newPassword, HttpSession session) {
         User user = (User) session.getAttribute("user");
         int flag = userService.resetPassword(newPassword, user);
         ConditionUtil.validateTrue(flag == 1).orElseThrow(() -> new BaseException("旧密码错误"));
-        return new Result();
+        return new Result<>();
     }
 
     @RequestMapping(value = "/loginOnRole", method = RequestMethod.POST)
     @ApiOperation(value = "按角色登录", notes = "通过账户密码进行登录")
     @ApiImplicitParam(name = "roleId", value = "角色Id", required = true)
-    public Result loginOnRole(HttpServletRequest request, int roleId) {
+    public Result<Object> loginOnRole(HttpServletRequest request, int roleId) {
         HttpSession session = request.getSession();
         User user = UserUtil.getUser();
         Optional.ofNullable(user).orElseThrow(() -> new AuthException(ErrorEnum.UN_LOGIN));

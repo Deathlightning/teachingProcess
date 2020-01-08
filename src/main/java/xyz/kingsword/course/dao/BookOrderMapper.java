@@ -3,6 +3,7 @@ package xyz.kingsword.course.dao;
 import xyz.kingsword.course.VO.BookOrderVo;
 import xyz.kingsword.course.pojo.BookOrder;
 import xyz.kingsword.course.pojo.DO.BookExportCourseDo;
+import xyz.kingsword.course.pojo.param.BookOrderSelectParam;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ public interface BookOrderMapper {
 
     int selectByBookId(int id);
 
-    List<BookOrderVo> select(String userId, String semesterId, String className);
+    List<BookOrderVo> select(BookOrderSelectParam param);
 
     List<BookOrderVo> courseGroupOrderInfo(String courseId, String semesterId);
 

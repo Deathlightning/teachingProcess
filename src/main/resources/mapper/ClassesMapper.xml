@@ -34,10 +34,11 @@
       <if test="className !=null and className !=''">
         classname=#{className}
       </if>
-      <if test="grade !=null">
+      <if test="grade >0">
         grade=#{grade}
       </if>
     </where>
+    order by grade,classname
   </select>
   <select id="selectAll" resultMap="BaseResultMap">
     select *

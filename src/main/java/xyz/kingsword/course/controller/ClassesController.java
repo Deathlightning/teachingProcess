@@ -12,6 +12,8 @@ import xyz.kingsword.course.service.ClassesService;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/classes")
@@ -37,10 +39,18 @@ public class ClassesController {
     }
 
     @PostMapping("/select")
-    @ApiOperation("查")
-    public Result select(@RequestBody ClassesSelectParam param) {
+    @ApiOperation("条件分页查询")
+    public Result<Object> select(@RequestBody ClassesSelectParam param) {
         PageInfo<Classes> pageInfo = classesService.select(param);
         return new Result<>(pageInfo);
+    }
+
+    @PostMapping("/selectAll")
+    @ApiOperation("查询全部，按年级分类")
+    public Result<Object> selectAll() {
+        List<Classes> classesList = classesService.select(ClassesSelectParam.builder().pageSize(0).build()).getList();
+        Map<Integer, List<Classes>> map = classesList.parallelStream().collect(Collectors.groupingBy(Classes::getGrade));
+        return new Result<>(map);
     }
 
     @GetMapping("/selectGrades")
