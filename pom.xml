@@ -16,7 +16,7 @@
 
   <properties>
     <java.version>1.8</java.version>
-    <springboot.version>2.1.10.RELEASE</springboot.version>
+    <springboot.version>2.5.12</springboot.version>
     <swagger.version>2.9.2</swagger.version>
   </properties>
 
